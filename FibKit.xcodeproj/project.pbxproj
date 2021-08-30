@@ -23,6 +23,7 @@
 		06BC1D4126DA7FEF002DB945 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 06BC1D4026DA7FEF002DB945 /* SkeletonView */; };
 		06BC1D4426DA8026002DB945 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 06BC1D4326DA8026002DB945 /* IQKeyboardManagerSwift */; };
 		06BC1D4726DA805D002DB945 /* VisualEffectView in Frameworks */ = {isa = PBXBuildFile; productRef = 06BC1D4626DA805D002DB945 /* VisualEffectView */; };
+		06DD938C26DCFA950052CB2D /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DD938B26DCFA950052CB2D /* Engine.swift */; };
 		06EBEDD226DA814F00E36059 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD126DA814F00E36059 /* AppDelegate.swift */; };
 		06EBEDD426DA814F00E36059 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD326DA814F00E36059 /* SceneDelegate.swift */; };
 		06EBEDD626DA814F00E36059 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD526DA814F00E36059 /* ViewController.swift */; };
@@ -141,6 +142,7 @@
 		068497D82629BCE700EAD6B3 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		06889B0225E6983B008BF0BC /* SwiftUIWrapperPassthroughContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIWrapperPassthroughContainer.swift; sourceTree = "<group>"; };
 		06927F12262084FF00F60CE8 /* UIView + IQKeyboardManagerDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + IQKeyboardManagerDistance.swift"; sourceTree = "<group>"; };
+		06DD938B26DCFA950052CB2D /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
 		06EBEDCF26DA814F00E36059 /* FibKitExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FibKitExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		06EBEDD126DA814F00E36059 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		06EBEDD326DA814F00E36059 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -313,6 +315,22 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		06DD938A26DCFA710052CB2D /* AsyncLayout */ = {
+			isa = PBXGroup;
+			children = (
+				06DD938E26DCFC5F0052CB2D /* Views */,
+				06DD938B26DCFA950052CB2D /* Engine.swift */,
+			);
+			path = AsyncLayout;
+			sourceTree = "<group>";
+		};
+		06DD938E26DCFC5F0052CB2D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		06EBEDD026DA814F00E36059 /* FibKitExampleApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -395,6 +413,7 @@
 		AC1541C824D89804004E1C52 /* FibKit */ = {
 			isa = PBXGroup;
 			children = (
+				06DD938A26DCFA710052CB2D /* AsyncLayout */,
 				06EBEE0226DA820B00E36059 /* Utils */,
 				0669D9102604A6C900CD160F /* Protocols */,
 				AC1541E424D89937004E1C52 /* PopoverService */,
@@ -917,6 +936,7 @@
 				068497C22629B4D700EAD6B3 /* GeometryGetterMod.swift in Sources */,
 				AC15425E24D8994D004E1C52 /* VisibleFrameInsetLayout.swift in Sources */,
 				AC15425F24D8994D004E1C52 /* FlowLayout.swift in Sources */,
+				06DD938C26DCFA950052CB2D /* Engine.swift in Sources */,
 				AC15426024D8994D004E1C52 /* WaterfallLayout.swift in Sources */,
 				AC15426124D8994D004E1C52 /* InsetLayout.swift in Sources */,
 				AC15426224D8994D004E1C52 /* Layout.swift in Sources */,
