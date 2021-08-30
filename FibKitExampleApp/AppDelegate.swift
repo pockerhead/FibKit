@@ -6,7 +6,7 @@
 //  Copyright © 2021 DIT Moscow. All rights reserved.
 //
 
-import UIKit
+import FibKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
