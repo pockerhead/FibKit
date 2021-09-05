@@ -93,6 +93,9 @@ open class FibViewNode: FibLayoutViewable {
     open var viewType: UIView.Type {
         UIView.self
     }
+    
+    var radius: CGFloat = 0
+    
     private var _view: UIView?
     public var view: UIView {
         if let loadedView = _view {
@@ -110,6 +113,7 @@ open class FibViewNode: FibLayoutViewable {
     @discardableResult
     public func layoutThatFits(size: CGSize) -> FibLayout {
         mainOrAsync {[self] in
+            view.layer.cornerRadius = radius
             view.backgroundColor = backgroundColor
         }
         return .init(size: size, insets: .zero)
@@ -129,6 +133,11 @@ open class FibViewNode: FibLayoutViewable {
     
     public func backgroundColor(_ color: UIColor) -> Self {
         self.backgroundColor = color
+        return self
+    }
+    
+    public func radius(_ radius: CGFloat) -> Self {
+        self.radius = radius
         return self
     }
 }

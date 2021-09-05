@@ -28,12 +28,13 @@ class ViewController: FibAsyncViewController {
             FibHStack(spacing: 16) {
                 FibViewNode()
                     .backgroundColor(.green)
+                    .radius(32)
                     .size(64)
                 FibVStack(spacing: 2, alignment: .leading) {
-                    FibTextNode("Hello world!! Hello world!! Hello world!!")
+                    FibTextNode("Рожаем все!")
                         .font(.systemFont(ofSize: 16, weight: .medium))
                         .foregroundColor(.black)
-                    FibTextNode("Hello world!! Hello world!! Hello world!! Hello world!! Hello world!! Hello world!! Hello world!! Hello world!! Hello world!! Hello world!!")
+                    FibTextNode("Куча всего и всего и вот это и это тоже и все такие")
                         .font(.systemFont(ofSize: 16, weight: .regular))
                         .foregroundColor(.darkGray)
                 }
@@ -48,14 +49,14 @@ class ViewController: FibAsyncViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(button)
-        button.setTitle("reset", for: .normal)
+//        view.addSubview(button)
+//        button.setTitle("reset", for: .normal)
         button.addTarget(self, action: #selector(tap), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        view.bringSubviewToFront(button)
+//        view.bringSubviewToFront(button)
         button.backgroundColor = .blue
         button.frame = .init(x: 100, y: 100, width: 100, height: 100)
     }
