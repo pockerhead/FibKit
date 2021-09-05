@@ -24,6 +24,8 @@
 		06BC1D4426DA8026002DB945 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 06BC1D4326DA8026002DB945 /* IQKeyboardManagerSwift */; };
 		06BC1D4726DA805D002DB945 /* VisualEffectView in Frameworks */ = {isa = PBXBuildFile; productRef = 06BC1D4626DA805D002DB945 /* VisualEffectView */; };
 		06DD938C26DCFA950052CB2D /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DD938B26DCFA950052CB2D /* Engine.swift */; };
+		06DD938F26DD1CA90052CB2D /* FibKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC1541C624D89804004E1C52 /* FibKit.framework */; };
+		06DD939026DD1CA90052CB2D /* FibKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC1541C624D89804004E1C52 /* FibKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		06EBEDD226DA814F00E36059 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD126DA814F00E36059 /* AppDelegate.swift */; };
 		06EBEDD426DA814F00E36059 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD326DA814F00E36059 /* SceneDelegate.swift */; };
 		06EBEDD626DA814F00E36059 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EBEDD526DA814F00E36059 /* ViewController.swift */; };
@@ -113,6 +115,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		06DD939126DD1CA90052CB2D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AC1541BD24D89804004E1C52 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AC1541C524D89804004E1C52;
+			remoteInfo = FibKit;
+		};
 		06EBEDE526DA815000E36059 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AC1541BD24D89804004E1C52 /* Project object */;
@@ -128,6 +137,20 @@
 			remoteInfo = FibKitExampleApp;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		06DD939326DD1CA90052CB2D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				06DD939026DD1CA90052CB2D /* FibKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0669D9112604A6EF00CD160F /* FormViewAppearable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormViewAppearable.swift; sourceTree = "<group>"; };
@@ -245,6 +268,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06DD938F26DD1CA90052CB2D /* FibKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -699,10 +723,12 @@
 				06EBEDCB26DA814F00E36059 /* Sources */,
 				06EBEDCC26DA814F00E36059 /* Frameworks */,
 				06EBEDCD26DA814F00E36059 /* Resources */,
+				06DD939326DD1CA90052CB2D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				06DD939226DD1CA90052CB2D /* PBXTargetDependency */,
 			);
 			name = FibKitExampleApp;
 			productName = FibKitExampleApp;
@@ -983,6 +1009,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		06DD939226DD1CA90052CB2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AC1541C524D89804004E1C52 /* FibKit */;
+			targetProxy = 06DD939126DD1CA90052CB2D /* PBXContainerItemProxy */;
+		};
 		06EBEDE626DA815000E36059 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 06EBEDCE26DA814F00E36059 /* FibKitExampleApp */;
@@ -1023,7 +1054,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 54X9L274YP;
 				INFOPLIST_FILE = FibKitExampleApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1043,7 +1074,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 54X9L274YP;
 				INFOPLIST_FILE = FibKitExampleApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1063,7 +1094,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 54X9L274YP;
 				INFOPLIST_FILE = FibKitExampleApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1257,7 +1288,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1316,7 +1347,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1436,7 +1467,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
