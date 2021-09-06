@@ -18,7 +18,17 @@ func mainOrAsync(_ closure: @escaping (() -> Void)) {
     }
 }
 
-func mainOrAsync<T>(_ closure: @escaping (() throws -> T)) rethrows -> T {
+func backgroundCurrentOrAsync(on: DispatchQueue, _ closure: @escaping (() -> Void)) {
+    if Thread.isMainThread {
+        on.async {
+            closure()
+        }
+    } else {
+        closure()
+    }
+}
+
+func mainOrSync<T>(_ closure: @escaping (() throws -> T)) rethrows -> T {
     if Thread.isMainThread {
         return try closure()
     } else {

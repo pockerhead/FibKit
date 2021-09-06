@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		064EC2C026E6ADF000993D91 /* FibViewNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2BF26E6ADF000993D91 /* FibViewNode.swift */; };
+		064EC2C326E6AE1900993D91 /* FibLayoutElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2C226E6AE1900993D91 /* FibLayoutElement.swift */; };
+		064EC2C526E6AE3D00993D91 /* FibInsetLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2C426E6AE3D00993D91 /* FibInsetLayout.swift */; };
+		064EC2C726E6AE5A00993D91 /* FibSizeLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2C626E6AE5A00993D91 /* FibSizeLayout.swift */; };
+		064EC2C926E6AE9A00993D91 /* ViewBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2C826E6AE9A00993D91 /* ViewBuilder.swift */; };
+		064EC2CB26E6AEAD00993D91 /* FibVStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2CA26E6AEAD00993D91 /* FibVStack.swift */; };
+		064EC2CD26E6AEE000993D91 /* FibHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2CC26E6AEE000993D91 /* FibHStack.swift */; };
+		064EC2CF26E6AF0400993D91 /* FibTextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2CE26E6AF0400993D91 /* FibTextNode.swift */; };
+		064EC2D126E6AF1700993D91 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2D026E6AF1700993D91 /* Extensions.swift */; };
+		064EC2D426E6AF5700993D91 /* FibAsyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064EC2D326E6AF5700993D91 /* FibAsyncViewController.swift */; };
 		0669D9122604A6EF00CD160F /* FormViewAppearable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0669D9112604A6EF00CD160F /* FormViewAppearable.swift */; };
 		068497B52629B45C00EAD6B3 /* SwiftUIWrapperSwipeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068497B42629B45C00EAD6B3 /* SwiftUIWrapperSwipeCoordinator.swift */; };
 		068497B92629B47B00EAD6B3 /* SwipeStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068497B82629B47B00EAD6B3 /* SwipeStackView.swift */; };
@@ -153,6 +163,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		064EC2BF26E6ADF000993D91 /* FibViewNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibViewNode.swift; sourceTree = "<group>"; };
+		064EC2C226E6AE1900993D91 /* FibLayoutElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibLayoutElement.swift; sourceTree = "<group>"; };
+		064EC2C426E6AE3D00993D91 /* FibInsetLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibInsetLayout.swift; sourceTree = "<group>"; };
+		064EC2C626E6AE5A00993D91 /* FibSizeLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibSizeLayout.swift; sourceTree = "<group>"; };
+		064EC2C826E6AE9A00993D91 /* ViewBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewBuilder.swift; sourceTree = "<group>"; };
+		064EC2CA26E6AEAD00993D91 /* FibVStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibVStack.swift; sourceTree = "<group>"; };
+		064EC2CC26E6AEE000993D91 /* FibHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibHStack.swift; sourceTree = "<group>"; };
+		064EC2CE26E6AF0400993D91 /* FibTextNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibTextNode.swift; sourceTree = "<group>"; };
+		064EC2D026E6AF1700993D91 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		064EC2D326E6AF5700993D91 /* FibAsyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FibAsyncViewController.swift; sourceTree = "<group>"; };
 		0669D9112604A6EF00CD160F /* FormViewAppearable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormViewAppearable.swift; sourceTree = "<group>"; };
 		068497B42629B45C00EAD6B3 /* SwiftUIWrapperSwipeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIWrapperSwipeCoordinator.swift; sourceTree = "<group>"; };
 		068497B82629B47B00EAD6B3 /* SwipeStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeStackView.swift; sourceTree = "<group>"; };
@@ -300,6 +320,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		064EC2BE26E6ADEA00993D91 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				064EC2CC26E6AEE000993D91 /* FibHStack.swift */,
+				064EC2CE26E6AF0400993D91 /* FibTextNode.swift */,
+				064EC2BF26E6ADF000993D91 /* FibViewNode.swift */,
+				064EC2CA26E6AEAD00993D91 /* FibVStack.swift */,
+				064EC2C826E6AE9A00993D91 /* ViewBuilder.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		064EC2C126E6AE0E00993D91 /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				064EC2C426E6AE3D00993D91 /* FibInsetLayout.swift */,
+				064EC2C226E6AE1900993D91 /* FibLayoutElement.swift */,
+				064EC2C626E6AE5A00993D91 /* FibSizeLayout.swift */,
+			);
+			path = Layout;
+			sourceTree = "<group>";
+		};
+		064EC2D226E6AF4C00993D91 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				064EC2D326E6AF5700993D91 /* FibAsyncViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		0669D9102604A6C900CD160F /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -342,17 +392,13 @@
 		06DD938A26DCFA710052CB2D /* AsyncLayout */ = {
 			isa = PBXGroup;
 			children = (
-				06DD938E26DCFC5F0052CB2D /* Views */,
+				064EC2D226E6AF4C00993D91 /* ViewControllers */,
+				064EC2C126E6AE0E00993D91 /* Layout */,
+				064EC2BE26E6ADEA00993D91 /* Views */,
 				06DD938B26DCFA950052CB2D /* Engine.swift */,
+				064EC2D026E6AF1700993D91 /* Extensions.swift */,
 			);
 			path = AsyncLayout;
-			sourceTree = "<group>";
-		};
-		06DD938E26DCFC5F0052CB2D /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		06EBEDD026DA814F00E36059 /* FibKitExampleApp */ = {
@@ -914,6 +960,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				064EC2C926E6AE9A00993D91 /* ViewBuilder.swift in Sources */,
 				AC1542C524D8A107004E1C52 /* SpacerCell.swift in Sources */,
 				AC1542C624D8A107004E1C52 /* SpacerCell.xib in Sources */,
 				AC25440C2563EC680058C75F /* SwiftUIWrapperUIKitContainer.swift in Sources */,
@@ -926,6 +973,7 @@
 				AC15424224D8994D004E1C52 /* FibGrid.swift in Sources */,
 				AC15424324D8994D004E1C52 /* FibGridHeaderProvider.swift in Sources */,
 				AC1D5C25256166A000A46F68 /* EmbedCollection.swift in Sources */,
+				064EC2C326E6AE1900993D91 /* FibLayoutElement.swift in Sources */,
 				AC15424424D8994D004E1C52 /* FibGridProvider.swift in Sources */,
 				AC15424524D8994D004E1C52 /* FibGridSizeSource.swift in Sources */,
 				06889B0325E6983B008BF0BC /* SwiftUIWrapperPassthroughContainer.swift in Sources */,
@@ -937,11 +985,13 @@
 				AC15424824D8994D004E1C52 /* GridSection.swift in Sources */,
 				AC15424924D8994D004E1C52 /* AnimatedReloadAnimator.swift in Sources */,
 				AC15424B24D8994D004E1C52 /* FunctionBuilders.swift in Sources */,
+				064EC2CD26E6AEE000993D91 /* FibHStack.swift in Sources */,
 				AC15424C24D8994D004E1C52 /* FibViewController.swift in Sources */,
 				AC15424D24D8994D004E1C52 /* FibControllerRootView.swift in Sources */,
 				AC15424E24D8994D004E1C52 /* FibViewHeaderViewModel.swift in Sources */,
 				AC15424F24D8994D004E1C52 /* DataSource.swift in Sources */,
 				AC15425024D8994D004E1C52 /* ClosureDataSource.swift in Sources */,
+				064EC2C026E6ADF000993D91 /* FibViewNode.swift in Sources */,
 				AC15425124D8994D004E1C52 /* ArrayDataSource.swift in Sources */,
 				AC15425224D8994D004E1C52 /* CollectionView.swift in Sources */,
 				AC15425324D8994D004E1C52 /* ClosureViewSource.swift in Sources */,
@@ -953,11 +1003,13 @@
 				AC15425824D8994D004E1C52 /* TransposeLayout.swift in Sources */,
 				AC15425924D8994D004E1C52 /* ClosureLayout.swift in Sources */,
 				AC15425A24D8994D004E1C52 /* WrapperLayout.swift in Sources */,
+				064EC2CF26E6AF0400993D91 /* FibTextNode.swift in Sources */,
 				AC15425B24D8994D004E1C52 /* RowLayout.swift in Sources */,
 				06927F13262084FF00F60CE8 /* UIView + IQKeyboardManagerDistance.swift in Sources */,
 				AC15425C24D8994D004E1C52 /* LayoutContext.swift in Sources */,
 				068497B52629B45C00EAD6B3 /* SwiftUIWrapperSwipeCoordinator.swift in Sources */,
 				AC15425D24D8994D004E1C52 /* OverlayLayout.swift in Sources */,
+				064EC2CB26E6AEAD00993D91 /* FibVStack.swift in Sources */,
 				06EBEE0A26DA82F800E36059 /* ViewModelProtocols.swift in Sources */,
 				068497C22629B4D700EAD6B3 /* GeometryGetterMod.swift in Sources */,
 				AC15425E24D8994D004E1C52 /* VisibleFrameInsetLayout.swift in Sources */,
@@ -969,6 +1021,7 @@
 				AC15426324D8994D004E1C52 /* SimpleLayout.swift in Sources */,
 				0669D9122604A6EF00CD160F /* FormViewAppearable.swift in Sources */,
 				AC15426424D8994D004E1C52 /* LayoutHelper.swift in Sources */,
+				064EC2C526E6AE3D00993D91 /* FibInsetLayout.swift in Sources */,
 				AC25440D2563EC680058C75F /* SwiftUIWrapper.swift in Sources */,
 				AC15426524D8994D004E1C52 /* CollectionReloadable.swift in Sources */,
 				AC15426624D8994D004E1C52 /* Deprecated.swift in Sources */,
@@ -980,6 +1033,8 @@
 				AC15426B24D8994D004E1C52 /* BasicProvider.swift in Sources */,
 				AC15426C24D8994D004E1C52 /* ComposedHeaderProvider.swift in Sources */,
 				06EBEE0426DA821300E36059 /* CommonUtils.swift in Sources */,
+				064EC2C726E6AE5A00993D91 /* FibSizeLayout.swift in Sources */,
+				064EC2D426E6AF5700993D91 /* FibAsyncViewController.swift in Sources */,
 				068497D42629B58900EAD6B3 /* DisabledSafeAreaInsets.swift in Sources */,
 				AC15426D24D8994D004E1C52 /* FlattenedProvider.swift in Sources */,
 				AC15426E24D8994D004E1C52 /* ComposedProvider.swift in Sources */,
@@ -1003,6 +1058,7 @@
 				AC15427E24D8994D004E1C52 /* SimpleViewProvider.swift in Sources */,
 				AC15427F24D8994D004E1C52 /* EmptyStateProvider.swift in Sources */,
 				AC15428024D8994D004E1C52 /* SpaceProvider.swift in Sources */,
+				064EC2D126E6AF1700993D91 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

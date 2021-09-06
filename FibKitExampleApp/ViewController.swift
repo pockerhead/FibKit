@@ -12,18 +12,40 @@ class ViewController: FibAsyncViewController {
 
     override var body: FibLayoutElement {
         FibVStack {
-            cell
-            cell
-            cell
-            cell
-            cell
-            cell
+            Cell()
+            Cell()
+            Cell()
+            Cell()
+            Cell()
+            Cell()
         }
     }
     
     var button = UIButton()
     
-    var cell: FibLayoutElement {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.addSubview(button)
+        button.setTitle("reset", for: .normal)
+        button.addTarget(self, action: #selector(tap), for: .touchUpInside)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        view.bringSubviewToFront(button)
+        button.backgroundColor = .blue
+        button.frame = .init(x: 100, y: 100, width: 100, height: 100)
+        
+    }
+
+    @objc func tap() {
+        asyncLayoutViews()
+    }
+    
+}
+
+class Cell: FibViewNode {
+    override var body: FibLayoutElement {
         FibVStack(alignment: .leading) {
             FibHStack(spacing: 16) {
                 FibViewNode()
@@ -39,31 +61,11 @@ class ViewController: FibAsyncViewController {
                         .foregroundColor(.darkGray)
                 }
             }
-            .inset(by: .init(top: 16, left: 16, bottom: 16, right: 16))
+            .inset(by: .init(top: 8, left: 16, bottom: 8, right: 16))
             FibViewNode()
                 .backgroundColor(.separator)
                 .size(height: 1)
                 .inset(by: .init(top: 0, left: 16, bottom: 0, right: 0))
         }
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-//        view.addSubview(button)
-//        button.setTitle("reset", for: .normal)
-        button.addTarget(self, action: #selector(tap), for: .touchUpInside)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-//        view.bringSubviewToFront(button)
-        button.backgroundColor = .blue
-        button.frame = .init(x: 100, y: 100, width: 100, height: 100)
-    }
-
-    @objc func tap() {
-        asyncLayoutViews()
-    }
-    
 }
-
