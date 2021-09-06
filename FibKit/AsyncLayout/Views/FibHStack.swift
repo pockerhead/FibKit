@@ -35,6 +35,7 @@ final public class FibHStack: FibViewNode {
     }
     
     public override func layoutThatFits(size: CGSize) -> FibLayout {
+        finalFrames = ThreadedArray<CGRect>()
         super.layoutThatFits(size: size)
         var startOrigin = CGPoint.zero
         var stackSize = size
