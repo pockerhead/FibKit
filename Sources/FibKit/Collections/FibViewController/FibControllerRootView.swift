@@ -14,9 +14,9 @@ import VisualEffectView
 open class FibControllerRootView: UIView {
 	
 	public struct Appearance {
-		var roundedShutterBackground: UIColor = .secondarySystemBackground
-		var shutterBackground: UIColor = .systemBackground
-		var backgroundColor: UIColor = .systemBackground
+		public var roundedShutterBackground: UIColor = .secondarySystemBackground
+		public var shutterBackground: UIColor = .systemBackground
+		public var backgroundColor: UIColor = .systemBackground
 	}
 	
 	public enum Shutter {
@@ -25,9 +25,9 @@ open class FibControllerRootView: UIView {
 	}
 	
 	public struct Configuration {
-		var appearance = Appearance()
-		var shutter: Shutter = .default
-		var backgroundView: UIView?
+		public var appearance = Appearance()
+		public var shutter: Shutter = .default
+		public var backgroundView: UIView?
 	}
 	
 	public static var defaultConfiguration = Configuration()
