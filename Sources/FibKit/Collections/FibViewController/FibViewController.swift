@@ -47,13 +47,6 @@ open class FibViewController: UIViewController {
 
     open var reloadSectionsCompletion: (() -> Void)?
 	
-	open var sections: [SectionProtocol]? { storedSections }
-	open var storedSections: [SectionProtocol]? = nil {
-		didSet {
-			reload(animated: false)
-		}
-	}
-	
 	open var body: SectionProtocol? { storedBody }
 	open var storedBody: SectionProtocol? = nil {
 		didSet {
@@ -193,15 +186,6 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         if storedBody == nil {
             provider = self.body
         }
-		if let sections = sections {
-			provider = SectionStack({
-				sections
-			})
-		} else if let stored = storedSections {
-			provider = SectionStack {
-				stored
-			}
-		}
         rootView.display(provider, animated: animated)
         reloadSectionsCompletion = completion
     }
