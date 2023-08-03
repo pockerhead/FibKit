@@ -29,20 +29,12 @@ let package = Package(
 		.target(
 			name: "FibKit",
 			dependencies: [
-				.byName(name: "pop"),
 				.product(name: "DITLogger", package: "ditlogger"),
 				"Threading",
 				"VisualEffectView",
 				.product(name: "IQKeyboardManagerSwift", package: "IQKeyboardManager"),
 				"SkeletonView"
 			]
-		),
-		//        .testTarget(
-		//            name: "FibKitTests",
-		//            dependencies: ["FibKit"]),
-			.binaryTarget(
-				name: "pop",
-				path: "Frameworks/pop.xcframework"
-			)
+		)
 	]
 )

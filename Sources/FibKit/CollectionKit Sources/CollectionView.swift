@@ -12,6 +12,8 @@ import UIKit
 // swiftlint:disable all
 open class CollectionView: UIScrollView {
 	
+	public static var defaultCustomScrollClosure: ((CGPoint, CGFloat) -> Void)?
+	
 	open var provider: Provider? {
 		didSet { setNeedsReload() }
 	}
@@ -734,11 +736,13 @@ extension CollectionView {
 	}
 	
 	@discardableResult
-	public func scroll(to indexPath: IndexPath,
-					   animated: Bool,
-					   snapAnimation: Bool = true,
-					   considerNearbyItems: Bool = false,
-					   bounce: CGFloat = 0) throws -> CGPoint {
+	public func scroll(
+		to indexPath: IndexPath,
+		animated: Bool,
+		considerNearbyItems: Bool = false,
+		bounce: CGFloat = 0,
+		customScroll: ((CGPoint, CGFloat) -> Void)? = CollectionView.defaultCustomScrollClosure
+	) throws -> CGPoint {
 		var indexPath = indexPath
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
@@ -830,8 +834,8 @@ extension CollectionView {
 			targetPoint.y = 0
 		}
 		if animated {
-			if snapAnimation {
-				snapAnimated(toContentOffset: targetPoint, velocity: .zero, bounce: bounce)
+			if let customScroll = customScroll {
+				customScroll(targetPoint, bounce)
 			} else {
 				setContentOffset(targetPoint, animated: true)
 			}
@@ -839,28 +843,6 @@ extension CollectionView {
 			setContentOffset(targetPoint, animated: false)
 		}
 		return targetPoint
-	}
-	
-}
-
-import pop
-
-extension UIScrollView {
-	
-	private static let snappingAnimationKey = "CustomPaging.scrollView.snappingAnimation"
-	
-	func snapAnimated(toContentOffset newOffset: CGPoint, velocity: CGPoint, bounce: CGFloat) {
-		let animation: POPSpringAnimation = POPSpringAnimation(propertyNamed: kPOPScrollViewContentOffset)
-		animation.velocity = velocity
-		animation.springBounciness = bounce
-		animation.toValue = newOffset
-		animation.fromValue = contentOffset
-		
-		pop_add(animation, forKey: UIScrollView.snappingAnimationKey)
-	}
-	
-	func stopSnappingAnimation() {
-		pop_removeAnimation(forKey: UIScrollView.snappingAnimationKey)
 	}
 	
 }
