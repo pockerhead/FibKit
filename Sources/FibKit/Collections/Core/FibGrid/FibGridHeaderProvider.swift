@@ -20,7 +20,22 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 
     public var canReorderItems: Bool { _canReorderItems }
 
-    public weak var collectionView: CollectionView?
+	public weak var collectionView: CollectionView? {
+		set {
+			self._collectionView = newValue
+		}
+		get {
+			if let cw = _collectionView {
+				return cw
+			} else if let cw = GridsReuseManager.shared.grids[identifier ?? ""] {
+				return cw.ref
+			} else {
+				return nil
+			}
+		}
+	}
+	
+	private weak var _collectionView: CollectionView?
     private var _canReorderItems: Bool = false
     private var reloadTask: DispatchWorkItem?
     public var isAsync = true
@@ -84,14 +99,14 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         }
     }
 
-    var scrollDirection: UICollectionView.ScrollDirection
+    var scrollDirection: FibGrid.ScrollDirection
 
     open var isSticky = true {
         didSet {
             if isSticky {
                 stickyLayout.isStickyFn = { index in
                     if index % 2 == 0 {
-                        if let section = self.sections[safe: index / 2] as? GridSection {
+                        if let section = self.sections[safe: index / 2] as? SectionProtocol {
                             return section.isSticky
                         } else {
                             return true
@@ -126,15 +141,15 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
     public var internalLayout: Layout { return stickyLayout }
 
     init(identifier: String? = "RootProvider",
-         layout: Layout = FlowLayout(),
+		 layout: Layout = FlowLayout().inset(by: .zero),
          animator: Animator? = nil,
-         sections: [GridSection] = [],
-         collectionView: CollectionView) {
+         sections: [SectionProtocol] = [],
+         collectionView: CollectionView?) {
         self.animator = animator
         self.stickyLayout = StickyLayout(rootLayout: layout)
-        self._canReorderItems = sections.reduce(false, { $0 || $1.haveDidReorderSectionsClosure })
+        self._canReorderItems = sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })
         self.sections = sections
-        self.collectionView = collectionView
+        self._collectionView = collectionView
         self.identifier = identifier
         self.tapHandler = nil
         self.scrollDirection = layout is RowLayout ? .horizontal : .vertical
@@ -198,7 +213,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 
     open func view(at: Int) -> UIView {
         let index = at / 2
-        guard let data = (sections[safe: index] as? GridSection)?.headerData else { return UIView() }
+        guard let data = (sections[safe: index] as? SectionProtocol)?.headerData else { return UIView() }
         let view = headerViewSource.view(data: data, index: index)
         view.fb_isHeader = true
         return view
@@ -207,12 +222,12 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
     open func update(view: UIView, at: Int) {
         let index = at / 2
         view.fb_isHeader = true
-        guard let data = (sections[safe: index] as? GridSection)?.headerData else { return }
+        guard let data = (sections[safe: index] as? SectionProtocol)?.headerData else { return }
         headerViewSource.update(view: view as! ViewModelConfigurable, data: data, index: index)
     }
 
     open func didTap(view: UIView, at: Int) {
-        if let tapHandler = (sections[safe: at / 2] as? GridSection)?.headerTapHandler {
+        if let tapHandler = (sections[safe: at / 2] as? SectionProtocol)?.headerTapHandler {
             let index = at / 2
             let context = TapContext(view: view, index: index, section: sections[index], grid: self.collectionView as? FibGrid)
             tapHandler(context)
@@ -248,7 +263,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         var headerSizeSource: HeaderSizeSource
         var headerViewSource: HeaderViewSource
         weak var headerProvider: FibGridHeaderProvider?
-        var scrollDirection: UICollectionView.ScrollDirection
+        var scrollDirection: FibGrid.ScrollDirection
 
         var numberOfItems: Int {
             return sections.count * 2
@@ -263,7 +278,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         }
 
         func headerData(at: Int) -> ViewModelWithViewClass? {
-            (headerProvider?.sections[safe: at] as? GridSection)?.headerData
+            (headerProvider?.sections[safe: at] as? SectionProtocol)?.headerData
         }
         func identifier(at: Int) -> String {
             let sectionIdentifier = sections.get(at / 2)?.identifier ?? "\(at)"

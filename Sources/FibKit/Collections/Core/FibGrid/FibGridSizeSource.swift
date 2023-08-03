@@ -22,7 +22,7 @@ public final class FibGridSizeSource {
 			  data: ViewModelWithViewClass?,
 			  collectionSize: CGSize,
 			  dummyView: ViewModelConfigurable,
-			  direction: UICollectionView.ScrollDirection) -> CGSize {
+			  direction: FibGrid.ScrollDirection) -> CGSize {
 		let nonNilIdentifier = "\(dummyView.self.className)_sizeAt-\(index)_withId-\(data?.id ?? "noID")-\(UIDevice.current.orientation.rawValue)"
 		let hashToFindCachedSize = (data?.sizeHash ?? "") + nonNilIdentifier
 		let forcedNoStoreSize = data?.sizeHash == _fHashToNoStoreSize

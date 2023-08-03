@@ -11,22 +11,30 @@ import UIKit
 
 // swiftlint:disable all
 
+public protocol SectionProtocol: AnyGridSection, Provider {
+	var isGuard: Bool { get set }
+	var isGuardAppend: Bool { get set }
+	var isSticky: Bool { get }
+	var headerData: ViewModelWithViewClass? { get set }
+	var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)? { get set }
+}
+
 /// Class that represents data sections in FormView, and provide behaviour to inner views, that representations stored in self.data
-open class GridSection: FibGridProvider, Equatable {
+open class GridSection: FibGridProvider, Equatable, SectionProtocol {
     public static func == (lhs: GridSection, rhs: GridSection) -> Bool {
         lhs.id == rhs.id
         && Equated(wrappedValue: lhs.data, compare: .dump) == Equated(wrappedValue: rhs.data, compare: .dump)
     }
     
-    var isGuard: Bool = false
-    var isGuardAppend: Bool = false
+	public var isGuard: Bool = false
+	public var isGuardAppend: Bool = false
     
     /// Header viewModel
     open var headerData: ViewModelWithViewClass?
     public var id: String?
     var haveDidReorderSectionsClosure: Bool
-    var isSticky = true
-    var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)?
+	public var isSticky = true
+	public var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)?
     
     public var data: [ViewModelWithViewClass?] {
         get {
@@ -187,7 +195,7 @@ open class GridSection: FibGridProvider, Equatable {
     ///   - scrollDirection: UICollectionView.ScrollDirection
     /// - Returns: self
     public func layout(_ layout: Layout,
-                       scrollDirection: UICollectionView.ScrollDirection = .vertical) -> Self {
+                       scrollDirection: FibGrid.ScrollDirection = .vertical) -> Self {
         (self.layout as? WrapperLayout)?.rootLayout = layout
         self.scrollDirection = scrollDirection
         return self
@@ -371,16 +379,15 @@ public class SpacerSection: GridSection {
 //    }
 //}
 //
-//public class EmptySection: GridSection {
-//    public let emptyView = InfoMessageView()
-//    public var viewModel: InfoMessageView.ViewModel
-//    public var height: CGFloat = 0
-//
-//    public init(viewModel: InfoMessageView.ViewModel, id: String = "1234") {
-//        self.viewModel = viewModel
-//        super.init(data: [viewModel], id: "EmptySection_\(id)")
-//    }
-//}
+public class EmptySection: GridSection {
+    public var viewModel: ViewModelWithViewClass
+    public var height: CGFloat = 0
+
+    public init(viewModel: ViewModelWithViewClass, id: String = "1234") {
+        self.viewModel = viewModel
+        super.init(data: [viewModel], id: "EmptySection_\(id)")
+    }
+}
 
 func deepId(_ object: Any) -> String {
     if let viewModel = object as? ViewModelWithViewClass,

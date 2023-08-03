@@ -13,35 +13,58 @@ import VisualEffectView
 
 open class FibControllerRootView: UIView {
 	
-	public struct Appearance {
-		public var roundedShutterBackground: UIColor = .secondarySystemBackground
-		public var shutterBackground: UIColor = .systemBackground
-		public var backgroundColor: UIColor = .systemBackground
-	}
-	
 	public enum Shutter {
 		case rounded
 		case `default`
 	}
 	
-	public struct Configuration {
-		public var appearance = Appearance()
-		public var shutter: Shutter = .default
+	public class Configuration {
+		public init(
+			roundedShutterBackground: UIColor = .secondarySystemBackground,
+			shutterBackground: UIColor = .systemBackground,
+			viewBackgroundColor: UIColor = .systemBackground,
+			shutterType: FibControllerRootView.Shutter = .default,
+			backgroundView: UIView? = nil
+		) {
+			self.shutterType = shutterType
+			self.backgroundView = backgroundView
+			self.roundedShutterBackground = roundedShutterBackground
+			self.shutterBackground = shutterBackground
+			self.viewBackgroundColor = viewBackgroundColor
+		}
+		
+		public var roundedShutterBackground: UIColor = .secondarySystemBackground
+		public var shutterBackground: UIColor = .systemBackground
+		public var viewBackgroundColor: UIColor = .systemBackground
+		public var shutterType: Shutter = .default
 		public var backgroundView: UIView?
 	}
-	
-	public static var defaultConfiguration = Configuration()
-	
-	public var configuration = FibControllerRootView.defaultConfiguration
+		
+	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration }
+	// MARK: - APPEARANCE
+	var roundedShutterBackground: UIColor {
+		controller?.configuration?.viewConfiguration.roundedShutterBackground ?? defaultConfiguration.roundedShutterBackground
+	}
+	var shutterBackground: UIColor {
+		controller?.configuration?.viewConfiguration.shutterBackground ?? defaultConfiguration.shutterBackground
+	}
+	var viewBackgroundColor: UIColor {
+		controller?.configuration?.viewConfiguration.viewBackgroundColor ?? defaultConfiguration.viewBackgroundColor
+	}
+	var shutterType: Shutter {
+		controller?.configuration?.viewConfiguration.shutterType ?? defaultConfiguration.shutterType
+	}
+	var backgroundView: UIView? {
+		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
+	}
 	
 	// MARK: Dependencies
 	weak open var controller: FibViewController?
 	
 	// MARK: Properties
 	
+	private let rootGridViewBackground = UIView()
 	public let rootFormView = FibGrid()
-	private var _rootFormViewTop: NSLayoutConstraint?
-	var needTransparentHeader: Bool = false
 	private var _backgroundViewRef: UIView?
 	
 	public let footer = FibCell()
@@ -59,6 +82,7 @@ open class FibControllerRootView: UIView {
 	
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
+	let gridMaskView = UIView()
 	
 	var needBackgroundGradient: Bool = false
 	var customBackgroundView: UIView?
@@ -103,22 +127,23 @@ open class FibControllerRootView: UIView {
 		configureFormView()
 		configureFooter()
 		rootFormView.containedRootView = self
+		applyAppearance()
 	}
 	
 	func configureFormView() {
-		addSubview(rootFormView)
+		addSubview(rootGridViewBackground)
+		rootGridViewBackground.addSubview(rootFormView)
 		rootFormView.clipsToBounds = true
 		rootFormView.layer.masksToBounds = true
-		insertSubview(shutterView, belowSubview: rootFormView)
-		assignRootFormViewTop()
-		rootFormView.anchor(left: safeAreaLayoutGuide.leftAnchor,
-							right: safeAreaLayoutGuide.rightAnchor)
+		rootGridViewBackground.insertSubview(shutterView, belowSubview: rootFormView)
 		rootFormView.delegate = self
 		assignRefreshControlIfNeeded()
 		rootFormView.didReload {[weak self] in
 			guard let self = self else { return }
 			self.controller?.viewDidReloadCollection(with: self.fullContentHeight())
 		}
+		gridMaskView.backgroundColor = .black
+		rootGridViewBackground.mask = gridMaskView
 	}
 	
 	func assignRefreshControlIfNeeded() {
@@ -130,11 +155,11 @@ open class FibControllerRootView: UIView {
 	}
 	
 	fileprivate func getShutterColor() -> UIColor {
-		switch configuration.shutter {
+		switch shutterType {
 		case .default:
-			return configuration.appearance.shutterBackground
-			case .rounded:
-			return configuration.appearance.roundedShutterBackground
+			return shutterBackground
+		case .rounded:
+			return roundedShutterBackground
 		}
 	}
 	
@@ -148,7 +173,7 @@ open class FibControllerRootView: UIView {
 								   width: rootFormView.frame.width,
 								   height: height)
 		shutterView.backgroundColor = getShutterColor()
-		switch configuration.shutter {
+		switch shutterType {
 		case .default:
 			shutterView.layer.cornerRadius = 0
 //			shutterView.layer.clearShadow()
@@ -169,12 +194,19 @@ open class FibControllerRootView: UIView {
 		shutterView.layer.mask = mask
 	}
 	
+	func layoutFibGrid() {
+		rootFormView.frame = bounds
+		rootFormView.contentInset.bottom = footerHeight
+	}
+	
 	override open func layoutSubviews() {
 		super.layoutSubviews()
+		rootGridViewBackground.frame = bounds
 		UIView.performWithoutAnimation {
 			configureShutterViewFrame()
 		}
-		if configuration.backgroundView != nil {
+		let backView = backgroundView
+		if backView != nil {
 			configureBackgroundView()
 		} else {
 			_backgroundViewRef?.removeFromSuperview()
@@ -198,6 +230,9 @@ open class FibControllerRootView: UIView {
 				header?.configure(with: _headerViewModel)
 			}
 		}
+		layoutFibGrid()
+		gridMaskView.frame = .init(origin: .init(x: 0, y: safeAreaInsets.top),
+								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	
 	fileprivate func calculateHeaderFrame() {
@@ -234,7 +269,8 @@ open class FibControllerRootView: UIView {
 	private var needsConfigureHeader: Bool = false
 	
 	func configureBackgroundView() {
-		if let customBackgroundView = configuration.backgroundView {
+		let view = backgroundView
+		if let customBackgroundView = (view?.copy() as? UIView) {
 			if customBackgroundView.superview == nil {
 				addSubview(customBackgroundView)
 			}
@@ -251,36 +287,10 @@ open class FibControllerRootView: UIView {
 	}
 	
 	func applyAppearance() {
-		backgroundColor = configuration.appearance.backgroundColor
+		backgroundColor = viewBackgroundColor
 		rootFormView.backgroundColor = .clear
 		shutterView.backgroundColor = getShutterColor()
 		scrollViewDidScroll(rootFormView)
-	}
-	
-	func assignRootFormViewTop() {
-		_rootFormViewTop?.isActive = false
-		var headerTopAnchor: NSLayoutYAxisAnchor
-		if needFullAnchors {
-			headerTopAnchor = topAnchor
-			if rootFormView.contentInsetAdjustmentBehavior != .always {
-				rootFormView.contentInsetAdjustmentBehavior = .never
-			}
-			//выставляем contentInset по safeArea только снизу
-			delay(0.032) {[weak self] in //два кадра
-				guard let self = self else { return }
-				if self.rootFormView.contentInset.bottom == 0 {
-					self.rootFormView.contentInset.bottom = self.safeAreaInsets.bottom
-				}
-			}
-		} else {
-			headerTopAnchor = safeAreaLayoutGuide.topAnchor
-			rootFormView.contentInsetAdjustmentBehavior = .automatic
-		}
-		var topConstant: CGFloat = 0
-		if presentingInFormSheet {
-			topConstant = statusBarFrame?.height ?? 0
-		}
-		_rootFormViewTop = rootFormView.anchorWithReturnAnchors(headerTopAnchor, topConstant: topConstant).first
 	}
 	
 	var presentingInFormSheet: Bool {
@@ -334,8 +344,7 @@ open class FibControllerRootView: UIView {
 	}
 	
 	var needFullAnchors: Bool {
-		((controller?.navigationController?.navigationBar as? PassThroughNavigationBar) != nil) ||
-		needTransparentHeader == true
+		((controller?.navigationController?.navigationBar as? PassThroughNavigationBar) != nil)
 	}
 	
 	var headerHeightSource: [String: CGFloat] = [:]
@@ -444,26 +453,24 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	func display(_ sections: [GridSection], animated: Bool = true) {
+	func display(_ provider: Provider?, animated: Bool = true) {
+		var provider = provider
 		if animated == false {
-			sections.forEach { $0.animator = nil }
+			provider?.animator = nil
 		}
-//		if let emptySection = sections.first(where: { $0 is EmptySection }) as? EmptySection {
-//			emptySection.height = footerHeight
-//			refreshControl.endRefreshing()
-//			displayEmptyView(emptySection.viewModel, animated: animated)
-//			return
-//		}
-		assignRootFormViewTop()
+		if let emptySection = provider as? EmptySection {
+			emptySection.height = footerHeight
+			refreshControl.endRefreshing()
+			displayEmptyView(emptySection.viewModel, animated: animated)
+			return
+		}
 		assignRefreshControlIfNeeded()
 		rootFormView.animated = animated
-		rootFormView.sections = sections
+		rootFormView.provider = provider
+		layoutFibGrid()
 	}
 	
 	func display(_ footerViewModel: FibCell.ViewModel?, animated: Bool, secondary: Bool = false) {
-		for (index, section) in (footerViewModel?.sections ?? []).enumerated() {
-			section.identifier = "FooterSection_at_\(index)"
-		}
 		footerViewModel?.storedId = "footer"
 		footerViewModel?.backgroundColor = .clear
 		self._footerViewModel = footerViewModel
@@ -510,15 +517,12 @@ open class FibControllerRootView: UIView {
 		return min(height, fullEdgesHeight)
 	}
 	
-//	func displayEmptyView(_ viewModel: InfoMessageView.ViewModel, animated: Bool) {
-//		var height = footerHeight
-//		if IQKeyboardManager.shared.keyboardShowing {
-//			height = lastKeyboardHeight == 0 ? footerHeight : (lastKeyboardHeight - safeAreaInsets.bottom)
-//		}
-//		rootFormView.refreshControl = nil
-//		rootFormView.displayEmptyView(model: viewModel, height: height, animated: animated)
-//		self.controller?.viewDidReloadCollection(with: self.fullEdgesHeight)
-//	}
+	func displayEmptyView(_ viewModel: ViewModelWithViewClass, animated: Bool) {
+		let height = footerHeight
+		rootFormView.refreshControl = nil
+		rootFormView.displayEmptyView(model: viewModel, height: height, animated: animated)
+		self.controller?.viewDidReloadCollection(with: self.fullEdgesHeight)
+	}
 	
 	open func shouldDismiss() -> Bool {
 		true
@@ -539,7 +543,7 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		configureShutterViewFrame()
 		if rootFormView.scrollDirection == .vertical {
 			scrollView.contentOffset.x = 0
-		} else {
+		} else if rootFormView.scrollDirection == .horizontal {
 			scrollView.contentOffset.y = 0
 		}
 		if controller?.navigationController?.navigationBar.prefersLargeTitles == true {

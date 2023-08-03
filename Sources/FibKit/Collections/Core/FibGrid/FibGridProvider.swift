@@ -30,7 +30,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     var needLastSeparator: Bool = true
     var tapHandler: TapHandler?
     var didReloadClosure: (() -> Void)?
-    var scrollDirection: UICollectionView.ScrollDirection
+    var scrollDirection: FibGrid.ScrollDirection
     var didReorderItemsClosure: ((Int, Int) -> Void)?
     var separatorViewModel: ViewModelWithViewClass?
     public typealias TapHandler = (TapContext) -> Void
@@ -249,7 +249,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         var dataSource: FibGridDataSource
         var viewSource: FibGridViewSource
         var sizeSource: FibGridSizeSource
-        var scrollDirection: UICollectionView.ScrollDirection
+        var scrollDirection: FibGrid.ScrollDirection
         var separatorViewModel: ViewModelWithViewClass?
 
         var numberOfItems: Int {

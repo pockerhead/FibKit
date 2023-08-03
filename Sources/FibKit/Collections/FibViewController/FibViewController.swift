@@ -15,6 +15,22 @@ import VisualEffectView
 open class FibViewController: UIViewController {
 
     // MARK: Properties
+	
+	public struct Configuration {
+		public init(viewConfiguration: FibControllerRootView.Configuration = .init()) {
+			self.viewConfiguration = viewConfiguration
+		}
+		
+		public var viewConfiguration: FibControllerRootView.Configuration = .init()
+	}
+	
+	public static var defaultConfiguration: Configuration = .init()
+	
+	public var storedConfiguration = defaultConfiguration
+	
+	open var configuration: Configuration? {
+		nil
+	}
 
     open var shouldLoadViewOnInit: Bool { true }
     open var shouldResolve: Bool { true }
@@ -30,18 +46,20 @@ open class FibViewController: UIViewController {
 	public var reloadPublisher = PassthroughSubject<Void, Never>()
 
     open var reloadSectionsCompletion: (() -> Void)?
-
-    open var storedSections: [GridSection] = [] {
-        didSet {
-            reload(animated: false)
-        }
-    }
-
-    // swiftlint:disable implicit_return
-    /// Point to override
-    open var sections: [GridSection] {
-        return storedSections
-    }
+	
+	open var sections: [SectionProtocol]? { storedSections }
+	open var storedSections: [SectionProtocol]? = nil {
+		didSet {
+			reload(animated: false)
+		}
+	}
+	
+	open var body: SectionProtocol? { storedBody }
+	open var storedBody: SectionProtocol? = nil {
+		didSet {
+			reload(animated: false)
+		}
+	}
 
     open var needBackgroundGradient: Bool { false }
     open var customBackgroundView: UIView? { nil }
@@ -81,8 +99,8 @@ open class FibViewController: UIViewController {
 
     // MARK: Initialization
 
-    public init(sections: [GridSection] = []) {
-        storedSections = sections
+    public init(provider: SectionProtocol?) {
+        storedBody = provider
         super.init(nibName: nil, bundle: nil)
         if shouldResolve {
 //            tryToResolveVC(vc: self)
@@ -110,7 +128,7 @@ open class FibViewController: UIViewController {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.clear()
+//        navigationController?.clear()
     }
 
     // MARK: View's input
@@ -146,11 +164,9 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 	}
 	
 	private func immediateReload(completion: (() -> Void)? = nil, animated: Bool = true) {
-		rootView.needTransparentHeader = needTransparentHeader
 		rootView.transparentNavbar = transparentNavbar
 		rootView.needBackgroundGradient = needBackgroundGradient
 		rootView.customBackgroundView = customBackgroundView
-		rootView.configuration.shutter = roundedShutter ? .rounded : .default
 		reloadFooter(animated: animated)
 		reloadHeader(animated: animated)
 		reloadSections(completion: completion, animated: animated)
@@ -173,11 +189,20 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
     }
 
     open func reloadSections(completion: (() -> Void)? = nil, animated: Bool = true) {
-        var sections = storedSections
-        if storedSections.isEmpty {
-            sections = self.sections
+        var provider = storedBody
+        if storedBody == nil {
+            provider = self.body
         }
-        rootView.display(sections, animated: animated)
+		if let sections = sections {
+			provider = SectionStack({
+				sections
+			})
+		} else if let stored = storedSections {
+			provider = SectionStack {
+				stored
+			}
+		}
+        rootView.display(provider, animated: animated)
         reloadSectionsCompletion = completion
     }
 
@@ -185,11 +210,11 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         self.refreshAction = refreshAction
     }
 
-//    public func displayEmptyView(_ viewModel: InfoMessageView.ViewModel, animated: Bool = true) {
-//        rootView.display(storedFooter ?? footer, animated: animated)
-//        rootView.display(header, dummyHeaderClass: dummyHeaderClass, animated: animated)
-//        rootView.displayEmptyView(viewModel, animated: animated)
-//    }
+    public func displayEmptyView(_ viewModel: ViewModelWithViewClass, animated: Bool = true) {
+        rootView.display(storedFooter ?? footer, animated: animated)
+        rootView.display(header, dummyHeaderClass: dummyHeaderClass, animated: animated)
+        rootView.displayEmptyView(viewModel, animated: animated)
+    }
 
     open func viewDidReloadCollection(with height: CGFloat) {
         reloadSectionsCompletion?()

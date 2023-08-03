@@ -115,15 +115,15 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
         contextView = view
         contextViewRectInWindow = viewRect
         currentAppWindow??.endEditing(true)
-        menu.sections = menu.sections.map { section in
-            let tapHandler = section.tapHandler
-            return section.tapHandler({[weak self] context in
-                self?.hideContextMenu()
-                DispatchQueue.main.async {
-                    tapHandler?(context)
-                }
-            })
-        }
+//        menu.sections = menu.sections.map { section in
+//            let tapHandler = section.tapHandler
+//            return section.tapHandler({[weak self] context in
+//                self?.hideContextMenu()
+//                DispatchQueue.main.async {
+//                    tapHandler?(context)
+//                }
+//            })
+//        }
         // @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture

@@ -150,7 +150,7 @@ extension FibCell: FibViewHeader {
         }
         
         /// Sections for inner FormView, work equally that default FormView
-        public var sections: [GridSection]
+        public var provider: Provider?
         public var sizeHash: String?
         public var storedId: String?
         public var storedSections: [GridSection] = []
@@ -175,21 +175,15 @@ extension FibCell: FibViewHeader {
 
         /// Inits ViewModel with declarative sections
         /// - Parameter sections: Sections for inner FormView
-        public init(sections: [GridSection]) {
-            self.sections = sections
-        }
-
-        /// Inits ViewModel with declarative sections
-        /// - Parameter sections: Sections for inner FormView
-        public init(@SectionBuilder _ sections: () -> [GridSection]) {
-            self.sections = sections()
+        public init(provider: Provider?) {
+            self.provider = provider
         }
         
         /// Inits ViewModel with declarative sections
         /// - Parameter sections: Sections for inner FormView
-        public func update(@SectionBuilder _ sections: () -> [GridSection]) {
-            self.sections = sections()
-            _grid?.sections = self.sections
+		public func update(provider: Provider?) {
+            self.provider = provider
+            _grid?.provider = provider
             reloadData()
         }
 
@@ -290,7 +284,7 @@ extension FibCell: FibViewHeader {
         borderStyle = data.borderStyle
         needRound = data.needRound
         data._grid = formView
-        formView.sections.forEach { $0.animator = nil }
+		formView.provider?.animator = nil
         formView.isEmbedCollection = true
         _needUserInteraction = data.needUserInteraction
         if let additionalBackground = data.backgroundColor {
@@ -301,10 +295,10 @@ extension FibCell: FibViewHeader {
         blurView.isHidden = !data.needBlurBackground
         if let delayInterval = data.delay {
             delay(delayInterval, closure: ({[weak self] in
-                self?.formView.sections = data.sections
+                self?.formView.provider = data.provider
             }))
         } else {
-            formView.sections = data.sections
+            formView.provider = data.provider
         }
 		contentView.layer.masksToBounds = !data.disableMaskToBounds
 		formView.layer.masksToBounds = !data.disableMaskToBounds

@@ -149,7 +149,7 @@ extension EmbedCollection: FibViewHeader {
 
     public final class ViewModel: FibViewHeaderViewModel {
 
-        public var sections: [GridSection]
+        public var provider: Provider?
         public var clipsToBounds: Bool = false
         public var needBlur: Bool = true
         public var backgroundColor: UIColor = .clear
@@ -180,8 +180,8 @@ extension EmbedCollection: FibViewHeader {
             storedSizeHash
         }
 
-        public init(@SectionBuilder _ sections: (() -> [GridSection])) {
-            self.sections = sections()
+        public init(provider: Provider?) {
+            self.provider = provider
         }
 
         public func allowedStretchDirections(_ allowedStretchDirections: Set<StretchDirection>) -> ViewModel {
@@ -320,8 +320,8 @@ extension EmbedCollection: FibViewHeader {
         formView.bounces = data.needBounce
         formView.contentInsetAdjustmentBehavior = .never
         formViewBackgroundColor = data.backgroundColor
-        formView.sections = data.sections
-        pageControl.numberOfPages = data.sections.first?.dataSource.data.count ?? 0
+        formView.provider = data.provider
+//        pageControl.numberOfPages = data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
         blurView.isHidden = pageControl.isHidden

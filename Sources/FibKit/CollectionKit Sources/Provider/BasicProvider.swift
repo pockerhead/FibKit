@@ -100,3 +100,4 @@ struct BasicProviderLayoutContext<Data>: LayoutContext {
     return sizeSource.size(at: index, data: dataSource.data(at: index), collectionSize: collectionSize)
   }
 }
+

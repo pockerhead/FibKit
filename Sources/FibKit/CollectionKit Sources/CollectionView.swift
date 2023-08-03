@@ -12,7 +12,7 @@ import UIKit
 // swiftlint:disable all
 open class CollectionView: UIScrollView {
 	
-	public var provider: Provider? {
+	open var provider: Provider? {
 		didSet { setNeedsReload() }
 	}
 	
@@ -762,7 +762,7 @@ extension CollectionView {
 				let sectionInnerSize = (provider.sections.get(nextIndex)?.contentSize.height ?? 0)
 				var headerSize = CGSize.zero
 				if let fvhp = provider as? FibGridHeaderProvider,
-				   let data = (fvhp.sections.get(nextIndex) as? GridSection)?.headerData,
+				   let data = (fvhp.sections.get(nextIndex) as? SectionProtocol)?.headerData,
 				   let dummy = fvhp.headerViewSource
 					.getDummyView(data: data) as? ViewModelConfigurable {
 					

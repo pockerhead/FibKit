@@ -10,8 +10,7 @@
 import UIKit
 
 public protocol AnyGridSection {}
-extension GridSection: AnyGridSection {}
-extension Array: AnyGridSection where Element == GridSection {}
+extension Array: AnyGridSection where Element == SectionProtocol {}
 
 /// Constructs sections in declarative style
 /// eg:
@@ -29,56 +28,56 @@ extension Array: AnyGridSection where Element == GridSection {}
 ///~~~
 @resultBuilder public struct SectionBuilder {
         
-    public static func buildBlock(_ atrs: AnyGridSection...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildBlock(_ atrs: AnyGridSection...) -> [SectionProtocol] {
+        if let arr = atrs as? [SectionProtocol] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [SectionProtocol]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildOptional(_ atrs: AnyGridSection?...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildOptional(_ atrs: AnyGridSection?...) -> [SectionProtocol] {
+        if let arr = atrs as? [SectionProtocol] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [SectionProtocol]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildArray(_ atrs: AnyGridSection?...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildArray(_ atrs: AnyGridSection?...) -> [SectionProtocol] {
+        if let arr = atrs as? [SectionProtocol] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [SectionProtocol]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildEither(first: AnyGridSection...) -> [GridSection] {
-        if let arr = first as? [GridSection] {
+    public static func buildEither(first: AnyGridSection...) -> [SectionProtocol] {
+        if let arr = first as? [SectionProtocol] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [SectionProtocol]()
         fullFill(&arr, with: first)
         return arr
     }
     
-    public static func buildEither(second component: AnyGridSection...) -> [GridSection] {
-        if let arr = component as? [GridSection] {
+    public static func buildEither(second component: AnyGridSection...) -> [SectionProtocol] {
+        if let arr = component as? [SectionProtocol] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [SectionProtocol]()
         fullFill(&arr, with: component)
         return arr
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnyGridSection?]) {
+    fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnyGridSection?]) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? SectionProtocol {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break
@@ -91,11 +90,11 @@ extension Array: AnyGridSection where Element == GridSection {}
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: AnyGridSection...) {
+    fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: AnyGridSection...) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? SectionProtocol {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break
@@ -108,11 +107,11 @@ extension Array: AnyGridSection where Element == GridSection {}
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnyGridSection]) {
+    fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnyGridSection]) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? SectionProtocol {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break
