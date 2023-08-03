@@ -28,6 +28,16 @@ class ViewController: FibViewController {
 				self.arr2.remove(at: cont.index)
 				self.reload()
 			}
+			sections
+		}
+	}
+	
+	@SectionBuilder
+	var sections: [GridSection] {
+		GridSection {
+			
+		}
+		GridSection {
 			
 		}
 	}
