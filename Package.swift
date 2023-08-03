@@ -16,12 +16,12 @@ let package = Package(
 	dependencies: [
 		.package(
 			url: "https://ditlogger:ZqTixVPcM-Y3@git24.ru/scm/staff/ditlogger.git",
-			branch: "master"
+			.upToNextMajor(from: "0.3.0")
 		),
-		.package(url: "https://github.com/Miraion/Threading", .upToNextMajor(from: "1.0.0")),
-		.package(url: "https://github.com/efremidze/VisualEffectView", .upToNextMajor(from: "4.0.0")),
-		.package(url: "https://github.com/hackiftekhar/IQKeyboardManager", .upToNextMajor(from: "6.0.0")),
-		.package(url: "https://github.com/Juanpe/SkeletonView", .upToNextMajor(from: "1.0.0")),
+		.package(url: "https://github.com/Miraion/Threading", .upToNextMajor(from: "1.0.1")),
+		.package(url: "https://github.com/efremidze/VisualEffectView", .upToNextMajor(from: "4.1.4")),
+		.package(url: "https://github.com/hackiftekhar/IQKeyboardManager", .upToNextMajor(from: "6.5.0")),
+		.package(url: "https://github.com/Juanpe/SkeletonView", .upToNextMajor(from: "1.26.0")),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
