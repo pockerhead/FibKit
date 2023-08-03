@@ -20,7 +20,7 @@ public protocol SectionProtocol: AnyGridSection, Provider {
 }
 
 /// Class that represents data sections in FormView, and provide behaviour to inner views, that representations stored in self.data
-open class GridSection: FibGridProvider, Equatable, SectionProtocol {
+open class GridSection: FibGridProvider, Equatable, SectionProtocol, AnyGridSection {
     public static func == (lhs: GridSection, rhs: GridSection) -> Bool {
         lhs.id == rhs.id
         && Equated(wrappedValue: lhs.data, compare: .dump) == Equated(wrappedValue: rhs.data, compare: .dump)
