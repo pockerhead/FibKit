@@ -82,13 +82,22 @@ extension UIView: UIDragInteractionDelegate {
 }
 
 public struct DragInteractionContext {
-	var itemsProvider: (() -> [UIDragItem])
+	public init(itemsProvider: @escaping (() -> [UIDragItem])) {
+		self.itemsProvider = itemsProvider
+	}
+	
+	public var itemsProvider: (() -> [UIDragItem])
 }
 
 public struct FibContextMenu {
+	public init(menu: UIMenu, previewProvider: (() -> UIViewController?)? = nil) {
+		self.menu = menu
+		self.previewProvider = previewProvider
+	}
 	
-	var menu: UIMenu
-	var previewProvider: (() -> UIViewController?)?
+	
+	public var menu: UIMenu
+	public var previewProvider: (() -> UIViewController?)?
 }
 
 extension UIBarButtonItem {
