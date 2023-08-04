@@ -18,7 +18,7 @@ open class CollectionView: UIScrollView {
 		didSet { setNeedsReload() }
 	}
 	
-	public var animator: Animator = Animator() {
+	public var animator: Animator = AnimatedReloadAnimator() {
 		didSet { setNeedsReload() }
 	}
 	
@@ -555,7 +555,7 @@ open class CollectionView: UIScrollView {
 	
 	private func _loadCells(forceReload: Bool) {
 		let passedRect = loadCellsInBounds ? visibleFrame : visibleFrameLessInset
-		let newIndexes = flattenedProvider.visibleIndexes(visibleFrame: passedRect)
+		let newIndexes = flattenedProvider.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
 		
 		// optimization: we assume that corresponding identifier for each index doesnt change unless forceReload is true.
 		guard forceReload ||

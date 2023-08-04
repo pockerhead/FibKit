@@ -20,7 +20,7 @@ public protocol Provider {
 
     // layout
     func layout(collectionSize: CGSize)
-    func visibleIndexes(visibleFrame: CGRect) -> [Int]
+	func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int]
 
     var contentSize: CGSize { get }
 

@@ -321,6 +321,7 @@ extension EmbedCollection: FibViewHeader {
         formView.contentInsetAdjustmentBehavior = .never
         formViewBackgroundColor = data.backgroundColor
         formView.provider = data.provider
+		formView.layoutSubviews()
 //        pageControl.numberOfPages = data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
@@ -333,7 +334,7 @@ extension EmbedCollection: FibViewHeader {
 				do {
 					try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
 				} catch {
-					print("huerror \(error.localizedDescription)")
+					print("error \(error.localizedDescription)")
 				}
 			}
 		}

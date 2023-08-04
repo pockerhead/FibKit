@@ -56,8 +56,8 @@ open class InsetLayout: WrapperLayout {
     rootLayout.layout(context: InsetLayoutContext(original: context, insets: insets))
   }
 
-  open override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
-    rootLayout.visibleIndexes(visibleFrame: visibleFrame.inset(by: -insets))
+  open override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
+	  rootLayout.visibleIndexes(visibleFrame: visibleFrame.inset(by: -insets), visibleFrameLessInset: visibleFrameLessInset.inset(by: -insets))
   }
 
   open override func frame(at: Int) -> CGRect {

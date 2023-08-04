@@ -8,7 +8,12 @@
 import Foundation
 import UIKit
 
-public class SectionStack: FibGridHeaderProvider, SectionProtocol {
+public class SectionStack:
+	FibGridHeaderProvider,
+	SectionProtocol,
+	AnyGridSection,
+	AnySectionProtocol
+{
 	public var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)?
 	
 	public var headerData: ViewModelWithViewClass?
@@ -19,7 +24,7 @@ public class SectionStack: FibGridHeaderProvider, SectionProtocol {
 	
 	public convenience init(
 		forceReassignLayout: Bool = false,
-		@SectionBuilder _ data: () -> [SectionProtocol],
+		@SectionProtocolBuilder _ data: () -> [SectionProtocol],
 		line: Int = #line,
 		file: String = #file,
 		collectionView: CollectionView? = nil

@@ -142,7 +142,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 
     init(identifier: String? = "RootProvider",
 		 layout: Layout = FlowLayout().inset(by: .zero),
-         animator: Animator? = nil,
+         animator: Animator? = AnimatedReloadAnimator(),
          sections: [SectionProtocol] = [],
          collectionView: CollectionView?) {
         self.animator = animator

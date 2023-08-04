@@ -33,9 +33,6 @@ extension UIScrollView {
 		return bounds
 	}
 	public var visibleFrameLessInset: CGRect {
-		if let self = self as? CollectionView, let headerInset = self.additionalHeaderInset {
-			return visibleFrame.inset(by: .init(top: headerInset, left: contentInset.left, bottom: contentInset.bottom, right: contentInset.right))
-		}
 		return visibleFrame.inset(by: adjustedContentInset)
 	}
 	public var absoluteFrameLessInset: CGRect {

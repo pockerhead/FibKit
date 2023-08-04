@@ -102,7 +102,7 @@ public class AnimatedReloadAnimator: Animator {
     
     override open func update(collectionView: CollectionView, view: UIView, at: Int, frame: CGRect) {
         let initialTransform = view.transform
-        if needAnimateHeader(collectionView: collectionView, view: view, frame: frame) {
+		if view.fb_isHeader == true {
             UIView.performWithoutAnimation {
                 collectionView.bringSubviewToFront(view)
                 view.layer.transform = CATransform3DTranslate(CATransform3DIdentity, 0, 0, 1)
@@ -126,23 +126,6 @@ public class AnimatedReloadAnimator: Animator {
                 view.alpha = 1
             }, completion: nil)
         }
-    }
-    
-    func needAnimateHeader(collectionView: CollectionView, view: UIView, frame: CGRect) -> Bool {
-        guard view is StickyHeaderView else { return false }
-        let pureOffset = abs(collectionView.contentOffset.y)
-        let offset = abs(collectionView.contentOffset.y + collectionView.contentInset.top + collectionView.safeAreaInsets.top)
-        let additionalHeaderoffset = abs(collectionView.contentOffset.y + (collectionView.additionalHeaderInset ?? 0) + collectionView.safeAreaInsets.top)
-        let additionalHeaderoffsetLessSafeAreaTop = abs(collectionView.contentOffset.y + (collectionView.additionalHeaderInset ?? 0))
-        let frameAtPureOffset = frame.origin.y.isBeetween(pureOffset - 1, pureOffset + 1)
-        let frameAtOffset = frame.origin.y.isBeetween(offset - 1, offset + 1)
-        let frameAtHeaderOffset = frame.origin.y.isBeetween(additionalHeaderoffset - 1, additionalHeaderoffset + 1)
-        let frameAtHeaderOffsetLessSafeAreaTop = frame.origin.y.isBeetween(additionalHeaderoffsetLessSafeAreaTop - 1, additionalHeaderoffsetLessSafeAreaTop + 1)
-        return (frameAtOffset
-                || frameAtHeaderOffset
-                || frameAtHeaderOffsetLessSafeAreaTop
-                || frameAtPureOffset) && (view.fb_isHeader ?? false)
-        
     }
 }
 

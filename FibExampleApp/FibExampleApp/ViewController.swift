@@ -13,22 +13,40 @@ class ViewController: FibViewController {
 		MyFibView.ViewModel(text: "HEADER_TOP")
 	}
 	
-	var arr2 = Array(0...100)
+	var arr2 = Array(0...30)
 	var flag = true
+	
+	override var configuration: FibViewController.Configuration? {
+		.init(viewConfiguration: .init(
+			shutterType: .rounded
+		))
+	}
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			SpacerSection(30)
-			GridSection(forceReassignLayout: true) {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
+			SectionStack {
+				SectionStack {
+					SpacerSection(16)
+					GridSection {
+						arr2.map { i in
+							MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
+						} as [ViewModelWithViewClass?]
+					}
+					.header(MyFibView.ViewModel(text: "arr_HEADER"))
+					.isSticky(true)
 				}
+				.header(MyFibView.ViewModel(text: "arr_SUB_SECTION_HEADER"))
+				.isSticky(true)
+				GridSection {
+					arr2.map { i in
+						MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+					} as [ViewModelWithViewClass?]
+				}
+				.header(MyFibView.ViewModel(text: "arr_HEADER_2"))
+				.isSticky(true)
 			}
-			.tapHandler { cont in
-				self.arr2.remove(at: cont.index)
-				self.reload()
-			}
-			sections
+			.header(MyFibView.ViewModel(text: "arr_SECTION_HEADER"))
+			.isSticky(true)
 		}
 	}
 	
@@ -52,6 +70,7 @@ class ViewController: FibViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		rootView.applyAppearance()
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -106,7 +125,7 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 			text
 		}
 		var atTop: Bool {
-			false
+			true
 		}
 		var text: String
 		

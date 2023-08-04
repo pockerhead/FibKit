@@ -34,31 +34,32 @@ public class StickyLayout: WrapperLayout {
       (index: $0, frame: rootLayout.frame(at: $0))
     }
   }
-
-  public override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
-    self.visibleFrame = visibleFrame
-    topFrameIndex = stickyFrames.binarySearch { $0.frame.minY < visibleFrame.minY } - 1
-    if let index = stickyFrames.get(topFrameIndex)?.index, index >= 0 {
-      var oldVisible = rootLayout.visibleIndexes(visibleFrame: visibleFrame)
-      if let index = oldVisible.firstIndex(of: index) {
-        oldVisible.remove(at: index)
-      }
-      return oldVisible + [index]
-    }
-    return rootLayout.visibleIndexes(visibleFrame: visibleFrame)
-  }
-
-  public override func frame(at: Int) -> CGRect {
-    let superFrame = rootLayout.frame(at: at)
-    if superFrame.minY < visibleFrame.minY, let index = stickyFrames.get(topFrameIndex)?.index, index == at {
-      let pushedY: CGFloat
-      if topFrameIndex < stickyFrames.count - 1 {
-        pushedY = rootLayout.frame(at: stickyFrames[topFrameIndex + 1].index).minY - superFrame.height
-      } else {
-        pushedY = visibleFrame.maxY - superFrame.height
-      }
-      return CGRect(origin: CGPoint(x: superFrame.minX, y: min(visibleFrame.minY, pushedY)), size: superFrame.size)
-    }
-    return superFrame
-  }
+	
+	public override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
+		self.visibleFrame = visibleFrameLessInset
+		topFrameIndex = stickyFrames.binarySearch { $0.frame.minY < visibleFrameLessInset.minY } - 1
+		if let index = stickyFrames.get(topFrameIndex)?.index, index >= 0 {
+			var oldVisible = rootLayout.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
+			if let index = oldVisible.firstIndex(of: index) {
+				oldVisible.remove(at: index)
+			}
+			return oldVisible + [index]
+		}
+		return rootLayout.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
+	}
+	
+	public override func frame(at: Int) -> CGRect {
+		let superFrame = rootLayout.frame(at: at)
+		if superFrame.minY < visibleFrame.minY,
+		   let index = stickyFrames.get(topFrameIndex)?.index, index == at {
+			let pushedY: CGFloat
+			if topFrameIndex < stickyFrames.count - 1 {
+				pushedY = rootLayout.frame(at: stickyFrames[topFrameIndex + 1].index).minY - superFrame.height
+			} else {
+				pushedY = visibleFrame.maxY - superFrame.height
+			}
+			return CGRect(origin: CGPoint(x: superFrame.minX, y: min(visibleFrame.minY, pushedY)), size: superFrame.size)
+		}
+		return superFrame
+	}
 }

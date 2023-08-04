@@ -34,7 +34,7 @@ open class EmptyCollectionProvider: ItemProvider, CollectionReloadable {
   open func frame(at: Int) -> CGRect {
     return .zero
   }
-  open func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+  open func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
     return [Int]()
   }
 

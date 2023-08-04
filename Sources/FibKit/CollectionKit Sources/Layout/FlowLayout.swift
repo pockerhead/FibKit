@@ -144,7 +144,7 @@ public class ReversedLayout: VerticalSimpleLayout {
         return frames
     }
     
-    open override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+    open override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
         var index = frames.binarySearch { $0.maxY > visibleFrame.minY } - 1
         var visibleIndexes = [Int]()
         while index >= 0 {

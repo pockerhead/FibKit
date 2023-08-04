@@ -40,7 +40,7 @@ public class StackLayout: Layout {
         frames.get(at) ?? .zero
     }
 
-    public override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+	public override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
         var result = [Int]()
         for (i, frame) in frames.enumerated() {
           if frame.intersects(visibleFrame) {
@@ -84,7 +84,7 @@ open class SimpleLayout: Layout {
     return frames.get(at) ?? .zero
   }
 
-  open override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+  open override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
     var result = [Int]()
     for (i, frame) in frames.enumerated() {
       if frame.intersects(visibleFrame) {
@@ -102,7 +102,7 @@ open class VerticalSimpleLayout: SimpleLayout {
     maxFrameLength = frames.max { $0.height < $1.height }?.height ?? 0
   }
 
-  open override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+  open override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
     var index = frames.binarySearch { $0.minY < visibleFrame.minY - maxFrameLength }
     var visibleIndexes = [Int]()
     while index < frames.count {
@@ -126,7 +126,7 @@ open class HorizontalSimpleLayout: SimpleLayout {
     maxFrameLength = frames.max { $0.width < $1.width }?.width ?? 0
   }
 
-  open override func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+  open override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
     var index = frames.binarySearch { $0.minX < visibleFrame.minX - maxFrameLength }
     var visibleIndexes = [Int]()
     while index < frames.count {

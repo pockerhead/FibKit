@@ -86,16 +86,16 @@ struct FlattenedProvider: ItemProvider {
         return provider.contentSize
     }
 
-    func visibleIndexes(visibleFrame: CGRect) -> [Int] {
+    func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
         var visible = [Int]()
-        for sectionIndex in provider.visibleIndexes(visibleFrame: visibleFrame) {
+        for sectionIndex in provider.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset) {
             guard childSections.have(sectionIndex) else { continue }
             let beginIndex = childSections[sectionIndex].beginIndex
             if let sectionData = childSections[sectionIndex].sectionData {
                 let sectionFrame = provider.frame(at: sectionIndex)
                 let intersectFrame = visibleFrame.intersection(sectionFrame)
                 let visibleFrameForCell = CGRect(origin: intersectFrame.origin - sectionFrame.origin, size: intersectFrame.size)
-                let sectionVisible = sectionData.visibleIndexes(visibleFrame: visibleFrameForCell)
+                let sectionVisible = sectionData.visibleIndexes(visibleFrame: visibleFrameForCell, visibleFrameLessInset: visibleFrameLessInset)
                 for item in sectionVisible {
                     visible.append(item + beginIndex)
                 }

@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
-		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .secondarySystemBackground, shutterBackground: .secondarySystemBackground, viewBackgroundColor: .systemBackground, shutterType: .rounded, backgroundView: nil))
+		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .green, shutterType: .rounded, backgroundView: nil))
 		return true
 	}
 

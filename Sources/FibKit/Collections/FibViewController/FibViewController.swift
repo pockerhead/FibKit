@@ -24,7 +24,15 @@ open class FibViewController: UIViewController {
 		public var viewConfiguration: FibControllerRootView.Configuration = .init()
 	}
 	
-	public static var defaultConfiguration: Configuration = .init()
+	public static var defaultConfiguration: Configuration = .init(
+		viewConfiguration: .init(
+			roundedShutterBackground: .secondarySystemBackground,
+			shutterBackground: .systemBackground,
+			viewBackgroundColor: .systemBackground,
+			shutterType: .default,
+			backgroundView: nil
+		)
+	)
 	
 	public var storedConfiguration = defaultConfiguration
 	

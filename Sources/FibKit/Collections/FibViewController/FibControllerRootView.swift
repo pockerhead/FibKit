@@ -20,39 +20,39 @@ open class FibControllerRootView: UIView {
 	
 	public class Configuration {
 		public init(
-			roundedShutterBackground: UIColor = .secondarySystemBackground,
-			shutterBackground: UIColor = .systemBackground,
-			viewBackgroundColor: UIColor = .systemBackground,
-			shutterType: FibControllerRootView.Shutter = .default,
+			roundedShutterBackground: UIColor? = nil,
+			shutterBackground: UIColor? = nil,
+			viewBackgroundColor: UIColor? = nil,
+			shutterType: FibControllerRootView.Shutter? = nil,
 			backgroundView: UIView? = nil
 		) {
-			self.shutterType = shutterType
-			self.backgroundView = backgroundView
 			self.roundedShutterBackground = roundedShutterBackground
 			self.shutterBackground = shutterBackground
 			self.viewBackgroundColor = viewBackgroundColor
+			self.shutterType = shutterType
+			self.backgroundView = backgroundView
 		}
 		
-		public var roundedShutterBackground: UIColor = .secondarySystemBackground
-		public var shutterBackground: UIColor = .systemBackground
-		public var viewBackgroundColor: UIColor = .systemBackground
-		public var shutterType: Shutter = .default
+		public var roundedShutterBackground: UIColor?
+		public var shutterBackground: UIColor?
+		public var viewBackgroundColor: UIColor?
+		public var shutterType: Shutter?
 		public var backgroundView: UIView?
 	}
 		
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration }
 	// MARK: - APPEARANCE
-	var roundedShutterBackground: UIColor {
+	var roundedShutterBackground: UIColor? {
 		controller?.configuration?.viewConfiguration.roundedShutterBackground ?? defaultConfiguration.roundedShutterBackground
 	}
-	var shutterBackground: UIColor {
+	var shutterBackground: UIColor? {
 		controller?.configuration?.viewConfiguration.shutterBackground ?? defaultConfiguration.shutterBackground
 	}
-	var viewBackgroundColor: UIColor {
+	var viewBackgroundColor: UIColor? {
 		controller?.configuration?.viewConfiguration.viewBackgroundColor ?? defaultConfiguration.viewBackgroundColor
 	}
 	var shutterType: Shutter {
-		controller?.configuration?.viewConfiguration.shutterType ?? defaultConfiguration.shutterType
+		controller?.configuration?.viewConfiguration.shutterType ?? defaultConfiguration.shutterType ?? .default
 	}
 	var backgroundView: UIView? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
@@ -154,7 +154,7 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	fileprivate func getShutterColor() -> UIColor {
+	fileprivate func getShutterColor() -> UIColor? {
 		switch shutterType {
 		case .default:
 			return shutterBackground
@@ -231,7 +231,8 @@ open class FibControllerRootView: UIView {
 			}
 		}
 		layoutFibGrid()
-		gridMaskView.frame = .init(origin: .init(x: 0, y: safeAreaInsets.top),
+		let gridMaskTop = shutterType == .default ? 0 : safeAreaInsets.top
+		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop),
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	
@@ -286,7 +287,7 @@ open class FibControllerRootView: UIView {
 		applyAppearance()
 	}
 	
-	func applyAppearance() {
+	public func applyAppearance() {
 		backgroundColor = viewBackgroundColor
 		rootFormView.backgroundColor = .clear
 		shutterView.backgroundColor = getShutterColor()
@@ -565,7 +566,7 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		}
 		if transparentNavbar {
 			let sizePercentage = ((headerInitialHeight - size) / headerInitialHeight).clamp(0, 1)
-			let shutterBackground = getShutterColor()
+			let shutterBackground = getShutterColor() ?? .clear
 			let fadeColor = shutterBackground
 				.withAlphaComponent(0)
 				.fade(toColor: shutterBackground, withPercentage: sizePercentage)
@@ -574,9 +575,9 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		guard let headerViewModel = _headerViewModel else { return }
 		if headerViewModel.atTop == false {
 			minHeight = 0
-			rootFormView.loadCellsInBounds = true
+//			rootFormView.loadCellsInBounds = true
 		} else {
-			rootFormView.loadCellsInBounds = false
+//			rootFormView.loadCellsInBounds = false
 		}
 		guard headerViewModel.allowedStretchDirections.isEmpty == false else {
 			return

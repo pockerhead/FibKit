@@ -12,7 +12,9 @@ import UIKit
 public protocol AnyGridSection {}
 extension Array: AnyGridSection where Element == GridSection {}
 public protocol AnySectionProtocol {}
-extension Array: AnySectionProtocol where Element == AnySectionProtocol {}
+extension Array: AnySectionProtocol where Element == SectionProtocol {}
+public typealias AnySection = (AnyGridSection & AnySectionProtocol)
+
 /// Constructs sections in declarative style
 /// eg:
 ///~~~
@@ -126,104 +128,104 @@ extension Array: AnySectionProtocol where Element == AnySectionProtocol {}
     }
 }
 
-//@resultBuilder public struct SectionProtocolBuilder {
-//		
-//	public static func buildBlock(_ atrs: AnySectionProtocol...) -> [SectionProtocol] {
-//		if let arr = atrs as? [SectionProtocol] {
-//			return arr
-//		}
-//		var arr = [SectionProtocol]()
-//		fullFill(&arr, with: atrs)
-//		return arr
-//	}
-//	
-//	public static func buildOptional(_ atrs: AnySectionProtocol?...) -> [SectionProtocol] {
-//		if let arr = atrs as? [SectionProtocol] {
-//			return arr
-//		}
-//		var arr = [SectionProtocol]()
-//		fullFill(&arr, with: atrs)
-//		return arr
-//	}
-//	
-//	public static func buildArray(_ atrs: AnySectionProtocol?...) -> [SectionProtocol] {
-//		if let arr = atrs as? [SectionProtocol] {
-//			return arr
-//		}
-//		var arr = [SectionProtocol]()
-//		fullFill(&arr, with: atrs)
-//		return arr
-//	}
-//	
-//	public static func buildEither(first: AnySectionProtocol...) -> [SectionProtocol] {
-//		if let arr = first as? [SectionProtocol] {
-//			return arr
-//		}
-//		var arr = [SectionProtocol]()
-//		fullFill(&arr, with: first)
-//		return arr
-//	}
-//	
-//	public static func buildEither(second component: AnySectionProtocol...) -> [SectionProtocol] {
-//		if let arr = component as? [SectionProtocol] {
-//			return arr
-//		}
-//		var arr = [SectionProtocol]()
-//		fullFill(&arr, with: component)
-//		return arr
-//	}
-//	
-//	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnySectionProtocol?]) {
-//		for atr in sections {
-//			if let atr = atr as? SectionProtocol {
-//				array.append(atr)
-//			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
-//				if sectionArr.allSatisfy({ $0.isGuard }) {
-//					array = sectionArr
-//					break
-//				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
-//					array.append(contentsOf: sectionArr)
-//					break
-//				}
-//				array.append(contentsOf: sectionArr)
-//			}
-//		}
-//	}
-//	
-//	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: AnySectionProtocol...) {
-//		for atr in sections {
-//			if let atr = atr as? SectionProtocol {
-//				array.append(atr)
-//			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
-//				if sectionArr.allSatisfy({ $0.isGuard }) {
-//					array = sectionArr
-//					break
-//				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
-//					array.append(contentsOf: sectionArr)
-//					break
-//				}
-//				array.append(contentsOf: sectionArr)
-//			}
-//		}
-//	}
-//	
-//	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnySectionProtocol]) {
-//		for atr in sections {
-//			if let atr = atr as? SectionProtocol {
-//				array.append(atr)
-//			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
-//				if sectionArr.allSatisfy({ $0.isGuard }) {
-//					array = sectionArr
-//					break
-//				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
-//					array.append(contentsOf: sectionArr)
-//					break
-//				}
-//				array.append(contentsOf: sectionArr)
-//			}
-//		}
-//	}
-//}
+@resultBuilder public struct SectionProtocolBuilder {
+		
+	public static func buildBlock(_ atrs: AnySection...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildOptional(_ atrs: AnySection?...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildArray(_ atrs: AnySection?...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildEither(first: AnySection...) -> [SectionProtocol] {
+		if let arr = first as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: first)
+		return arr
+	}
+	
+	public static func buildEither(second component: AnySection...) -> [SectionProtocol] {
+		if let arr = component as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: component)
+		return arr
+	}
+	
+	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnySection?]) {
+		for atr in sections {
+			if let atr = atr as? SectionProtocol {
+				array.append(atr)
+			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
+				if sectionArr.allSatisfy({ $0.isGuard }) {
+					array = sectionArr
+					break
+				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
+					array.append(contentsOf: sectionArr)
+					break
+				}
+				array.append(contentsOf: sectionArr)
+			}
+		}
+	}
+	
+	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: AnySection...) {
+		for atr in sections {
+			if let atr = atr as? SectionProtocol {
+				array.append(atr)
+			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
+				if sectionArr.allSatisfy({ $0.isGuard }) {
+					array = sectionArr
+					break
+				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
+					array.append(contentsOf: sectionArr)
+					break
+				}
+				array.append(contentsOf: sectionArr)
+			}
+		}
+	}
+	
+	fileprivate static func fullFill(_ array: inout [SectionProtocol], with sections: [AnySection]) {
+		for atr in sections {
+			if let atr = atr as? SectionProtocol {
+				array.append(atr)
+			} else if let sectionArr = atr as? [SectionProtocol], !sectionArr.isEmpty {
+				if sectionArr.allSatisfy({ $0.isGuard }) {
+					array = sectionArr
+					break
+				} else if sectionArr.allSatisfy({ $0.isGuardAppend }) {
+					array.append(contentsOf: sectionArr)
+					break
+				}
+				array.append(contentsOf: sectionArr)
+			}
+		}
+	}
+}
 /// Constructs sections in declarative style
 /// eg:
 ///~~~
