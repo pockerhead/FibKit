@@ -149,6 +149,6 @@ extension ViewModelConfigurable where Self: UIView {
 public extension ViewModelConfigurable {
 
 	static var bundle: Bundle {
-		Bundle(for: self)
+		Bundle.module
 	}
 }

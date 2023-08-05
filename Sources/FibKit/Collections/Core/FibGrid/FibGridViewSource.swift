@@ -87,8 +87,12 @@ public class CollectionViewDequeuer: NSObject {
 
     private func dequeReusableCell(hasNib: Bool,
                                    viewClass: ViewModelConfigurable.Type) -> ViewModelConfigurable? {
-        guard hasNib else { return viewClass.init() }
-        guard let cell = viewClass.fromNib(owner: self, bundle: viewClass.bundle) as? ViewModelConfigurable else { return nil }
+        guard hasNib else {
+			return viewClass.init()
+		}
+        guard let cell = viewClass.fromNib(owner: self, bundle: viewClass.bundle) as? ViewModelConfigurable else {
+			return nil
+		}
         cell.alpha = 0
         return cell
     }

@@ -10,7 +10,7 @@ import FibKit
 class ViewController: FibViewController {
 	
 	override var header: FibViewHeaderViewModel? {
-		MyFibView.ViewModel(text: "HEADER_TOP")
+		MyFibHeader.ViewModel()
 	}
 	
 	var arr2 = Array(0...30)
@@ -23,40 +23,17 @@ class ViewController: FibViewController {
 	}
 	
 	override var body: SectionProtocol? {
-		SectionStack {
-			SectionStack {
-				SectionStack {
-					SpacerSection(16)
-					GridSection {
-//						EmbedCollection.ViewModel(
-//							provider: GridSection({
-//								arr2.map { i in
-//									MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
-//								} as [ViewModelWithViewClass?]
-//							})
-//							.rowLayout(spacing: 8)
-//						)
-//						.height(100)
-						arr2.map { i in
-							MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
-						} as [ViewModelWithViewClass?]
-					}
-					.header(MyFibView.ViewModel(text: "arr_HEADER"))
-					.isSticky(true)
-				}
-				.header(MyFibView.ViewModel(text: "arr_SUB_SECTION_HEADER"))
-				.isSticky(true)
-				GridSection {
+		GridSection {
+			EmbedCollection.ViewModel(
+				provider: GridSection({
 					arr2.map { i in
-						MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+						MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
 					} as [ViewModelWithViewClass?]
-				}
-				.header(MyFibView.ViewModel(text: "arr_HEADER_2"))
-				.isSticky(true)
-			}
-			.header(MyFibView.ViewModel(text: "arr_SECTION_HEADER"))
-			.isSticky(true)
-			sections
+				})
+				.rowLayout(spacing: 8)
+			)
+			.backgroundColor(.asbestos)
+			.height(100)
 		}
 	}
 	
@@ -98,6 +75,28 @@ class ViewController: FibViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		title = "g34g42g234fg2"
+	}
+}
+
+class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
+	func configure(with data: FibKit.ViewModelWithViewClass?) {
+		backgroundColor = .green
+		layer.borderColor = UIColor.blue.cgColor
+		layer.borderWidth = 3
+	}
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		return .init(width: targetSize.width, height: 300)
+	}
+	
+	struct ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
+		var atTop: Bool { false }
+		
+		func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MyFibHeader.self
+		}
+		
+		
 	}
 }
 

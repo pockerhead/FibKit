@@ -10,7 +10,7 @@ extension ViewFromNibLoadable where Self: UIView {
 			return self
 		}
 
-		let bundle = Bundle(for: type(of: self))
+		let bundle = Bundle.module
 		guard let view = bundle.loadNibNamed(String(describing: type(of: self)), owner: nil, options: nil)?.first as? UIView
 			else {
 				return nil
@@ -28,7 +28,7 @@ extension ViewFromNibLoadable where Self: UIView {
 internal extension UIView {
 
 	@discardableResult
-	static func fromNib<T: UIView>(owner: Any? = self, bundle: Bundle? = .main) -> T? {
+	static func fromNib<T: UIView>(owner: Any? = self, bundle: Bundle? = .module) -> T? {
 		guard let view = bundle?.loadNibNamed(self.className, owner: owner, options: nil)?[0] as? T else {
 			return nil
 		}
@@ -38,7 +38,7 @@ internal extension UIView {
 
 	@discardableResult
 	func fromNib<T: UIView>() -> T? {
-		guard let contentView = Bundle(for: type(of: self))
+		guard let contentView = Bundle.module
 			.loadNibNamed(self.className, owner: self, options: nil)?.first as? T else {
 			return nil
 		}
