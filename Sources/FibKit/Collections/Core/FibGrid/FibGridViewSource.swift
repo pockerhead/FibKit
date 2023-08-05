@@ -67,31 +67,38 @@ extension ViewModelWithViewClass {
     }
 }
 
+typealias HasNibBool = (moduleBundle: Bool, selfBundle: Bool)
+
 public class CollectionViewDequeuer: NSObject {
 
     public static let shared = CollectionViewDequeuer()
 
-    private static var hasNibDictionary: [String: Bool] = [:]
+	private static var hasNibDictionary: [String: HasNibBool] = [:]
 
     override init() {}
 
     public func dequeueReusableCell(viewClass: ViewModelConfigurable.Type) -> ViewModelConfigurable? {
         let className = viewClass.className
         guard let hasNib = CollectionViewDequeuer.hasNibDictionary[className] else {
-            CollectionViewDequeuer.hasNibDictionary[className] = viewClass.bundle.path(forResource: className, ofType: "nib") != nil
+            CollectionViewDequeuer.hasNibDictionary[className] = (viewClass.moduleBundle.path(forResource: className, ofType: "nib") != nil, viewClass.selfBundle.path(forResource: className, ofType: "nib") != nil)
             return dequeReusableCell(hasNib: CollectionViewDequeuer.hasNibDictionary[className]!, viewClass: viewClass)
         }
         return  dequeReusableCell(hasNib: hasNib,
                                   viewClass: viewClass)
     }
 
-    private func dequeReusableCell(hasNib: Bool,
+    private func dequeReusableCell(hasNib: HasNibBool,
                                    viewClass: ViewModelConfigurable.Type) -> ViewModelConfigurable? {
-        guard hasNib else {
+		guard hasNib.moduleBundle || hasNib.selfBundle else {
 			return viewClass.init()
 		}
-        guard let cell = viewClass.fromNib(owner: self, bundle: viewClass.bundle) as? ViewModelConfigurable else {
-			return nil
+		let cell: ViewModelConfigurable
+		if hasNib.selfBundle, let selfCell = viewClass.fromNib(owner: self, bundle: viewClass.selfBundle) as? ViewModelConfigurable {
+			cell = selfCell
+		} else if hasNib.moduleBundle, let moduleCell = viewClass.fromNib(owner: self, bundle: viewClass.moduleBundle) as? ViewModelConfigurable {
+			cell = moduleCell
+		} else {
+			return viewClass.init()
 		}
         cell.alpha = 0
         return cell

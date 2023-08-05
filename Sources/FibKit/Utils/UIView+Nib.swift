@@ -10,10 +10,15 @@ extension ViewFromNibLoadable where Self: UIView {
 			return self
 		}
 
-		let bundle = Bundle.module
-		guard let view = bundle.loadNibNamed(String(describing: type(of: self)), owner: nil, options: nil)?.first as? UIView
-			else {
-				return nil
+		let moduleBundle = Bundle.module
+		let selfBundle = Bundle(for: type(of: self))
+		let view: UIView
+		if let selfView = selfBundle.loadNibNamed(String(describing: type(of: self)), owner: nil, options: nil)?.first as? UIView {
+			view = selfView
+		} else if let moduleView = moduleBundle.loadNibNamed(String(describing: type(of: self)), owner: nil, options: nil)?.first as? UIView {
+			view = moduleView
+		} else {
+			return nil
 		}
 
 		view.translatesAutoresizingMaskIntoConstraints = false
