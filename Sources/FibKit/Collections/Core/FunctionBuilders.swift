@@ -10,11 +10,16 @@
 import UIKit
 
 public protocol AnyGridSection {}
-extension Array: AnyGridSection where Element == GridSection {}
 public protocol AnySectionProtocol {}
-extension Array: AnySectionProtocol where Element == SectionProtocol {}
 public typealias AnySection = (AnyGridSection & AnySectionProtocol)
-
+extension Array: AnyGridSection where Element == SectionProtocol {}
+extension Array: AnySectionProtocol where Element == SectionProtocol {}
+public extension Array where Element == GridSection {
+	
+	func asSectionProtocol() -> [SectionProtocol] {
+		self as [SectionProtocol]
+	}
+}
 /// Constructs sections in declarative style
 /// eg:
 ///~~~

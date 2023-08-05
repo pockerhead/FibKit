@@ -18,7 +18,7 @@ class ViewController: FibViewController {
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
-			shutterType: .rounded
+			shutterType: .default
 		))
 	}
 	
@@ -28,6 +28,15 @@ class ViewController: FibViewController {
 				SectionStack {
 					SpacerSection(16)
 					GridSection {
+//						EmbedCollection.ViewModel(
+//							provider: GridSection({
+//								arr2.map { i in
+//									MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
+//								} as [ViewModelWithViewClass?]
+//							})
+//							.rowLayout(spacing: 8)
+//						)
+//						.height(100)
 						arr2.map { i in
 							MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
 						} as [ViewModelWithViewClass?]
@@ -47,25 +56,34 @@ class ViewController: FibViewController {
 			}
 			.header(MyFibView.ViewModel(text: "arr_SECTION_HEADER"))
 			.isSticky(true)
+			SectionStack {
+				sections.asSectionProtocol()
+			}
 		}
 	}
 	
 	@SectionBuilder
 	var sections: [GridSection] {
 		GridSection {
-			
+			arr2.map { i in
+				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+			} as [ViewModelWithViewClass?]
 		}
+		.header(MyFibView.ViewModel(text: "arr_HEADER_2"))
+		.isSticky(true)
 		GridSection {
 			
 		}
 	}
 	
-	override init(provider: SectionProtocol?) {
-		super.init(provider: provider)
-	}
-	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
+	@SectionProtocolBuilder
+	var stacks: [SectionProtocol] {
+		SectionStack {
+			
+		}
+		SectionStack {
+			
+		}
 	}
 	
 	override func viewDidLoad() {

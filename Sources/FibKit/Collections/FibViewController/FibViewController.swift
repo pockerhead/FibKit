@@ -100,7 +100,7 @@ open class FibViewController: UIViewController {
 
     // MARK: Initialization
 
-    public init(provider: SectionProtocol?) {
+    public init(provider: SectionProtocol? = nil) {
         storedBody = provider
         super.init(nibName: nil, bundle: nil)
         if shouldResolve {
@@ -130,6 +130,8 @@ open class FibViewController: UIViewController {
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //        navigationController?.clear()
+//		navigationController?.applyStandart()
+//		navigationController?.setDefault()
     }
 
     // MARK: View's input

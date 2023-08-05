@@ -14,7 +14,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
-		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .green, shutterType: .rounded, backgroundView: nil))
+		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .white, shutterType: .rounded, backgroundView: nil))
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithTransparentBackground()
+		appearance.backgroundColor = UIColor.clear
+		appearance.backgroundEffect = UIBlurEffect(style: .light) // or dark
+		
+		let scrollingAppearance = UINavigationBarAppearance()
+		scrollingAppearance.configureWithTransparentBackground()
+//		scrollingAppearance.backgroundColor = .white // your view (superview) color
+		
+		UINavigationBar.appearance().standardAppearance = appearance
+		UINavigationBar.appearance().scrollEdgeAppearance = appearance
+		UINavigationBar.appearance().compactAppearance = appearance
+		DispatchQueue.main.async {
+			let vc = ViewController()
+			let nav = UINavigationController(rootViewController: vc)
+			let window = UIWindow(frame: UIScreen.main.bounds)
+			window.rootViewController = nav
+			nav.view.backgroundColor = .alizarin
+			window.makeKeyAndVisible()
+		}
 		return true
 	}
 
