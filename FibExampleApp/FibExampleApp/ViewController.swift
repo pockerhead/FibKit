@@ -56,9 +56,7 @@ class ViewController: FibViewController {
 			}
 			.header(MyFibView.ViewModel(text: "arr_SECTION_HEADER"))
 			.isSticky(true)
-			SectionStack {
-				sections.asSectionProtocol()
-			}
+			sections
 		}
 	}
 	
@@ -79,7 +77,13 @@ class ViewController: FibViewController {
 	@SectionProtocolBuilder
 	var stacks: [SectionProtocol] {
 		SectionStack {
-			
+			GridSection {
+				arr2.map { i in
+					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+				} as [ViewModelWithViewClass?]
+			}
+			.header(MyFibView.ViewModel(text: "arr_HE232ADER_2"))
+			.isSticky(true)
 		}
 		SectionStack {
 			

@@ -12,10 +12,8 @@ import UIKit
 public protocol AnyGridSection {}
 public protocol AnySectionProtocol {}
 public typealias AnySection = (AnyGridSection & AnySectionProtocol)
-extension Array: AnyGridSection where Element == SectionProtocol {}
-extension Array: AnySectionProtocol where Element == SectionProtocol {}
-public extension Array where Element == GridSection {
-	
+extension Array: AnySection where Element: SectionProtocol {}
+public extension Array where Element: SectionProtocol {
 	func asSectionProtocol() -> [SectionProtocol] {
 		self as [SectionProtocol]
 	}
@@ -36,7 +34,7 @@ public extension Array where Element == GridSection {
 ///~~~
 @resultBuilder public struct SectionBuilder {
         
-    public static func buildBlock(_ atrs: AnyGridSection...) -> [GridSection] {
+    public static func buildBlock(_ atrs: AnySection...) -> [GridSection] {
         if let arr = atrs as? [GridSection] {
             return arr
         }
@@ -45,7 +43,7 @@ public extension Array where Element == GridSection {
         return arr
     }
     
-    public static func buildOptional(_ atrs: AnyGridSection?...) -> [GridSection] {
+    public static func buildOptional(_ atrs: AnySection?...) -> [GridSection] {
         if let arr = atrs as? [GridSection] {
             return arr
         }
@@ -54,7 +52,7 @@ public extension Array where Element == GridSection {
         return arr
     }
     
-    public static func buildArray(_ atrs: AnyGridSection?...) -> [GridSection] {
+    public static func buildArray(_ atrs: AnySection?...) -> [GridSection] {
         if let arr = atrs as? [GridSection] {
             return arr
         }
@@ -63,7 +61,7 @@ public extension Array where Element == GridSection {
         return arr
     }
     
-    public static func buildEither(first: AnyGridSection...) -> [GridSection] {
+    public static func buildEither(first: AnySection...) -> [GridSection] {
         if let arr = first as? [GridSection] {
             return arr
         }
@@ -72,7 +70,7 @@ public extension Array where Element == GridSection {
         return arr
     }
     
-    public static func buildEither(second component: AnyGridSection...) -> [GridSection] {
+    public static func buildEither(second component: AnySection...) -> [GridSection] {
         if let arr = component as? [GridSection] {
             return arr
         }
@@ -81,7 +79,7 @@ public extension Array where Element == GridSection {
         return arr
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnyGridSection?]) {
+    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnySection?]) {
         for atr in sections {
             if let atr = atr as? GridSection {
                 array.append(atr)
@@ -98,7 +96,7 @@ public extension Array where Element == GridSection {
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: AnyGridSection...) {
+    fileprivate static func fullFill(_ array: inout [GridSection], with sections: AnySection...) {
         for atr in sections {
             if let atr = atr as? GridSection {
                 array.append(atr)
@@ -115,7 +113,7 @@ public extension Array where Element == GridSection {
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnyGridSection]) {
+    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnySection]) {
         for atr in sections {
             if let atr = atr as? GridSection {
                 array.append(atr)

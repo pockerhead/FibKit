@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable all
 
-public protocol SectionProtocol: AnyGridSection, Provider {
+public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider {
 	var isGuard: Bool { get set }
 	var isGuardAppend: Bool { get set }
 	var isSticky: Bool { get }
