@@ -10,20 +10,8 @@ import FibKit
 class ViewController: FibViewController {
 	
 	override var header: FibViewHeaderViewModel? {
-		MyFibHeader.ViewModel()
-	}
-	
-	var arr2 = Array(0...30)
-	var flag = true
-	
-	override var configuration: FibViewController.Configuration? {
-		.init(viewConfiguration: .init(
-			shutterType: .default
-		))
-	}
-	
-	override var body: SectionProtocol? {
-		GridSection {
+		FibCell.ViewModel(provider: GridSection {
+			MyFibHeader.ViewModel()
 			EmbedCollection.ViewModel(
 				provider: GridSection({
 					arr2.map { i in
@@ -34,6 +22,26 @@ class ViewController: FibViewController {
 			)
 			.backgroundColor(.asbestos)
 			.height(100)
+		})
+		.needRound(false)
+		.borderStyle(.none)
+	}
+	
+	var arr2 = Array(0...30)
+	var flag = true
+	
+	override var configuration: FibViewController.Configuration? {
+		.init(viewConfiguration: .init(
+			shutterType: .rounded
+		))
+	}
+	
+	override var body: SectionProtocol? {
+		GridSection {
+			FormViewSpacer(30)
+			arr2.map { i in
+				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+			} as [ViewModelWithViewClass?]
 		}
 	}
 	

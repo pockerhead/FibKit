@@ -11,6 +11,15 @@ import IQKeyboardManagerSwift
 import UIKit
 import VisualEffectView
 
+private class RootGridViewBackground: UIView {
+	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+		guard FibGridPassthroughHelper.nestedInteractiveViews(in: self, contain: point, convertView: self) else {
+			return false
+		}
+		return super.point(inside: point, with: event)
+	}
+}
+
 open class FibControllerRootView: UIView {
 	
 	public enum Shutter {
@@ -63,7 +72,7 @@ open class FibControllerRootView: UIView {
 	
 	// MARK: Properties
 	
-	private let rootGridViewBackground = UIView()
+	private let rootGridViewBackground = RootGridViewBackground()
 	public let rootFormView = FibGrid()
 	private var _backgroundViewRef: UIView?
 	

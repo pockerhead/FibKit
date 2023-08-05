@@ -207,16 +207,17 @@ final public class FibGrid: CollectionView {
 	// Проверяем позади формвью наличие интерактивных вьюх, нужно чтобы в режиме
 	// шторки (наезд на хедер) можно было обрабатывать нажатия на хедер
 	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-		guard nestedInteractiveViews(in: self, contain: point) else {
+		guard FibGridPassthroughHelper.nestedInteractiveViews(in: self, contain: point, convertView: self) else {
 			return false
 		}
 		return super.point(inside: point, with: event)
 	}
 	
-	private func nestedInteractiveViews(in view: UIView, contain point: CGPoint) -> Bool {
-		
-		
-		
+	
+}
+
+struct FibGridPassthroughHelper {
+	static func nestedInteractiveViews(in view: UIView, contain point: CGPoint, convertView: UIView) -> Bool {
 		if let formView = view as? FibGrid,
 		   let shutter = formView.containedRootView?.shutterView {
 			
@@ -224,20 +225,20 @@ final public class FibGrid: CollectionView {
 				return true
 			}
 			
-			if shutter.bounds.contains(convert(point, to: shutter)) {
+			if shutter.bounds.contains(convertView.convert(point, to: shutter)) {
 				return true
 			}
 			
 			if view is FibGrid == false, view.isPotentiallyInteractive,
-			   view.bounds.contains(convert(point, to: view)) {
+			   view.bounds.contains(convertView.convert(point, to: view)) {
 				return true
 			}
-		} else if view.isPotentiallyInteractive, view.bounds.contains(convert(point, to: view)) {
+		} else if view.isPotentiallyInteractive, view.bounds.contains(convertView.convert(point, to: view)) {
 			return true
 		}
 		
 		for subview in view.subviews {
-			if nestedInteractiveViews(in: subview, contain: point) {
+			if nestedInteractiveViews(in: subview, contain: point, convertView: convertView) {
 				return true
 			}
 		}
