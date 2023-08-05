@@ -40,8 +40,8 @@ open class FibViewController: UIViewController {
 		nil
 	}
 
-    open var shouldLoadViewOnInit: Bool { true }
-    open var shouldResolve: Bool { true }
+//    open var shouldLoadViewOnInit: Bool { true }
+//    open var shouldResolve: Bool { true }
 
     open var rootView: FibControllerRootView! {
         (view as! FibControllerRootView)
@@ -103,19 +103,19 @@ open class FibViewController: UIViewController {
     public init(provider: SectionProtocol? = nil) {
         storedBody = provider
         super.init(nibName: nil, bundle: nil)
-        if shouldResolve {
+//        if shouldResolve {
 //            tryToResolveVC(vc: self)
-        }
-        if shouldLoadViewOnInit && !isViewLoaded {
-            loadViewIfNeeded()
-        }
+//        }
+//        if shouldLoadViewOnInit && !isViewLoaded {
+//            loadViewIfNeeded()
+//        }
     }
 
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        if shouldResolve {
+//        if shouldResolve {
 //            tryToResolveVC(vc: self)
-        }
+//        }
     }
 
     override open func loadView() {
