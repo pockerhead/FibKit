@@ -10,6 +10,8 @@ open class RoundedCell: SqueezeCell {
 		super.init(coder: aDecoder)
 		setup()
 	}
+	
+	var shadowClosure: ((UIView) -> Void)?
 
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -17,7 +19,6 @@ open class RoundedCell: SqueezeCell {
 	}
 
 	private func setup() {
-//		self.layer.applySketchShadow()
 		layer.shouldRasterize = false
 		layer.rasterizationScale = UIScreen.main.scale
 		self.contentView.clipsToBounds = true
@@ -31,7 +32,7 @@ open class RoundedCell: SqueezeCell {
 
 	open override func layoutSubviews() {
 		super.layoutSubviews()
-//		self.layer.applySketchShadow()
+		shadowClosure?(self)
 	}
 }
 

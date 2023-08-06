@@ -9,8 +9,11 @@ import FibKit
 
 class ViewController: FibViewController {
 	
+	@Reloadable var flag = false
+	
 	override var header: FibViewHeaderViewModel? {
-		FibCell.ViewModel(provider: GridSection {
+		guard flag else { return nil }
+		return FibCell.ViewModel(provider: GridSection {
 			MyFibHeader.ViewModel()
 			EmbedCollection.ViewModel(
 				provider: GridSection({
@@ -27,12 +30,11 @@ class ViewController: FibViewController {
 		.borderStyle(.none)
 	}
 	
-	var arr2 = Array(0...30)
-	var flag = true
+	var arr2 = Array(0...50)
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
-			shutterType: .rounded
+			shutterType: .default
 		))
 	}
 	
@@ -42,6 +44,9 @@ class ViewController: FibViewController {
 			arr2.map { i in
 				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
 			} as [ViewModelWithViewClass?]
+		}
+		.tapHandler { _ in
+			self.flag.toggle()
 		}
 	}
 	

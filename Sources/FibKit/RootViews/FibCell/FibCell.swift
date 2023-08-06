@@ -16,13 +16,33 @@ import VisualEffectView
 public final class FibCell: RoundedCell, StickyHeaderView {
 	
 	public struct Appearance {
-		public var backgroundColor: UIColor = .secondarySystemBackground
-		public var contentViewBorderColor: UIColor = .separator
+		public init(
+			backgroundColor: UIColor? = nil,
+			contentViewBorderColor: UIColor? = nil
+		) {
+			self.backgroundColor = backgroundColor
+			self.contentViewBorderColor = contentViewBorderColor
+		}
+		
+		public var backgroundColor: UIColor?
+		public var contentViewBorderColor: UIColor?
 	}
 
-	public static var defaultAppearance = Appearance()
+	public static var defaultAppearance = Appearance(
+		backgroundColor: .secondarySystemBackground,
+		contentViewBorderColor: .separator)
 	
-	public var appearance = defaultAppearance
+	public var appearance: Appearance? {
+		nil
+	}
+	
+	var fbBackgroundColor: UIColor? {
+		appearance?.backgroundColor ?? FibCell.defaultAppearance.backgroundColor
+	}
+	
+	var contentViewBorderColor: UIColor? {
+		appearance?.contentViewBorderColor ?? FibCell.defaultAppearance.contentViewBorderColor
+	}
     // MARK: Outlets
 
     // MARK: Properties
@@ -83,22 +103,22 @@ public final class FibCell: RoundedCell, StickyHeaderView {
     public override func layoutSubviews() {
         super.layoutSubviews()
 		if borderStyle == .none {
-//			self.layer.clearShadow()
+			self.layer.clearShadow()
 			layer.cornerRadius = 12
 			contentView.layer.cornerRadius = 12
 			formView.layer.cornerRadius = 12
 		}
         else if needRound {
             if borderStyle == .border {
-//                self.layer.clearShadow()
-				contentView.layer.borderColor = appearance.contentViewBorderColor.cgColor
+                self.layer.clearShadow()
+				contentView.layer.borderColor = contentViewBorderColor?.cgColor
                 contentView.layer.borderWidth = 1
             }
             layer.cornerRadius = 12
             contentView.layer.cornerRadius = 12
             formView.layer.cornerRadius = 12
         } else {
-//            self.layer.clearShadow()
+            self.layer.clearShadow()
             layer.cornerRadius = 0
             contentView.layer.cornerRadius = 0
             formView.layer.cornerRadius = 0
@@ -289,7 +309,7 @@ extension FibCell: FibViewHeader {
         _needUserInteraction = data.needUserInteraction
         if let additionalBackground = data.backgroundColor {
             self._additionalBackgroundColor = additionalBackground
-			formView.backgroundColor = _additionalBackgroundColor ?? appearance.backgroundColor
+			formView.backgroundColor = _additionalBackgroundColor ?? fbBackgroundColor
         }
         formView.isAsync = false
         blurView.isHidden = !data.needBlurBackground
@@ -336,7 +356,7 @@ extension FibCell: FibViewHeader {
 	
 	func applyAppearance() {
 		backgroundColor = .clear
-		formView.backgroundColor = _additionalBackgroundColor ?? appearance.backgroundColor
+		formView.backgroundColor = _additionalBackgroundColor ?? fbBackgroundColor
 		blurView.colorTint = .clear
 	}
 }

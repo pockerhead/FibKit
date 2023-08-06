@@ -26,12 +26,20 @@ public typealias ContextMenu = FibCell.ViewModel
 public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	
 	public struct Appearance {
-		public var blurColorTint: UIColor = .systemBackground
+		public init(blurColorTint: UIColor? = nil) {
+			self.blurColorTint = blurColorTint
+		}
+		
+		public var blurColorTint: UIColor?
 	}
 	
-	public static var defaultAppearance = Appearance()
+	public static var defaultAppearance = Appearance(
+		blurColorTint: .systemBackground
+	)
 	
-	public var appearance = defaultAppearance
+	var blurColorTint: UIColor? {
+		PopoverServiceInstance.defaultAppearance.blurColorTint
+	}
 
     public var traitCollection: UITraitCollection {
         .init()
@@ -70,7 +78,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
     /// Blur view that applies with conext menu
     private lazy var overlayView: VisualEffectView = {
         let view = VisualEffectView()
-		view.colorTint = appearance.blurColorTint
+		view.colorTint = blurColorTint
         view.colorTintAlpha = 0.2
         view.blurRadius = 16
         let gr = UITapGestureRecognizer(target: self, action: #selector(hideContextMenu))
@@ -180,8 +188,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
             overlayView.colorTint = .clear
             overlayView.colorTintAlpha = 0
         } else {
-//            overlayView.colorTint = .palette.layerColor.layer0
-			overlayView.colorTint = appearance.blurColorTint
+			overlayView.colorTint = blurColorTint
             overlayView.colorTintAlpha = 0.2
             overlayView.blurRadius = 16
         }

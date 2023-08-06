@@ -103,19 +103,12 @@ open class FibViewController: UIViewController {
     public init(provider: SectionProtocol? = nil) {
         storedBody = provider
         super.init(nibName: nil, bundle: nil)
-//        if shouldResolve {
-//            tryToResolveVC(vc: self)
-//        }
-//        if shouldLoadViewOnInit && !isViewLoaded {
-//            loadViewIfNeeded()
-//        }
+		setReloadable()
     }
 
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-//        if shouldResolve {
-//            tryToResolveVC(vc: self)
-//        }
+		setReloadable()
     }
 
     override open func loadView() {
@@ -125,13 +118,6 @@ open class FibViewController: UIViewController {
     override open func viewDidLoad() {
         super.viewDidLoad()
         immediateReload(animated: false)
-    }
-
-    override open func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        navigationController?.clear()
-//		navigationController?.applyStandart()
-//		navigationController?.setDefault()
     }
 
     // MARK: View's input
@@ -223,6 +209,14 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         }
     }
 
+	private func setReloadable() {
+		let mir = Mirror(reflecting: self)
+		mir.children.forEach({ child in
+			if let val = child.value as? HaveControllerProp {
+				val.controller = self
+			}
+		})
+	}
 }
 
 fileprivate let session = UUID().uuidString

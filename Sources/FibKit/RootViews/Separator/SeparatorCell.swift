@@ -16,13 +16,30 @@ import UIKit
 public class SeparatorCell: UICollectionViewCell {
 	
 	public struct Appearance {
-		public var dottedColor: UIColor = .separator
-		public var defaultColor: UIColor = .separator
+		public init(
+			dottedColor: UIColor? = nil,
+			defaultColor: UIColor? = nil
+		) {
+			self.dottedColor = dottedColor
+			self.defaultColor = defaultColor
+		}
+		
+		public var dottedColor: UIColor?
+		public var defaultColor: UIColor?
 	}
 	
-	public static var defaultAppearance = Appearance()
+	public static var defaultAppearance = Appearance(
+		dottedColor: .separator,
+		defaultColor: .separator
+	)
 	
-	public var appearance = defaultAppearance
+	public var dottedColor: UIColor? {
+		SeparatorCell.defaultAppearance.dottedColor
+	}
+	
+	public var defaultColor: UIColor? {
+		SeparatorCell.defaultAppearance.defaultColor
+	}
 
     // MARK: Outlets
 
@@ -76,9 +93,9 @@ extension SeparatorCell: ViewModelConfigurable {
 		backgroundColor = .clear
 		if self.isDottedSeparator {
 			separatorView.backgroundColor = .clear
-			separatorView.dotColor = appearance.dottedColor
+			separatorView.dotColor = dottedColor
 		} else {
-			separatorView.backgroundColor = appearance.dottedColor
+			separatorView.backgroundColor = dottedColor
 			separatorView.dotColor = .clear
 		}
 	}

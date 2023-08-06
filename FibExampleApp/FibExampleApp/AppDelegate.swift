@@ -14,11 +14,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
-		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .white, shutterType: .rounded, backgroundView: nil))
+		let view = UIView()
+		view.backgroundColor = .black
+		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .white, shutterType: .rounded, backgroundView: {view}))
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
 		appearance.backgroundColor = UIColor.clear
-		appearance.backgroundEffect = UIBlurEffect(style: .light) // or dark
+		appearance.backgroundEffect = UIBlurEffect(style: .dark) // or dark
+		appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
 		
 		let scrollingAppearance = UINavigationBarAppearance()
 		scrollingAppearance.configureWithTransparentBackground()

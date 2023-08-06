@@ -33,20 +33,23 @@ open class FibControllerRootView: UIView {
 			shutterBackground: UIColor? = nil,
 			viewBackgroundColor: UIColor? = nil,
 			shutterType: FibControllerRootView.Shutter? = nil,
-			backgroundView: UIView? = nil
+			backgroundView: (() -> UIView)? = nil,
+			shutterShadowClosure: ((ShutterView) -> Void)? = nil
 		) {
 			self.roundedShutterBackground = roundedShutterBackground
 			self.shutterBackground = shutterBackground
 			self.viewBackgroundColor = viewBackgroundColor
 			self.shutterType = shutterType
 			self.backgroundView = backgroundView
+			self.shutterShadowClosure = shutterShadowClosure
 		}
 		
 		public var roundedShutterBackground: UIColor?
 		public var shutterBackground: UIColor?
 		public var viewBackgroundColor: UIColor?
+		public var shutterShadowClosure: ((ShutterView) -> Void)?
 		public var shutterType: Shutter?
-		public var backgroundView: UIView?
+		public var backgroundView: (() -> UIView)?
 	}
 		
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration }
@@ -63,8 +66,11 @@ open class FibControllerRootView: UIView {
 	var shutterType: Shutter {
 		controller?.configuration?.viewConfiguration.shutterType ?? defaultConfiguration.shutterType ?? .default
 	}
-	var backgroundView: UIView? {
+	var backgroundView: (() -> UIView)? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
+	}
+	var shutterShadowClosure: ((ShutterView) -> Void)? {
+		controller?.configuration?.viewConfiguration.shutterShadowClosure ?? defaultConfiguration.shutterShadowClosure
 	}
 	
 	// MARK: Dependencies
@@ -144,6 +150,7 @@ open class FibControllerRootView: UIView {
 		rootGridViewBackground.addSubview(rootFormView)
 		rootFormView.clipsToBounds = true
 		rootFormView.layer.masksToBounds = true
+		rootFormView.contentInsetAdjustmentBehavior = .always
 		rootGridViewBackground.insertSubview(shutterView, belowSubview: rootFormView)
 		rootFormView.delegate = self
 		assignRefreshControlIfNeeded()
@@ -185,12 +192,12 @@ open class FibControllerRootView: UIView {
 		switch shutterType {
 		case .default:
 			shutterView.layer.cornerRadius = 0
-//			shutterView.layer.clearShadow()
+			shutterView.layer.clearShadow()
 		case .rounded:
 			shutterView.layer.cornerRadius = 16
 			shutterView.layer.masksToBounds = false
 			shutterView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-//			shutterView.layer.applySketchShadow()
+			shutterShadowClosure?(shutterView)
 		}
 		let mask = CAShapeLayer()
 		let maskOriginY = min(rootFormView.frame.origin.y - shutterViewY, shutterView.layer.cornerRadius)
@@ -269,19 +276,20 @@ open class FibControllerRootView: UIView {
 	}
 	
 	fileprivate func updateHeaderFrame() {
-		header?.frame = .init(x: 0,
-							  y: headerTopMargin,
-							  width: bounds.width,
-							  height: headerHeight)
+		UIView.performWithoutAnimation {
+			header?.frame = .init(x: 0,
+								  y: headerTopMargin,
+								  width: bounds.width,
+								  height: headerHeight)
+		}
 	}
 	
 	private var needsConfigureFooter: Bool = false
 	private var needsConfigureHeader: Bool = false
 	
 	func configureBackgroundView() {
-		let view = backgroundView
-		if let customBackgroundView = (view?.copy() as? UIView) {
-			if customBackgroundView.superview == nil {
+		if let customBackgroundView = backgroundView?() {
+			if customBackgroundView.superview !== self {
 				addSubview(customBackgroundView)
 			}
 			_backgroundViewRef = customBackgroundView
@@ -395,9 +403,7 @@ open class FibControllerRootView: UIView {
 			headerHeightSource[headerViewModel?.sizeHash ?? UUID().uuidString] = headerHeight
 		}
 		var isChangedHeaderHeight = false
-		if self._headerInitialHeight ?? 0 > 0 {
-			isChangedHeaderHeight = self._headerInitialHeight != headerHeight
-		}
+		isChangedHeaderHeight = self._headerInitialHeight != headerHeight
 		self.headerHeight = headerHeight
 		_headerInitialHeight = headerHeight
 		let isChangedViewModel = _headerViewModel?.viewClass().className ?? "-1"
@@ -650,5 +656,24 @@ internal extension UIView {
 	var fullEdgesHeight: CGFloat {
 		let safeArea = ((statusBarFrame?.height ?? 0) + self.safeAreaInsets.bottom)
 		return UIScreen.main.bounds.height - safeArea
+	}
+}
+
+internal extension CALayer {
+	
+	func clearShadow() {
+		shadowColor = UIColor.clear.cgColor
+		shadowOpacity = 0
+		shadowOffset = .zero
+		shadowRadius = 0
+		shadowPath = nil
+	}
+}
+
+//MARK: - UIView Extensions
+
+extension UIView {
+	func copyView<T: UIView>() -> T {
+		return NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self)) as! T
 	}
 }
