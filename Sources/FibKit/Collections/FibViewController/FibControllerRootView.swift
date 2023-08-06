@@ -33,7 +33,7 @@ open class FibControllerRootView: UIView {
 			shutterBackground: UIColor? = nil,
 			viewBackgroundColor: UIColor? = nil,
 			shutterType: FibControllerRootView.Shutter? = nil,
-			backgroundView: (() -> UIView)? = nil,
+			backgroundView: (() -> UIView?)? = nil,
 			shutterShadowClosure: ((ShutterView) -> Void)? = nil
 		) {
 			self.roundedShutterBackground = roundedShutterBackground
@@ -49,7 +49,7 @@ open class FibControllerRootView: UIView {
 		public var viewBackgroundColor: UIColor?
 		public var shutterShadowClosure: ((ShutterView) -> Void)?
 		public var shutterType: Shutter?
-		public var backgroundView: (() -> UIView)?
+		public var backgroundView: (() -> UIView?)?
 	}
 		
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration }
@@ -66,7 +66,7 @@ open class FibControllerRootView: UIView {
 	var shutterType: Shutter {
 		controller?.configuration?.viewConfiguration.shutterType ?? defaultConfiguration.shutterType ?? .default
 	}
-	var backgroundView: (() -> UIView)? {
+	var backgroundView: (() -> UIView?)? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
 	}
 	var shutterShadowClosure: ((ShutterView) -> Void)? {
