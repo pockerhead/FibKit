@@ -87,7 +87,7 @@ open class FibControllerRootView: UIView {
 	private var _footerViewModel: ViewModelWithViewClass?
 	public weak var proxyDelegate: UIScrollViewDelegate?
 	
-	var footerHeight: CGFloat = 0
+	public private(set) var footerHeight: CGFloat = 0
 	
 	public var header: FibViewHeader?
 	public let shutterView = ShutterView()
