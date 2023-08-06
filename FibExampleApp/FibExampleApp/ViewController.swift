@@ -14,7 +14,6 @@ class ViewController: FibViewController {
 	override var header: FibViewHeaderViewModel? {
 		guard flag else { return nil }
 		return FibCell.ViewModel(provider: GridSection {
-			MyFibHeader.ViewModel()
 			EmbedCollection.ViewModel(
 				provider: GridSection({
 					arr2.map { i in
@@ -28,6 +27,7 @@ class ViewController: FibViewController {
 		})
 		.needRound(false)
 		.borderStyle(.none)
+		.atTop(true)
 	}
 	
 	var arr2 = Array(0...50)

@@ -568,8 +568,8 @@ extension FibControllerRootView: UIScrollViewDelegate {
 			header?.frame.origin.y = headerTopMargin
 		}
 		guard let headerInitialHeight = _headerInitialHeight else { return }
-		let offsetY = (scrollView.contentOffset.y + headerInitialHeight)
-		let size = headerInitialHeight - offsetY
+		let offsetY = (scrollView.contentOffset.y + headerInitialHeight + scrollView.adjustedContentInset.top)
+		let size = offsetY - headerInitialHeight
 		var minHeight: CGFloat = headerInitialHeight
 		var maxHeight: CGFloat = headerInitialHeight
 		defer {
