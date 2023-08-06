@@ -84,6 +84,16 @@ final public class FibGrid: CollectionView {
 			if let provider = provider as? SectionStack {
 				provider.collectionView = self
 				self.scrollDirection = provider.scrollDirection
+				provider.bindReload {[weak self] in
+					self?.didReloadClosure?()
+				}
+			}
+			if let provider = provider as? GridSection {
+				provider.collectionView = self
+				self.scrollDirection = provider.scrollDirection
+				provider.bindReload {[weak self] in
+					self?.didReloadClosure?()
+				}
 			}
 			setNeedsReload()
 			reloadSections(oldValue)
