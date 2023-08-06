@@ -101,7 +101,7 @@ open class FibControllerRootView: UIView {
 	var transparentNavbar: Bool = false
 	var initialNavbarColor: UIColor = .clear
 		
-	private var _headerInitialHeight: CGFloat?
+	internal var _headerInitialHeight: CGFloat?
 	var _headerViewModel: FibViewHeaderViewModel?
 	public lazy var refreshControl: UIRefreshControl = {
 		let control = UIRefreshControl()
@@ -273,7 +273,7 @@ open class FibControllerRootView: UIView {
 				)
 				headerTopMargin = safeAreaInsets.top + offsetY.clamp(0, .greatestFiniteMagnitude)
 				let atTop = _headerViewModel?.atTop ?? false
-				self.rootFormView.additionalHeaderInset = atTop ? 0 : headerTopMargin + headerHeight
+				self.rootFormView.additionalHeaderInset = headerTopMargin + headerHeight
 			}
 		} else {
 			self.headerTopMargin = safeAreaInsets.top
@@ -575,10 +575,10 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		var maxHeight: CGFloat = headerInitialHeight
 		let atTop = _headerViewModel?.atTop ?? false
 		defer {
-			self.rootFormView.additionalHeaderInset = atTop ? 0 : size.clamp(minHeight, maxHeight)
+			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
 			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
 			if needFullAnchors && controller?.navigationController?.navigationBar.prefersLargeTitles == true {
-				self.rootFormView.additionalHeaderInset = atTop ? 0 : size.clamp(minHeight, maxHeight) + safeAreaInsets.top
+				self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
 				self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
 			}
 		}

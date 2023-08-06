@@ -13,21 +13,7 @@ class ViewController: FibViewController {
 	
 	override var header: FibViewHeaderViewModel? {
 		guard flag else { return nil }
-		return FibCell.ViewModel(provider: GridSection {
-			EmbedCollection.ViewModel(
-				provider: GridSection({
-					arr2.map { i in
-						MyFibSquareView.ViewModel(text: "arr2_cell_\(i)")
-					} as [ViewModelWithViewClass?]
-				})
-				.rowLayout(spacing: 8)
-			)
-			.backgroundColor(.asbestos)
-			.height(100)
-		})
-		.needRound(false)
-		.borderStyle(.none)
-		.atTop(true)
+		return MyFibHeader.ViewModel()
 	}
 	
 	var arr2 = Array(0...50)
@@ -106,7 +92,7 @@ class ViewController: FibViewController {
 
 class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
-//		backgroundColor = .green
+		backgroundColor = .green
 		layer.borderColor = UIColor.blue.cgColor
 		layer.borderWidth = 3
 	}
@@ -117,8 +103,10 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 	}
 	
 	struct ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
-		var atTop: Bool { false }
-		
+		var atTop: Bool { true }
+		var maxHeight: CGFloat? { 300 }
+		var minHeight: CGFloat? { 100 }
+		var allowedStretchDirections: Set<StretchDirection> = [.down, .up]
 		var flag = false
 //		var id: String? { UUID().uuidString }
 		var sizeHash: String? { "\(flag)" }
