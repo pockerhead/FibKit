@@ -150,7 +150,7 @@ open class FibControllerRootView: UIView {
 		rootGridViewBackground.addSubview(rootFormView)
 		rootFormView.clipsToBounds = true
 		rootFormView.layer.masksToBounds = true
-//		rootFormView.contentInsetAdjustmentBehavior = .always
+		rootFormView.contentInsetAdjustmentBehavior = .always
 		rootGridViewBackground.insertSubview(shutterView, belowSubview: rootFormView)
 		rootFormView.delegate = self
 		assignRefreshControlIfNeeded()

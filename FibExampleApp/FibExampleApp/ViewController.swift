@@ -39,14 +39,18 @@ class ViewController: FibViewController {
 	}
 	
 	override var body: SectionProtocol? {
-		GridSection {
-			FormViewSpacer(30)
-			arr2.map { i in
-				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
-			} as [ViewModelWithViewClass?]
-		}
-		.tapHandler { _ in
-			self.flag.toggle()
+		SectionStack {
+			GridSection {
+				FormViewSpacer(30)
+				arr2.map { i in
+					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
+				} as [ViewModelWithViewClass?]
+			}
+			.header(MyFibHeader.ViewModel(flag: true))
+			.isSticky(true)
+			.tapHandler { _ in
+				self.flag.toggle()
+			}
 		}
 	}
 	
@@ -99,12 +103,15 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 	}
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
-		return .init(width: targetSize.width, height: 300)
+		guard let data = data as? ViewModel else { return .zero }
+		return .init(width: targetSize.width, height: data.flag ? 44 : 300)
 	}
 	
 	struct ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		var atTop: Bool { false }
 		
+		var flag = false
+		var id: String? { UUID().uuidString }
 		func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibHeader.self
 		}

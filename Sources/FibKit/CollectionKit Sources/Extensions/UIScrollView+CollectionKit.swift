@@ -34,9 +34,9 @@ extension UIScrollView {
 	}
 	public var visibleFrameLessInset: CGRect {
 		var visibleFrameLessInset = visibleFrame.inset(by: adjustedContentInset)
-		if let self = self as? FibGrid {
-			visibleFrameLessInset.origin.y -= self.additionalHeaderInset ?? 0
-			visibleFrameLessInset.size.height += self.additionalHeaderInset ?? 0
+		if let grid = self as? FibGrid {
+			visibleFrameLessInset.origin.y -= grid.contentInset.top
+			visibleFrameLessInset.size.height += grid.contentInset.top
 		}
 		return visibleFrameLessInset
 	}
