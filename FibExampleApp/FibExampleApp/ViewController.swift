@@ -38,6 +38,15 @@ class ViewController: FibViewController {
 		))
 	}
 	
+	override var footer: FibCell.ViewModel? {
+		.init(provider: GridSection {
+			MyFibHeader.ViewModel(flag: flag)
+		})
+		.backgroundColor(.green)
+		.borderStyle(.shadow)
+		.needRound(false)
+	}
+	
 	override var body: SectionProtocol? {
 		SectionStack {
 			GridSection {
@@ -97,7 +106,7 @@ class ViewController: FibViewController {
 
 class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
-		backgroundColor = .green
+//		backgroundColor = .green
 		layer.borderColor = UIColor.blue.cgColor
 		layer.borderWidth = 3
 	}
@@ -111,7 +120,8 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 		var atTop: Bool { false }
 		
 		var flag = false
-		var id: String? { UUID().uuidString }
+//		var id: String? { UUID().uuidString }
+		var sizeHash: String? { "\(flag)" }
 		func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibHeader.self
 		}

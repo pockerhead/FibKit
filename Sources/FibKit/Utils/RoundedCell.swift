@@ -2,9 +2,20 @@ import UIKit
 
 open class RoundedCell: SqueezeCell {
 	
+	public struct RoundedCellAppearance {
+		
+		public init(shadowClosure: ((UIView) -> Void)? = nil) {
+			self.shadowClosure = shadowClosure
+		}
+		
+		public var shadowClosure: ((UIView) -> Void)?
+	}
+	
 	open var isForceDisableRoundCorners: Bool {
 		false
 	}
+	
+	public static var defaultRoundedCellAppearance = RoundedCellAppearance()
 
 	public required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
@@ -32,7 +43,7 @@ open class RoundedCell: SqueezeCell {
 
 	open override func layoutSubviews() {
 		super.layoutSubviews()
-		shadowClosure?(self)
+		RoundedCell.defaultRoundedCellAppearance.shadowClosure?(self) ?? shadowClosure?(self)
 	}
 }
 

@@ -79,18 +79,15 @@ open class FibControllerRootView: UIView {
 	// MARK: Properties
 	
 	private let rootGridViewBackground = RootGridViewBackground()
+	private let rootFooterBackground = RootGridViewBackground()
 	public let rootFormView = FibGrid()
 	private var _backgroundViewRef: UIView?
 	
 	public let footer = FibCell()
-	private var _footerBottom: NSLayoutConstraint?
-	public var _footerHeight: NSLayoutConstraint?
 	private var _footerViewModel: ViewModelWithViewClass?
 	public weak var proxyDelegate: UIScrollViewDelegate?
 	
-	var footerHeight: CGFloat {
-		_footerHeight?.constant ?? 0
-	}
+	var footerHeight: CGFloat = 0
 	
 	public var header: FibViewHeader?
 	public let shutterView = ShutterView()
@@ -230,6 +227,7 @@ open class FibControllerRootView: UIView {
 		}
 		calculateHeaderFrame()
 		updateHeaderFrame()
+		updateFooterFrame()
 		if needsConfigureFooter {
 			needsConfigureFooter = false
 			if let footer = footer as? ViewModelConfigururableFromSizeWith {
@@ -237,6 +235,7 @@ open class FibControllerRootView: UIView {
 			} else {
 				footer.configure(with: _footerViewModel)
 			}
+			applyAppearance()
 		}
 		if needsConfigureHeader {
 			needsConfigureHeader = false
@@ -250,6 +249,14 @@ open class FibControllerRootView: UIView {
 		let gridMaskTop = shutterType == .default ? 0 : safeAreaInsets.top
 		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop),
 								   size: .init(width: bounds.width, height: bounds.height))
+	}
+	
+	func updateFooterFrame() {
+		let backgroundHeight = footerHeight + safeAreaInsets.bottom
+		rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
+		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+		rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
+		footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
 	}
 	
 	fileprivate func calculateHeaderFrame() {
@@ -308,6 +315,7 @@ open class FibControllerRootView: UIView {
 		backgroundColor = viewBackgroundColor
 		rootFormView.backgroundColor = .clear
 		shutterView.backgroundColor = getShutterColor()
+		rootFooterBackground.backgroundColor = footer.formView.backgroundColor
 		scrollViewDidScroll(rootFormView)
 	}
 	
@@ -323,16 +331,12 @@ open class FibControllerRootView: UIView {
 	}
 	
 	func configureFooter() {
-		addSubview(footer)
-		footer._needUserInteraction = false
+		addSubview(rootFooterBackground)
+		rootFooterBackground.clipsToBounds = false
+		rootFooterBackground.layer.masksToBounds = false
+		rootFooterBackground.addSubview(footer)
 		footer.alpha = 1
 		footer.needRound = false
-		footer.anchor(top: rootFormView.bottomAnchor,
-					  left: safeAreaLayoutGuide.leftAnchor,
-					  bottom: safeAreaLayoutGuide.bottomAnchor,
-					  right: safeAreaLayoutGuide.rightAnchor)
-		_footerBottom = footer.anchorWithReturnAnchors(bottom: safeAreaLayoutGuide.bottomAnchor).first
-		_footerHeight = footer.anchorWithReturnAnchors(heightConstant: 44).first
 	}
 	
 	// MARK: Controller's output
@@ -488,29 +492,26 @@ open class FibControllerRootView: UIView {
 	
 	func display(_ footerViewModel: FibCell.ViewModel?, animated: Bool, secondary: Bool = false) {
 		footerViewModel?.storedId = "footer"
-		footerViewModel?.backgroundColor = .clear
 		self._footerViewModel = footerViewModel
 		let footerHeight = footerViewModel == nil
 		? 0
 		: self.footer.sizeWith(self.bounds.size, data: footerViewModel)?.height ?? 0
-		let footerHeightChanged = footerHeight != (self._footerHeight?.constant ?? 0)
-		self._footerHeight?.constant = footerHeight
-		self._footerBottom?.isActive = false
-		let footerBottomAnchor: NSLayoutYAxisAnchor
-		if footerViewModel == nil {
-			footerBottomAnchor = self.bottomAnchor
+		let footerHeightChanged = footerHeight != self.footerHeight
+		self.footerHeight = footerHeight
+		if footerHeight == 0 {
+			rootFooterBackground.alpha = 0
+			rootFooterBackground.isUserInteractionEnabled = false
 		} else {
-			footerBottomAnchor = self.safeAreaLayoutGuide.bottomAnchor
+			rootFooterBackground.alpha = 1
+			rootFooterBackground.isUserInteractionEnabled = true
 		}
-		self._footerBottom = self.footer.anchorWithReturnAnchors(bottom: footerBottomAnchor).first
 		if footerViewModel != nil {
 			needsConfigureFooter = true
 			self.setNeedsLayout()
 		}
-		self.footer.isHidden = footerHeight == 0
 		if animated && footerHeightChanged {
 			delay {
-				UIView.animate(withDuration: 0.3) {[weak self] in
+				withFibSpringAnimation {[weak self] in
 					guard let self = self else { return }
 					self.layoutIfNeeded()
 				}

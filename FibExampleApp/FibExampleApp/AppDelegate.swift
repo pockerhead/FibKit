@@ -17,6 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		let view = UIView()
 		view.backgroundColor = .black
 		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .white, shutterType: .rounded, backgroundView: {view}))
+		RoundedCell.defaultRoundedCellAppearance.shadowClosure = { view in
+			view.layer.shadowColor = UIColor.black.cgColor
+			view.layer.shadowRadius = 10
+			view.layer.shadowOpacity = 1
+		}
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
 		appearance.backgroundColor = UIColor.clear

@@ -107,8 +107,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
 			layer.cornerRadius = 12
 			contentView.layer.cornerRadius = 12
 			formView.layer.cornerRadius = 12
-		}
-        else if needRound {
+		} else if needRound {
             if borderStyle == .border {
                 self.layer.clearShadow()
 				contentView.layer.borderColor = contentViewBorderColor?.cgColor
@@ -320,6 +319,7 @@ extension FibCell: FibViewHeader {
         } else {
             formView.provider = data.provider
         }
+		applyAppearance()
 		contentView.layer.masksToBounds = !data.disableMaskToBounds
 		formView.layer.masksToBounds = !data.disableMaskToBounds
     }
