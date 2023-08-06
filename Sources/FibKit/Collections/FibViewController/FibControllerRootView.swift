@@ -272,7 +272,8 @@ open class FibControllerRootView: UIView {
 					+ rootFormView.adjustedContentInset.top
 				)
 				headerTopMargin = safeAreaInsets.top + offsetY.clamp(0, .greatestFiniteMagnitude)
-				self.rootFormView.additionalHeaderInset = headerTopMargin + headerHeight
+				let atTop = _headerViewModel?.atTop ?? false
+				self.rootFormView.additionalHeaderInset = atTop ? 0 : headerTopMargin + headerHeight
 			}
 		} else {
 			self.headerTopMargin = safeAreaInsets.top
@@ -568,15 +569,16 @@ extension FibControllerRootView: UIScrollViewDelegate {
 			header?.frame.origin.y = headerTopMargin
 		}
 		guard let headerInitialHeight = _headerInitialHeight else { return }
-		let offsetY = (scrollView.contentOffset.y + headerInitialHeight + scrollView.adjustedContentInset.top)
-		let size = offsetY - headerInitialHeight
+		let offsetY = (scrollView.contentOffset.y + headerInitialHeight - scrollView.adjustedContentInset.top)
+		let size = headerInitialHeight - offsetY
 		var minHeight: CGFloat = headerInitialHeight
 		var maxHeight: CGFloat = headerInitialHeight
+		let atTop = _headerViewModel?.atTop ?? false
 		defer {
-			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
+			self.rootFormView.additionalHeaderInset = atTop ? 0 : size.clamp(minHeight, maxHeight)
 			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
 			if needFullAnchors && controller?.navigationController?.navigationBar.prefersLargeTitles == true {
-				self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
+				self.rootFormView.additionalHeaderInset = atTop ? 0 : size.clamp(minHeight, maxHeight) + safeAreaInsets.top
 				self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
 			}
 		}
