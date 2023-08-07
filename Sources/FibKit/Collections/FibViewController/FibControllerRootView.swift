@@ -27,11 +27,24 @@ open class FibControllerRootView: UIView {
 		case `default`
 	}
 	
-	public enum HeaderTopStrategy {
+	public enum TopInsetStrategy {
 		case safeArea
 		case statusBar
 		case top
-		case custom((() -> CGFloat))
+		case custom(@autoclosure (() -> CGFloat))
+		
+		func getTopInset(for view: UIView) -> CGFloat {
+			switch self {
+			case .safeArea:
+				return view.safeAreaInsets.top
+			case .statusBar:
+				return view.statusBarFrame?.height ?? 0
+			case .top:
+				return 0
+			case .custom(let margin):
+				return margin()
+			}
+		}
 	}
 	
 	public class Configuration {
@@ -42,7 +55,9 @@ open class FibControllerRootView: UIView {
 			shutterType: FibControllerRootView.Shutter? = nil,
 			backgroundView: (() -> UIView?)? = nil,
 			shutterShadowClosure: ((ShutterView) -> Void)? = nil,
-			headerTopStrategy: HeaderTopStrategy? = nil
+			topInsetStrategy: TopInsetStrategy? = nil,
+			headerBackgroundViewColor: UIColor? = nil,
+			headerBackgroundEffectView: (() -> UIView?)? = nil
 		) {
 			self.roundedShutterBackground = roundedShutterBackground
 			self.shutterBackground = shutterBackground
@@ -50,21 +65,32 @@ open class FibControllerRootView: UIView {
 			self.shutterType = shutterType
 			self.backgroundView = backgroundView
 			self.shutterShadowClosure = shutterShadowClosure
-			self.headerTopStrategy = headerTopStrategy
+			self.topInsetStrategy = topInsetStrategy
+			self.headerBackgroundViewColor = headerBackgroundViewColor
+			self.headerBackgroundEffectView = headerBackgroundEffectView
 		}
 		
 		public var roundedShutterBackground: UIColor?
 		public var shutterBackground: UIColor?
 		public var viewBackgroundColor: UIColor?
+		public var headerBackgroundViewColor: UIColor?
+		public var headerBackgroundEffectView: (() -> UIView?)?
 		public var shutterShadowClosure: ((ShutterView) -> Void)?
 		public var shutterType: Shutter?
 		public var backgroundView: (() -> UIView?)?
-		public var headerTopStrategy: HeaderTopStrategy?
+		public var topInsetStrategy: TopInsetStrategy?
 	}
 		
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration
 	}
 	// MARK: - APPEARANCE
+	
+	var headerBackgroundViewColor: UIColor? {
+		controller?.configuration?.viewConfiguration.headerBackgroundViewColor ?? defaultConfiguration.headerBackgroundViewColor
+	}
+	var headerBackgroundEffectView: (() -> UIView?)? {
+		controller?.configuration?.viewConfiguration.headerBackgroundEffectView ?? defaultConfiguration.headerBackgroundEffectView
+	}
 	var roundedShutterBackground: UIColor? {
 		controller?.configuration?.viewConfiguration.roundedShutterBackground ?? defaultConfiguration.roundedShutterBackground
 	}
@@ -80,8 +106,8 @@ open class FibControllerRootView: UIView {
 	var backgroundView: (() -> UIView?)? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
 	}
-	var headerTopStrategy: HeaderTopStrategy {
-		controller?.configuration?.viewConfiguration.headerTopStrategy ?? defaultConfiguration.headerTopStrategy ?? .safeArea
+	var topInsetStrategy: TopInsetStrategy {
+		controller?.configuration?.viewConfiguration.topInsetStrategy ?? defaultConfiguration.topInsetStrategy ?? .safeArea
 	}
 	var shutterShadowClosure: ((ShutterView) -> Void)? {
 		controller?.configuration?.viewConfiguration.shutterShadowClosure ?? defaultConfiguration.shutterShadowClosure
@@ -92,18 +118,23 @@ open class FibControllerRootView: UIView {
 	
 	// MARK: Properties
 	
-	private let rootGridViewBackground = RootGridViewBackground()
-	private let rootFooterBackground = RootGridViewBackground()
 	public let rootFormView = FibGrid()
+	private let rootGridViewBackground = RootGridViewBackground()
 	private var _backgroundViewRef: UIView?
 	
 	public let footer = FibCell()
 	private var _footerViewModel: ViewModelWithViewClass?
+	private let rootFooterBackground = RootGridViewBackground()
+
 	public weak var proxyDelegate: UIScrollViewDelegate?
 	
 	public private(set) var footerHeight: CGFloat = 0
 	
 	public var header: FibViewHeader?
+	private let rootHeaderBackground = RootGridViewBackground()
+	private var rootHeaderBackgroundEffectView: UIView?
+	private var _rootHeaderBackgroundViewRef: UIView?
+
 	public let shutterView = ShutterView()
 	
 	var headerHeight: CGFloat = 0
@@ -147,8 +178,14 @@ open class FibControllerRootView: UIView {
 	private func configureUI() {
 		configureFormView()
 		configureFooter()
+		configureHeaderBackground()
 		rootFormView.containedRootView = self
 		applyAppearance()
+	}
+	
+	func configureHeaderBackground() {
+		addSubview(rootHeaderBackground)
+		bringSubviewToFront(rootHeaderBackground)
 	}
 	
 	func configureFormView() {
@@ -186,9 +223,9 @@ open class FibControllerRootView: UIView {
 	}
 	
 	fileprivate func configureShutterViewFrame() {
-		let topInset = needFullAnchors ? 0 : safeAreaInsets.top
+		let topInset = topInsetStrategy.getTopInset(for: self)
 		let topEdge = topInset - shutterView.layer.cornerRadius
-		let height = UIScreen.main.bounds.height
+		let height = UIScreen.main.bounds.height * 2
 		let shutterViewY = (rootFormView.frame.origin.y - rootFormView.contentOffset.y).clamp(topEdge, .greatestFiniteMagnitude)
 		shutterView.frame = CGRect(x: rootFormView.frame.origin.x,
 								   y: shutterViewY,
@@ -211,7 +248,7 @@ open class FibControllerRootView: UIView {
 			rect: CGRect(x: 0,
 						 y: maskOriginY,
 						 width: UIScreen.main.bounds.width,
-						 height: UIScreen.main.bounds.height)
+						 height: UIScreen.main.bounds.height * 2)
 		).cgPath
 		shutterView.layer.mask = mask
 	}
@@ -227,13 +264,8 @@ open class FibControllerRootView: UIView {
 		UIView.performWithoutAnimation {
 			configureShutterViewFrame()
 		}
-		let backView = backgroundView
-		if backView != nil {
-			configureBackgroundView()
-		} else {
-			_backgroundViewRef?.removeFromSuperview()
-			_backgroundViewRef = nil
-		}
+		configureBackgroundView()
+		configureHeaderEffectsBackgroundView()
 		calculateHeaderFrame()
 		updateHeaderFrame()
 		updateFooterFrame()
@@ -255,7 +287,7 @@ open class FibControllerRootView: UIView {
 			}
 		}
 		layoutFibGrid()
-		let gridMaskTop = shutterType == .default ? 0 : safeAreaInsets.top
+		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
 		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop),
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
@@ -269,20 +301,15 @@ open class FibControllerRootView: UIView {
 	}
 	
 	fileprivate func calculateHeaderFrame() {
-		switch headerTopStrategy {
-		case .safeArea:
-			headerTopMargin = safeAreaInsets.top
-		case .top:
-			headerTopMargin = 0
-		case .statusBar:
-			headerTopMargin = statusBarFrame?.height ?? 0
-		case .custom(let topMargin):
-			headerTopMargin = topMargin()
-		}
+		headerTopMargin = topInsetStrategy.getTopInset(for: self)
 	}
 	
 	fileprivate func updateHeaderFrame() {
 		UIView.performWithoutAnimation {
+			rootHeaderBackground.frame = .init(x: 0,
+											   y: 0,
+											   width: bounds.width,
+											   height: headerTopMargin + headerHeight)
 			header?.frame = .init(x: 0,
 								  y: headerTopMargin,
 								  width: bounds.width,
@@ -295,6 +322,10 @@ open class FibControllerRootView: UIView {
 	
 	func configureBackgroundView() {
 		if let customBackgroundView = backgroundView?() {
+			if _backgroundViewRef !== customBackgroundView {
+				_backgroundViewRef?.removeFromSuperview()
+				_backgroundViewRef = nil
+			}
 			if customBackgroundView.superview !== self {
 				addSubview(customBackgroundView)
 			}
@@ -302,6 +333,29 @@ open class FibControllerRootView: UIView {
 			sendSubviewToBack(customBackgroundView)
 			customBackgroundView.frame = bounds
 			applyAppearance()
+		} else {
+			_backgroundViewRef?.removeFromSuperview()
+			_backgroundViewRef = nil
+		}
+	}
+	
+	func configureHeaderEffectsBackgroundView() {
+		if let customBackgroundView = headerBackgroundEffectView?() {
+			if rootHeaderBackgroundEffectView !== customBackgroundView {
+				_rootHeaderBackgroundViewRef?.removeFromSuperview()
+				_rootHeaderBackgroundViewRef = nil
+			}
+			if customBackgroundView.superview !== self.rootHeaderBackground {
+				rootHeaderBackground.addSubview(customBackgroundView)
+			}
+			
+			_rootHeaderBackgroundViewRef = customBackgroundView
+			rootHeaderBackground.sendSubviewToBack(customBackgroundView)
+			customBackgroundView.frame = rootHeaderBackground.bounds
+			applyAppearance()
+		} else {
+			_rootHeaderBackgroundViewRef?.removeFromSuperview()
+			_rootHeaderBackgroundViewRef = nil
 		}
 	}
 	
@@ -316,6 +370,7 @@ open class FibControllerRootView: UIView {
 		shutterView.backgroundColor = getShutterColor()
 		rootFooterBackground.backgroundColor = footer.formView.backgroundColor
 		scrollViewDidScroll(rootFormView)
+		rootHeaderBackground.backgroundColor = headerBackgroundViewColor
 	}
 	
 	var presentingInFormSheet: Bool {
@@ -342,6 +397,7 @@ open class FibControllerRootView: UIView {
 	func display(_ headerViewModel: FibViewHeaderViewModel?,
 				 dummyHeaderClass: FibViewHeader.Type?,
 				 animated: Bool) {
+		bringSubviewToFront(rootHeaderBackground)
 		if headerViewModel == nil && dummyHeaderClass == nil {
 			deleteHeader(animated: animated)
 			return
@@ -364,10 +420,6 @@ open class FibControllerRootView: UIView {
 		configureExistedHeader(headerViewModel: headerViewModel, animated: animated)
 	}
 	
-	var needFullAnchors: Bool {
-		((controller?.navigationController?.navigationBar as? PassThroughNavigationBar) != nil)
-	}
-	
 	var headerHeightSource: [String: CGFloat] = [:]
 	
 	// swiftlint:disable function_body_length
@@ -375,9 +427,9 @@ open class FibControllerRootView: UIView {
 		guard let header = self.header else { return }
 		guard (headerViewModel?.preventFromReload ?? false) == false else { return }
 		if headerViewModel?.atTop == true {
-			bringSubviewToFront(header)
+			bringSubviewToFront(rootHeaderBackground)
 		} else {
-			sendSubviewToBack(header)
+			sendSubviewToBack(rootHeaderBackground)
 		}
 		let targetSize = bounds.size.insets(by: safeAreaInsets)
 		let existedHeight = headerHeightSource[headerViewModel?.sizeHash ?? UUID().uuidString]
@@ -423,7 +475,8 @@ open class FibControllerRootView: UIView {
 				?? viewClass.init() as? FibViewHeader else { return }
 		header.alpha = 1
 		self.header = header
-		addSubview(header)
+		rootHeaderBackground.addSubview(header)
+		rootHeaderBackground.bringSubviewToFront(header)
 	}
 	
 	func updateFormViewInsets(animated: Bool,
@@ -442,11 +495,20 @@ open class FibControllerRootView: UIView {
 	private func _updateFormViewInsets(isChangedHeaderHeight: Bool = false,
 									   isChangedHeaderViewModel: Bool = false) {
 		let absoluteContentOffset = self.rootFormView.contentOffset.y + self.rootFormView.contentInset.top
-		let headerHeight = self.headerHeight
+		var contentInsetTop = self.headerHeight
+		switch topInsetStrategy {
+		case .custom(let margin):
+			contentInsetTop -= (safeAreaInsets.top - margin())
+		case .safeArea: break
+		case .statusBar:
+			contentInsetTop -= (safeAreaInsets.top - (statusBarFrame?.height ?? 0))
+		case .top:
+			contentInsetTop -= safeAreaInsets.top
+		}
 		self.layoutIfNeeded()
 		let needAdjustContentOffset = absoluteContentOffset.isBeetween(-10, 10)
-		self.rootFormView.contentInset.top = headerHeight
-		self.rootFormView.verticalScrollIndicatorInsets.top = headerHeight
+		self.rootFormView.contentInset.top = contentInsetTop
+		self.rootFormView.verticalScrollIndicatorInsets.top = contentInsetTop
 		if needAdjustContentOffset || (isChangedHeaderHeight && isChangedHeaderViewModel) {
 			self.rootFormView.contentOffset.y = -self.rootFormView.contentInset.top
 		}
@@ -574,10 +636,6 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		defer {
 			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
 			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
-			if needFullAnchors && controller?.navigationController?.navigationBar.prefersLargeTitles == true {
-				self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
-				self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
-			}
 		}
 //		if transparentNavbar {
 //			let sizePercentage = ((headerInitialHeight - size) / headerInitialHeight).clamp(0, 1)

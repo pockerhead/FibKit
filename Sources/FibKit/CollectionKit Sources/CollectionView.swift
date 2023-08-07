@@ -596,9 +596,10 @@ open class CollectionView: UIScrollView {
 		for (index, identifier) in visibleIdentifiers.enumerated() {
 			let cell = visibleCells[index]
 			if !newIdentifierSet.contains(identifier) && cell !== draggedCell?.cell {
-				if let cell = cell as? FormViewAppearable {
-					cell.onDissappear(with: self as? FibGrid)
-				}
+//				if let cell = cell as? FormViewAppearable {
+//					cell.onDissappear(with: self as? FibGrid)
+//				}
+				cell.isAppearedOnFibGrid = false
 				if (cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection != nil {
 					(cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection = deletePageDirection
 				}
@@ -614,9 +615,9 @@ open class CollectionView: UIScrollView {
 				return existingCell
 			} else {
 				let cell = _generateCell(index: index)
-				if let cell = cell as? FormViewAppearable {
-					cell.onAppear(with: self as? FibGrid)
-				}
+//				if let cell = cell as? FormViewAppearable {
+//					cell.onAppear(with: self as? FibGrid)
+//				}
 				if subviews.get(index) !== cell {
 					insertSubview(cell, at: index)
 				}
@@ -639,6 +640,19 @@ open class CollectionView: UIScrollView {
 		visibleIdentifiers = newIdentifiers
 		visibleCells = newCells
 		for (cell, index) in zip(visibleCells, visibleIndexes) {
+			if let self = self as? FibGrid,
+			   let cell = cell as? FormViewAppearable {
+				if cell.frame.intersects(visibleFrameLessInset),
+					(cell.isAppearedOnFibGrid ?? false) == false {
+					cell.isAppearedOnFibGrid = true
+					cell.onAppear(with: self)
+				} else if !cell.frame.intersects(visibleFrameLessInset),
+						  cell.isAppearedOnFibGrid == true {
+					cell.isAppearedOnFibGrid = false
+					cell.onDissappear(with: self)
+				}
+			}
+			
 			insertSubview(cell, at: index)
 		}
 	}

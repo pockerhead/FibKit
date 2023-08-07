@@ -14,9 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
-		let view = UIView()
-		view.backgroundColor = .black
-		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .blue, shutterBackground: .red, viewBackgroundColor: .white, shutterType: .rounded, backgroundView: {view}))
+//		let view = UIView()
+//		view.backgroundColor = .black
+		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .black.withAlphaComponent(0.2), shutterBackground: .black.withAlphaComponent(0.4), viewBackgroundColor: .white, shutterType: .rounded, backgroundView: nil))
 		RoundedCell.defaultRoundedCellAppearance.shadowClosure = { view in
 			view.layer.shadowColor = UIColor.black.cgColor
 			view.layer.shadowRadius = 10

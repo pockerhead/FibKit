@@ -20,29 +20,38 @@ class ViewController: FibViewController {
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
-			shutterType: .default
+			roundedShutterBackground: .white,
+			shutterBackground: .white,
+			viewBackgroundColor: .white,
+			shutterType: .rounded,
+			topInsetStrategy: .safeArea,
+			headerBackgroundViewColor: .green.withAlphaComponent(0.5),
+			headerBackgroundEffectView: {
+//				return nil
+				return UIVisualEffectView(effect: UIBlurEffect(style: .regular))
+			}
 		))
 	}
 	
-	override var footer: FibCell.ViewModel? {
-		.init(provider: GridSection {
-			MyFibHeader.ViewModel(flag: flag)
-		})
-		.backgroundColor(.green)
-		.borderStyle(.shadow)
-		.needRound(false)
-	}
+//	override var footer: FibCell.ViewModel? {
+//		.init(provider: GridSection {
+//			MyFibHeader.ViewModel(flag: flag)
+//		})
+//		.backgroundColor(.green.withAlphaComponent(0.2))
+//		.borderStyle(.shadow)
+//		.needRound(false)
+//	}
 	
 	override var body: SectionProtocol? {
 		SectionStack {
+			SpacerSection(16)
 			GridSection {
-				FormViewSpacer(30)
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
 				} as [ViewModelWithViewClass?]
 			}
-			.header(MyFibHeader.ViewModel(flag: true))
-			.isSticky(true)
+			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+			.isSticky(false)
 			.tapHandler { _ in
 				self.flag.toggle()
 			}
@@ -87,15 +96,26 @@ class ViewController: FibViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		title = "g34g42g234fg2"
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithTransparentBackground()
+//		appearance.backgroundColor = UIColor.clear
+//		appearance.backgroundEffect = nil
+		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
+		navigationController?.navigationBar.standardAppearance = appearance
+		navigationController?.navigationBar.scrollEdgeAppearance = appearance
 	}
 }
 
-class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
+class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader, FormViewAppearable {
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
-		backgroundColor = .green
+//		backgroundColor = .green
 		layer.borderColor = UIColor.blue.cgColor
 		layer.borderWidth = 3
+		guard let data = data as? ViewModel else { return }
+		self.viewModel = data
 	}
+	
+	var viewModel: ViewModel?
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return .zero }
@@ -104,17 +124,43 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader {
 	
 	struct ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		var atTop: Bool { true }
-		var maxHeight: CGFloat? { 300 }
+		var maxHeight: CGFloat? { nil }
 		var minHeight: CGFloat? { 100 }
 		var allowedStretchDirections: Set<StretchDirection> = [.down, .up]
 		var flag = false
+		var headerStrategy: HeaderStrategy?
 //		var id: String? { UUID().uuidString }
 		var sizeHash: String? { "\(flag)" }
 		func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibHeader.self
 		}
 		
+		struct HeaderStrategy {
+			weak var controller: UIViewController?
+			var titleString: String?
+		}
 		
+	}
+	
+	func onAppear(with formView: FibGrid?) {
+		guard let controller = viewModel?.headerStrategy?.controller else { return }
+		guard controller.navigationItem.title != nil else { return }
+		let fadeTextAnimation = CATransition()
+		fadeTextAnimation.duration = 0.1
+		fadeTextAnimation.type = .fade
+
+//		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+		controller.navigationItem.title = nil
+	}
+	
+	func onDissappear(with formView: FibGrid?) {
+		guard let controller = viewModel?.headerStrategy?.controller else { return }
+		guard controller.navigationItem.title == nil else { return }
+		let fadeTextAnimation = CATransition()
+		fadeTextAnimation.duration = 0.1
+		fadeTextAnimation.type = .fade
+//		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+		controller.navigationItem.title = viewModel?.headerStrategy?.titleString
 	}
 }
 
@@ -198,7 +244,7 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 		super.layoutSubviews()
 		label.frame = bounds
 		label.textAlignment = .center
-		backgroundColor = UIColor.tertiarySystemBackground
+		backgroundColor = UIColor.red.withAlphaComponent(0.6)
 	}
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {

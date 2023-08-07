@@ -31,6 +31,7 @@ public class SectionStack:
 	) {
 		self.init(identifier: "Section_at_\(line)_in_\(file)", sections: data(), collectionView: collectionView)
 		self.headerData = FormViewSpacer(0.1, color: .clear, width: 0.1)
+		self.isSticky = true
 	}
 	
 	/// Closure that called when user taps on section header

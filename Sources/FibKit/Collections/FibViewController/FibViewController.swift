@@ -31,7 +31,7 @@ open class FibViewController: UIViewController {
 			viewBackgroundColor: .systemBackground,
 			shutterType: .default,
 			backgroundView: nil,
-			headerTopStrategy: .safeArea
+			topInsetStrategy: .safeArea
 		)
 	)
 	
