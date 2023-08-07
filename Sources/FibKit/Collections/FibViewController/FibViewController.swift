@@ -41,9 +41,6 @@ open class FibViewController: UIViewController {
 		nil
 	}
 
-//    open var shouldLoadViewOnInit: Bool { true }
-//    open var shouldResolve: Bool { true }
-
     open var rootView: FibControllerRootView! {
         (view as! FibControllerRootView)
     }
@@ -60,10 +57,7 @@ open class FibViewController: UIViewController {
 			reload(animated: false)
 		}
 	}
-
-    open var needBackgroundGradient: Bool { false }
-    open var customBackgroundView: UIView? { nil }
-
+	
     private var feedback = UISelectionFeedbackGenerator()
 
     open lazy var refreshAction: (() -> Void)? = nil
