@@ -75,7 +75,6 @@ public final class SwiftUIWrapper<Content>: FibViewHeaderViewModel where Content
     public var onSwipeOpenClosure: (()->())?
     public var onAppearClosure: ((UIView) -> Void)?
     public var onDissappearClosure: ((UIView) -> Void)?
-    public var iqKeyboardManagerFix: Bool = true
 
     @available(*, deprecated, message: "Use init(content:,id:) instead")
     public init(@ViewBuilder content: (() -> Content)) {
@@ -147,14 +146,6 @@ public final class SwiftUIWrapper<Content>: FibViewHeaderViewModel where Content
     /// - Returns: self
     public func disabledSafeAreaInsets(_ disabledSafeAreaInsets: DisabledSafeAreaInsets) -> Self {
         self.disabledSafeAreaInsets = disabledSafeAreaInsets
-        return self
-    }
-    
-    /// Additional property to fix SwiftUIWrapper with textField behaviour with IQKeyboardManager when wrapper is in formView
-    /// - Parameter fix: default = true
-    /// - Returns: self
-    public func iqKeyboardManagerFix(_ fix: Bool) -> Self {
-        self.iqKeyboardManagerFix = iqKeyboardManagerFix
         return self
     }
     

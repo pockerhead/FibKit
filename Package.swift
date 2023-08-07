@@ -16,7 +16,6 @@ let package = Package(
 	dependencies: [
 		.package(url: "https://github.com/Miraion/Threading", .upToNextMajor(from: "1.0.1")),
 		.package(url: "https://github.com/efremidze/VisualEffectView", .upToNextMajor(from: "4.1.4")),
-		.package(url: "https://github.com/hackiftekhar/IQKeyboardManager", .upToNextMajor(from: "6.5.0")),
 		.package(url: "https://github.com/Juanpe/SkeletonView", .upToNextMajor(from: "1.26.0")),
 	],
 	targets: [
@@ -27,7 +26,6 @@ let package = Package(
 			dependencies: [
 				"Threading",
 				"VisualEffectView",
-				.product(name: "IQKeyboardManagerSwift", package: "IQKeyboardManager"),
 				"SkeletonView"
 			]
 		)
