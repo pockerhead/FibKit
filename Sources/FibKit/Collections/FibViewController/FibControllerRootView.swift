@@ -27,6 +27,13 @@ open class FibControllerRootView: UIView {
 		case `default`
 	}
 	
+	public enum HeaderTopStrategy {
+		case safeArea
+		case statusBar
+		case top
+		case custom((() -> CGFloat))
+	}
+	
 	public class Configuration {
 		public init(
 			roundedShutterBackground: UIColor? = nil,
@@ -34,7 +41,8 @@ open class FibControllerRootView: UIView {
 			viewBackgroundColor: UIColor? = nil,
 			shutterType: FibControllerRootView.Shutter? = nil,
 			backgroundView: (() -> UIView?)? = nil,
-			shutterShadowClosure: ((ShutterView) -> Void)? = nil
+			shutterShadowClosure: ((ShutterView) -> Void)? = nil,
+			headerTopStrategy: HeaderTopStrategy? = nil
 		) {
 			self.roundedShutterBackground = roundedShutterBackground
 			self.shutterBackground = shutterBackground
@@ -42,6 +50,7 @@ open class FibControllerRootView: UIView {
 			self.shutterType = shutterType
 			self.backgroundView = backgroundView
 			self.shutterShadowClosure = shutterShadowClosure
+			self.headerTopStrategy = headerTopStrategy
 		}
 		
 		public var roundedShutterBackground: UIColor?
@@ -50,9 +59,11 @@ open class FibControllerRootView: UIView {
 		public var shutterShadowClosure: ((ShutterView) -> Void)?
 		public var shutterType: Shutter?
 		public var backgroundView: (() -> UIView?)?
+		public var headerTopStrategy: HeaderTopStrategy?
 	}
 		
-	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration }
+	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration
+	}
 	// MARK: - APPEARANCE
 	var roundedShutterBackground: UIColor? {
 		controller?.configuration?.viewConfiguration.roundedShutterBackground ?? defaultConfiguration.roundedShutterBackground
@@ -68,6 +79,9 @@ open class FibControllerRootView: UIView {
 	}
 	var backgroundView: (() -> UIView?)? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
+	}
+	var headerTopStrategy: HeaderTopStrategy {
+		controller?.configuration?.viewConfiguration.headerTopStrategy ?? defaultConfiguration.headerTopStrategy ?? .safeArea
 	}
 	var shutterShadowClosure: ((ShutterView) -> Void)? {
 		controller?.configuration?.viewConfiguration.shutterShadowClosure ?? defaultConfiguration.shutterShadowClosure
@@ -95,12 +109,7 @@ open class FibControllerRootView: UIView {
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
 	let gridMaskView = UIView()
-	
-	var needBackgroundGradient: Bool = false
-	var customBackgroundView: UIView?
-	var transparentNavbar: Bool = false
-	var initialNavbarColor: UIColor = .clear
-		
+			
 	internal var _headerInitialHeight: CGFloat?
 	var _headerViewModel: FibViewHeaderViewModel?
 	public lazy var refreshControl: UIRefreshControl = {
@@ -167,7 +176,7 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	fileprivate func getShutterColor() -> UIColor? {
+	public func getShutterColor() -> UIColor? {
 		switch shutterType {
 		case .default:
 			return shutterBackground
@@ -260,26 +269,15 @@ open class FibControllerRootView: UIView {
 	}
 	
 	fileprivate func calculateHeaderFrame() {
-		self.headerTopMargin = safeAreaInsets.top
-		if needFullAnchors {
-			self.headerTopMargin = 0
-			if controller?.navigationController?.navigationBar.prefersLargeTitles == true {
-				let offsetY = abs(
-					rootFormView.contentOffset.y
-						.clamp(
-							-.greatestFiniteMagnitude, -rootFormView.adjustedContentInset.top
-						)
-					+ rootFormView.adjustedContentInset.top
-				)
-				headerTopMargin = safeAreaInsets.top + offsetY.clamp(0, .greatestFiniteMagnitude)
-				let atTop = _headerViewModel?.atTop ?? false
-				self.rootFormView.additionalHeaderInset = headerTopMargin + headerHeight
-			}
-		} else {
-			self.headerTopMargin = safeAreaInsets.top
-		}
-		if presentingInFormSheet {
-			self.headerTopMargin += statusBarFrame?.height ?? 0
+		switch headerTopStrategy {
+		case .safeArea:
+			headerTopMargin = safeAreaInsets.top
+		case .top:
+			headerTopMargin = 0
+		case .statusBar:
+			headerTopMargin = statusBarFrame?.height ?? 0
+		case .custom(let topMargin):
+			headerTopMargin = topMargin()
 		}
 	}
 	
@@ -573,7 +571,6 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		let size = headerInitialHeight - offsetY
 		var minHeight: CGFloat = headerInitialHeight
 		var maxHeight: CGFloat = headerInitialHeight
-		let atTop = _headerViewModel?.atTop ?? false
 		defer {
 			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
 			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
@@ -582,20 +579,17 @@ extension FibControllerRootView: UIScrollViewDelegate {
 				self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight) + safeAreaInsets.top
 			}
 		}
-		if transparentNavbar {
-			let sizePercentage = ((headerInitialHeight - size) / headerInitialHeight).clamp(0, 1)
-			let shutterBackground = getShutterColor() ?? .clear
-			let fadeColor = shutterBackground
-				.withAlphaComponent(0)
-				.fade(toColor: shutterBackground, withPercentage: sizePercentage)
-			controller?.navigationController?.navigationBar.backgroundColor = fadeColor
-		}
+//		if transparentNavbar {
+//			let sizePercentage = ((headerInitialHeight - size) / headerInitialHeight).clamp(0, 1)
+//			let shutterBackground = getShutterColor() ?? .clear
+//			let fadeColor = shutterBackground
+//				.withAlphaComponent(0)
+//				.fade(toColor: shutterBackground, withPercentage: sizePercentage)
+//			controller?.navigationController?.navigationBar.backgroundColor = fadeColor
+//		}
 		guard let headerViewModel = _headerViewModel else { return }
 		if headerViewModel.atTop == false {
 			minHeight = 0
-//			rootFormView.loadCellsInBounds = true
-		} else {
-//			rootFormView.loadCellsInBounds = false
 		}
 		guard headerViewModel.allowedStretchDirections.isEmpty == false else {
 			return
@@ -670,13 +664,5 @@ internal extension CALayer {
 		shadowOffset = .zero
 		shadowRadius = 0
 		shadowPath = nil
-	}
-}
-
-//MARK: - UIView Extensions
-
-extension UIView {
-	func copyView<T: UIView>() -> T {
-		return NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self)) as! T
 	}
 }

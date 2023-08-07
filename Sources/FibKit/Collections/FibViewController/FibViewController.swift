@@ -30,7 +30,8 @@ open class FibViewController: UIViewController {
 			shutterBackground: .systemBackground,
 			viewBackgroundColor: .systemBackground,
 			shutterType: .default,
-			backgroundView: nil
+			backgroundView: nil,
+			headerTopStrategy: .safeArea
 		)
 	)
 	
@@ -47,8 +48,6 @@ open class FibViewController: UIViewController {
         (view as! FibControllerRootView)
     }
 
-    open var roundedShutter: Bool { false }
-    open var transparentNavbar: Bool { false }
     open var haveError: Bool = false
     open var error: Error?
 	public var reloadPublisher = PassthroughSubject<Void, Never>()
@@ -153,9 +152,6 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 	}
 	
 	private func immediateReload(completion: (() -> Void)? = nil, animated: Bool = true) {
-		rootView.transparentNavbar = transparentNavbar
-		rootView.needBackgroundGradient = needBackgroundGradient
-		rootView.customBackgroundView = customBackgroundView
 		reloadFooter(animated: animated)
 		reloadHeader(animated: animated)
 		reloadSections(completion: completion, animated: animated)

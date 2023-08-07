@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://ditlogger:ZqTixVPcM-Y3@git24.ru/scm/staff/ditlogger.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "2aecaee7cab2fecb04f915bacffb0eb2c1d99f46"
+        "revision" : "2aecaee7cab2fecb04f915bacffb0eb2c1d99f46",
+        "version" : "0.3.10"
       }
     },
     {
