@@ -5,9 +5,6 @@
 //  Created by artem on 28.03.2020.
 //  Copyright © 2020 DIT. All rights reserved.
 //
-
-
-import DITLogger
 import Combine
 import UIKit
 import VisualEffectView
@@ -123,7 +120,7 @@ endRefreshing was called when refreshControl is not refreshing!
 NOTE: If you should call endRefreshing, refresh control must be in
 refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' call
 """
-            log.warning(message)
+		debugPrint(message)
             return
         }
         rootView.refreshControl.endRefreshing()
@@ -190,9 +187,6 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         reloadSectionsCompletion?()
 		reloadPublisher.send(())
         reloadSectionsCompletion = nil
-		let event = FibKitEvent(sessionIdentifier: session)
-		event.body = .init(string: "\(self.className) cw height: \(height)")
-		try? event.storeToDisk()
         DispatchQueue.main.async {[weak self] in
             guard let self = self else { return }
             self.rootView.scrollViewDidScroll(self.rootView.rootFormView)
@@ -210,17 +204,3 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 }
 
 fileprivate let session = UUID().uuidString
-public class FibKitEvent: PersistentEvent {
-	public override class var rootDir: String {
-		"FibKitEvents"
-	}
-	
-	public override init(sessionIdentifier: String) {
-		super.init(sessionIdentifier: sessionIdentifier)
-		self.eventType = "FibKit UI"
-	}
-	
-	required init(from decoder: Decoder) throws {
-		try super.init(from: decoder)
-	}
-}

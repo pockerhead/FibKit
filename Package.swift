@@ -14,10 +14,6 @@ let package = Package(
 		),
 	],
 	dependencies: [
-		.package(
-			url: "https://ditlogger:ZqTixVPcM-Y3@git24.ru/scm/staff/ditlogger.git",
-			.upToNextMajor(from: "0.3.0")
-		),
 		.package(url: "https://github.com/Miraion/Threading", .upToNextMajor(from: "1.0.1")),
 		.package(url: "https://github.com/efremidze/VisualEffectView", .upToNextMajor(from: "4.1.4")),
 		.package(url: "https://github.com/hackiftekhar/IQKeyboardManager", .upToNextMajor(from: "6.5.0")),
@@ -29,7 +25,6 @@ let package = Package(
 		.target(
 			name: "FibKit",
 			dependencies: [
-				.product(name: "DITLogger", package: "ditlogger"),
 				"Threading",
 				"VisualEffectView",
 				.product(name: "IQKeyboardManagerSwift", package: "IQKeyboardManager"),

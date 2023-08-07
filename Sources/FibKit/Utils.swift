@@ -6,7 +6,6 @@
 //  Copyright © 2023 DIT Moscow. All rights reserved.
 //
 
-import DITLogger
 import Foundation
 
 internal func delay(_ delay: Double, closure:@escaping () -> Void) {
@@ -88,7 +87,7 @@ internal func printCodeExecutionTime(comment: String = "Block", closure: (() -> 
 
 	let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
 	let timeInterval = Double(nanoTime) / 1_000_000_000
-	log.warning("[The execution of \(comment) is \(timeInterval)]")
+	debugPrint("[The execution of \(comment) is \(timeInterval)]")
 	#endif
 }
 
