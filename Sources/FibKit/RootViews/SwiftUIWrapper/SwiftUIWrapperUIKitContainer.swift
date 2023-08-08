@@ -11,7 +11,6 @@
 
 import SwiftUI
 import UIKit
-import IQKeyboardManagerSwift
 
 public class SwiftUIWrapperContainer<Content>:
     SqueezeView,
@@ -226,7 +225,6 @@ public class SwiftUIWrapperContainer<Content>:
             configureUI()
         }
         self.swiftUIWrapperModel = data
-        self.hostingView.needToFixSwiftUIWrapperInFormView = data.iqKeyboardManagerFix
         self.hosting.rootView.viewModel = data
         self.onAppearClosure = data.onAppearClosure
         self.onDissappearClosure = data.onDissappearClosure

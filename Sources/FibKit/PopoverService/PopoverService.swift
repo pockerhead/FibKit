@@ -9,7 +9,6 @@
 
 import UIKit
 import VisualEffectView
-import DITLogger
 
 /// Shared instance let for simple calling methods
 public let PopoverService = PopoverServiceInstance.shared
@@ -427,7 +426,7 @@ final fileprivate class DragProxyWindow: UIWindow {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let point = touches.first?.location(in: self) else { return }
-        log.debug("[BEGAN]", point)
+        debugPrint("[BEGAN]", point)
         touchesBegan?(point)
     }
     
@@ -438,7 +437,7 @@ final fileprivate class DragProxyWindow: UIWindow {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let point = touches.first?.location(in: self) else { return }
-        log.debug("[MOVED]", point)
+		debugPrint("[MOVED]", point)
         touchesMoved?(point)
     }
     

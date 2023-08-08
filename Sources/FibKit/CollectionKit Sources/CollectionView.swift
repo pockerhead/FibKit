@@ -5,8 +5,6 @@
 //  Created by YiLun Zhao on 2016-02-12.
 //  Copyright © 2016 lkzhao. All rights reserved.
 //
-
-import DITLogger
 import UIKit
 
 // swiftlint:disable all
@@ -726,11 +724,11 @@ extension CollectionView {
 	public func scroll(to section: GridSection, animated: Bool) throws {
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
-			log.warning("Incorrect provider \(String(describing: optProvider))")
+			debugPrint("Incorrect provider \(String(describing: optProvider))")
 			throw(CollectionKitError.unableToScroll)
 		}
 		guard let index = provider.sections.firstIndex(where: { $0.identifier == section.identifier }) else {
-			log.warning("Incorrect section index at \(section.identifier)")
+			debugPrint("Incorrect section index at \(section.identifier)")
 			throw(CollectionKitError.unableToScroll)
 		}
 		try scroll(to: IndexPath(row: 0, section: index), animated: animated)
@@ -739,11 +737,11 @@ extension CollectionView {
 	public func scroll(to sectionId: String, animated: Bool) throws {
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
-			log.warning("Incorrect provider \(String(describing: optProvider))")
+			debugPrint("Incorrect provider \(String(describing: optProvider))")
 			throw(CollectionKitError.unableToScroll)
 		}
 		guard let index = provider.sections.firstIndex(where: { $0.identifier == sectionId }) else {
-			log.warning("Not found section with id \(sectionId)")
+			debugPrint("Not found section with id \(sectionId)")
 			throw(CollectionKitError.unableToScroll)
 		}
 		try scroll(to: IndexPath(row: 0, section: index), animated: animated)
@@ -760,12 +758,12 @@ extension CollectionView {
 		var indexPath = indexPath
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
-			log.warning("Incorrect provider \(String(describing: optProvider))")
+			debugPrint("Incorrect provider \(String(describing: optProvider))")
 			throw(CollectionKitError.unableToScroll)
 		}
 		let optInner = provider.sections.get(indexPath.section) as? (Provider & LayoutableProvider)
 		guard let innerProvider = optInner else {
-			log.warning("Incorrect inner provider \(String(describing: optInner)) in \(provider) provider")
+			debugPrint("Incorrect inner provider \(String(describing: optInner)) in \(provider) provider")
 			throw(CollectionKitError.unableToScroll)
 		}
 		
