@@ -82,17 +82,7 @@ extension UIScrollView {
 		let target: CGPoint
 		switch edge {
 		case UIRectEdge.top:
-			if let formVCRootView = self.superview as? FibControllerRootView,
-			   let controller = formVCRootView.controller,
-			   controller.navigationController?.navigationBar.prefersLargeTitles == true {
-				if controller.navigationItem.searchController != nil {
-					target = CGPoint(x: contentOffset.x, y: offsetFrame.minY - 195)
-				} else {
-					target = CGPoint(x: contentOffset.x, y: offsetFrame.minY - 143)
-				}
-			} else {
-				target = CGPoint(x: contentOffset.x, y: offsetFrame.minY)
-			}
+			target = CGPoint(x: contentOffset.x, y: offsetFrame.minY)
 		case UIRectEdge.bottom:
 			target = CGPoint(x: contentOffset.x, y: offsetFrame.maxY)
 		case UIRectEdge.left:
