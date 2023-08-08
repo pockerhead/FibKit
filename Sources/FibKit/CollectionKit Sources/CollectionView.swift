@@ -112,6 +112,7 @@ open class CollectionView: UIScrollView {
 			  let selfWindowFrame = superview?.convert(frame, to: nil).inset(by: adjustedContentInset),
 			  let cellWindowFrame = cell.superview?.convert(cell.frame, to: nil),
 			  let provider = dragProvider as? FibGridProvider else { return }
+		bringSubviewToFront(cell)
 		let maxManualOffset: CGFloat = 5
 		if provider.layout is FlowLayout || (provider.layout as? WrapperLayout)?.rootLayout is FlowLayout {
 			if cellWindowFrame.maxY > selfWindowFrame.maxY {
@@ -323,6 +324,7 @@ open class CollectionView: UIScrollView {
 			switch gesture.state {
 			case .changed:
 				let newOldRect = dragProvider?.didLongTapContinue(context: context)
+				bringSubviewToFront(draggedCell)
 			case .cancelled:
 				clearDrag {[weak self] in
 					guard let self = self else { return }
