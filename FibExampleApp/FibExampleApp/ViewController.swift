@@ -46,9 +46,14 @@ class ViewController: FibViewController {
 		SectionStack {
 			SpacerSection(16)
 			GridSection {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
-				} as [ViewModelWithViewClass?]
+				arr2.map { _ in
+					[
+						MyFibSquareView.ViewModel(text: "first cell"),
+						MyFibSquareView.ViewModel(text: "second cell"),
+						MyFibSquareView.ViewModel(text: "viewcontroller shutterType is \(configuration?.viewConfiguration.shutterType ?? .default)")
+					]
+				}
+				.flatMap({ $0 })
 			}
 			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
@@ -106,13 +111,17 @@ class ViewController: FibViewController {
 	}
 }
 
-class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader, FormViewAppearable {
+class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader, FormViewAppearable, CollectionViewReusableView {
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
 //		backgroundColor = .green
 		layer.borderColor = UIColor.blue.cgColor
 		layer.borderWidth = 3
 		guard let data = data as? ViewModel else { return }
 		self.viewModel = data
+	}
+	
+	func prepareForReuse() {
+		
 	}
 	
 	var viewModel: ViewModel?

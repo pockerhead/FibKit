@@ -55,6 +55,7 @@ open class CollectionView: UIScrollView {
 	// visible identifiers for cells on screen
 	public private(set) var visibleIndexes: [Int] = []
 	public private(set) var visibleCells: [UIView] = []
+	public private(set) var visibleFrames: [CGRect] = []
 	public private(set) var visibleIdentifiers: [String] = []
 	
 	var draggedCell: CellPath?
@@ -555,10 +556,21 @@ open class CollectionView: UIScrollView {
 		let passedRect = loadCellsInBounds ? visibleFrame : visibleFrameLessInset
 		let newIndexes = flattenedProvider.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
 		
+		
 		// optimization: we assume that corresponding identifier for each index doesnt change unless forceReload is true.
 		guard forceReload ||
 				newIndexes.last != visibleIndexes.last ||
 				newIndexes != visibleIndexes else {
+			let visibleFrameLessInset = visibleFrameLessInset
+			collectionViewLayoutQueue.async {[weak self] in
+				guard let self = self else { return }
+				for (cell, frame) in zip(visibleCells, visibleFrames) {
+					appearSubviewIfNeeded(cell,
+										  cellFrame: frame,
+										  visibleFrameLessInset: visibleFrameLessInset)
+				}
+			}
+			
 			return
 		}
 		
@@ -626,9 +638,6 @@ open class CollectionView: UIScrollView {
 		if !newCells.isEmpty && (visibleCells.filter{type(of: $0) === type(of: newCells.first!)}).count == 0 {
 			newCells.first?.reuseManager?.prepareReuseIfNeeded(type: type(of: newCells.first!))
 		}
-		
-		//        for (index, cell) in newCells.enumerated() where subviews.get(index) !== cell {
-		//        }
 		newCells.map({ $0 as? SwipeControlledView }).compactMap({ $0 }).forEach({ cell in
 			if cell.haveSwipeAction && cell.isSwipeOpen && !cell.isAnimating {
 				cell.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
@@ -637,21 +646,32 @@ open class CollectionView: UIScrollView {
 		visibleIndexes = newIndexes
 		visibleIdentifiers = newIdentifiers
 		visibleCells = newCells
+		visibleFrames = []
 		for (cell, index) in zip(visibleCells, visibleIndexes) {
-			if let self = self as? FibGrid,
-			   let cell = cell as? FormViewAppearable {
-				if cell.frame.intersects(visibleFrameLessInset),
-					(cell.isAppearedOnFibGrid ?? false) == false {
+			visibleFrames.append(cell.frame)
+			appearSubviewIfNeeded(cell, cellFrame: cell.frame, visibleFrameLessInset: visibleFrameLessInset)
+			insertSubview(cell, at: index)
+		}
+	}
+	
+	private func appearSubviewIfNeeded(_ cell: UIView,
+									   cellFrame: CGRect,
+									   visibleFrameLessInset: CGRect) {
+		if let self = self as? FibGrid,
+		   let cell = cell as? FormViewAppearable {
+			if cellFrame.intersects(visibleFrameLessInset),
+				(cell.isAppearedOnFibGrid ?? false) == false {
+				mainOrSync {
 					cell.isAppearedOnFibGrid = true
 					cell.onAppear(with: self)
-				} else if !cell.frame.intersects(visibleFrameLessInset),
-						  cell.isAppearedOnFibGrid == true {
+				}
+			} else if !cellFrame.intersects(visibleFrameLessInset),
+					  cell.isAppearedOnFibGrid == true {
+				mainOrSync {
 					cell.isAppearedOnFibGrid = false
 					cell.onDissappear(with: self)
 				}
 			}
-			
-			insertSubview(cell, at: index)
 		}
 	}
 	
@@ -877,3 +897,12 @@ extension UIView {
 		}
 	}
 }
+
+[
+	(enqueue or reuse) & configure
+	willAppear
+	didAppear
+	willDissappear
+	didDissappear
+	dequeue or reuse
+]

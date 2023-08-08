@@ -309,6 +309,7 @@ open class FibControllerRootView: UIView {
 											   y: 0,
 											   width: bounds.width,
 											   height: headerTopMargin + headerHeight)
+			_rootHeaderBackgroundViewRef?.frame = rootHeaderBackground.bounds
 			header?.frame = .init(x: 0,
 								  y: headerTopMargin,
 								  width: bounds.width,
@@ -525,10 +526,12 @@ open class FibControllerRootView: UIView {
 			UIView.animate(withDuration: 0.3) {[weak self] in
 				guard let self = self else { return }
 				self.rootFormView.contentInset.top = self.headerHeight
+				setNeedsLayout()
 				self.layoutIfNeeded()
 			}
 		} else {
 			rootFormView.contentInset.top = self.headerHeight
+			setNeedsLayout()
 			layoutIfNeeded()
 		}
 	}
