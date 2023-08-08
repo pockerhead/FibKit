@@ -897,12 +897,3 @@ extension UIView {
 		}
 	}
 }
-
-[
-	(enqueue or reuse) & configure
-	willAppear
-	didAppear
-	willDissappear
-	didDissappear
-	dequeue or reuse
-]
