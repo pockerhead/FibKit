@@ -30,9 +30,12 @@ public class LongGestureContext {
     locationInCollection: CGPoint,
     previousLocationInCollection: CGPoint?,
     index: Int
+	
+	var initialCellIndex: Int = 0
 
     var dragProvider: ItemProvider?
     var intersectsCell: CollectionView.CellPath?
+	var intersectionFrame: CGRect?
     var oldCellFrame: CGRect?
     var lastReorderedIndex: Int?
 

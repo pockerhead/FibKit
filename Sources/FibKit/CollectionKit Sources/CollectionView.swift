@@ -61,6 +61,7 @@ open class CollectionView: UIScrollView {
 	var draggedCell: CellPath?
 	var draggedCellOldFrame: CGRect?
 	var draggedCellInitialFrame: CGRect?
+	var draggedCellInitialIndex: Int?
 	
 	var draggedSectionIndex: Int?
 	var previousLocation: CGPoint?
@@ -98,6 +99,8 @@ open class CollectionView: UIScrollView {
 		commonInit()
 	}
 	
+	var oldDataArray: [ViewModelWithViewClass?] = []
+	
 	func commonInit() {
 		CollectionViewManager.shared.register(collectionView: self)
 		_ = tapGestureRecognizer
@@ -106,7 +109,7 @@ open class CollectionView: UIScrollView {
 	
 	@objc func scrollWhenDragIfNeeded() {
 		guard isInProcessDragging, let cell = draggedCell?.cell,
-			  let selfWindowFrame = superview?.convert(frame, to: nil),
+			  let selfWindowFrame = superview?.convert(frame, to: nil).inset(by: adjustedContentInset),
 			  let cellWindowFrame = cell.superview?.convert(cell.frame, to: nil),
 			  let provider = dragProvider as? FibGridProvider else { return }
 		let maxManualOffset: CGFloat = 5
@@ -176,19 +179,14 @@ open class CollectionView: UIScrollView {
 			if cell === draggedCell { continue }
 			if cell.frame.intersects(draggedCell.frame) {
 				guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
-				context.intersectsCell = CellPath(cell: cell, index: index)
+				let intersectionSquare = cell.frame.intersection(draggedCell.frame).size.square
+				if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
+					context.intersectsCell = CellPath(cell: cell, index: index)
+					context.intersectionFrame = cell.frame
+				}
 			}
 		}
 		let newOldRect = dragProvider?.didLongTapContinue(context: context)
-		if let lnewOldRect = newOldRect {
-			feedback.impactOccurred()
-			draggedCellOldFrame = lnewOldRect
-			if lnewOldRect == draggedCellInitialFrame ?? .zero {
-				lastReorderedIndex = context.index
-			} else {
-				lastReorderedIndex = context.intersectsCell?.index
-			}
-		}
 	}
 	
 	func removeAllLongPressRecognizers() {
@@ -268,12 +266,14 @@ open class CollectionView: UIScrollView {
 					draggedCellInitialFrame = draggedCellOldFrame
 					bringSubviewToFront(cell)
 					cell.alpha = 0.7
+					self.oldDataArray = (cell.fb_provider as? FibGridProvider)?.dataSource.data ?? []
 					UIView.animate(withDuration: 0.2) {
 						cell.center.x = gesture.location(in: self).x
 					}
 					let identifier = flattenedProvider.identifier(at: index)
 					let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
 					let interProviderIndex = interIndexPath?.1 ?? index
+					self.draggedCellInitialIndex = interProviderIndex
 					self.draggedSectionIndex = (interIndexPath?.0 ?? 1) - 1
 					let context = LongGestureContext(view: cell,
 													 collectionView: self,
@@ -281,13 +281,8 @@ open class CollectionView: UIScrollView {
 													 previousLocationInCollection: previousLocation,
 													 index: interProviderIndex)
 					flattenedProvider.didBeginLongTapWithProvider(context: context)
-					if let dragProvider = context.dragProvider as? FibGridHeaderProvider,
-					   interProviderIndex == 0,
-					   dragProvider.sections.have(self.draggedSectionIndex ?? 0) {
-						self.dragProvider = dragProvider.sections[self.draggedSectionIndex ?? 0] as? ItemProvider
-					} else {
-						dragProvider = context.dragProvider
-					}
+					dragProvider = (cell.fb_provider as? ItemProvider)
+					dragProvider?.didBeginLongTapWithProvider(context: context)
 					let isVerticalScroll = (dragProvider as? GridSection)?.scrollDirection == .vertical
 					UIView.animate(withDuration: 0.2) {
 						if isVerticalScroll {
@@ -317,36 +312,17 @@ open class CollectionView: UIScrollView {
 				if cell === draggedCell { continue }
 				if cell.frame.intersects(draggedCell.frame) {
 					guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
-					context.intersectsCell = CellPath(cell: cell, index: index)
+					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
+					let intersectionSquare = intersectionFrame.size.square
+					if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
+						context.intersectsCell = CellPath(cell: cell, index: index)
+						context.intersectionFrame = intersectionFrame
+					}
 				}
 			}
 			switch gesture.state {
 			case .changed:
 				let newOldRect = dragProvider?.didLongTapContinue(context: context)
-				if let lnewOldRect = newOldRect {
-					draggedCellOldFrame = lnewOldRect
-					feedback.impactOccurred()
-					if lnewOldRect == draggedCellInitialFrame ?? .zero {
-						lastReorderedIndex = context.index
-					} else {
-						if lastReorderedIndex == context.intersectsCell?.index {
-							let isVerticalScroll = (dragProvider as? LayoutableProvider)?.layout is FlowLayout
-							let draggedToBegin: Bool
-							if isVerticalScroll {
-								draggedToBegin = context.locationInCollection.y < previousLocation?.y ?? 0
-							} else {
-								draggedToBegin = context.locationInCollection.x < previousLocation?.x ?? 0
-							}
-							if draggedToBegin {
-								lastReorderedIndex = ((context.intersectsCell?.index ?? 0) - 1)
-							} else {
-								lastReorderedIndex = ((context.intersectsCell?.index ?? 0) + 1)
-							}
-						} else {
-							lastReorderedIndex = context.intersectsCell?.index
-						}
-					}
-				}
 			case .cancelled:
 				clearDrag {[weak self] in
 					guard let self = self else { return }
@@ -370,26 +346,19 @@ open class CollectionView: UIScrollView {
 		self.isInProcessDragging = false
 		DispatchQueue.main.async { [weak self] in
 			guard let self = self else { return }
+			(self.draggedCell?.cell.fb_provider as? FibGridProvider)?.dataSource.data = self.oldDataArray
 			closure?()
-			withFibSpringAnimation {[weak self] in
-				guard let self = self else { return }
-				self.draggedCell?.cell.frame = self.draggedCellOldFrame ?? .zero
-				self.draggedCell?.cell.alpha = 1
-			} completion: { _ in
-				self.feedback.impactOccurred()
-				self.draggedCell?.cell.removeFromSuperview()
-				self.draggedCell = nil
-				self.draggedCellOldFrame = nil
-				self.draggedSectionIndex = nil
-				self.previousLocation = nil
-				self.dragProvider = nil
-				self.lastReorderedIndex = nil
-				self.dragProvider = nil
-				DispatchQueue.main.async {[weak self] in
-					guard let self = self else { return }
-					self.reloadData()
-				}
-			}
+			self.draggedCell?.cell.alpha = 1
+			self.feedback.impactOccurred()
+			self.draggedCell?.cell.removeFromSuperview()
+			self.draggedCell = nil
+			self.draggedCellOldFrame = nil
+			self.draggedSectionIndex = nil
+			self.previousLocation = nil
+			self.dragProvider = nil
+			self.lastReorderedIndex = nil
+			self.dragProvider = nil
+			self.setNeedsReload()
 		}
 	}
 	
@@ -492,7 +461,7 @@ open class CollectionView: UIScrollView {
 	
 	// reload all frames. will automatically diff insertion & deletion
 	public func reloadData(contentOffsetAdjustFn: ((CGSize) -> CGPoint)? = nil) {
-		guard !isReloading && !isInProcessDragging else { return }
+		guard !isReloading else { return }
 		provider?.willReload()
 		if (provider as? ItemProvider)?.canReorderItems == true {
 			addGestureRecognizer(longTapGestureRecognizer)
@@ -539,8 +508,10 @@ open class CollectionView: UIScrollView {
 				animator.shift(collectionView: self, delta: self.contentOffsetChange, view: cell,
 							   at: index, frame: self.flattenedProvider.frame(at: index))
 			}
-			animator.update(collectionView: self, view: cell,
-							at: index, frame: self.flattenedProvider.frame(at: index))
+			if cell !== draggedCell?.cell {
+				animator.update(collectionView: self, view: cell,
+								at: index, frame: self.flattenedProvider.frame(at: index))
+			}
 		}
 		
 		self.lastLoadBounds = self.bounds
@@ -896,5 +867,12 @@ extension UIView {
 		} else {
 			return nil
 		}
+	}
+}
+
+extension CGSize {
+	
+	var square: CGFloat {
+		width * height
 	}
 }

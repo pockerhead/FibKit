@@ -16,6 +16,7 @@ extension UIView {
 		static var currentAnimator = "currentAnimator"
 		static var isHeader = "isHeader_fibKit"
 		static var isAppearedOnFibGrid = "ru.fib.isAppeared"
+		static var provider = "ru.fib.provider"
 	}
 	
 	internal var reuseManager: CollectionReuseViewManager? {
@@ -44,6 +45,13 @@ extension UIView {
 		get { return objc_getAssociatedObject(self, &AssociatedKeys.isAppearedOnFibGrid) as? Bool }
 		set {
 			objc_setAssociatedObject(self, &AssociatedKeys.isAppearedOnFibGrid, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		}
+	}
+	
+	internal var fb_provider: Provider? {
+		get { return objc_getAssociatedObject(self, &AssociatedKeys.provider) as? Provider }
+		set {
+			objc_setAssociatedObject(self, &AssociatedKeys.provider, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 		}
 	}
 	

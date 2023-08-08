@@ -46,15 +46,17 @@ class ViewController: FibViewController {
 		SectionStack {
 			SpacerSection(16)
 			GridSection {
-				arr2.map { _ in
-					[
-						MyFibSquareView.ViewModel(text: "first cell"),
-						MyFibSquareView.ViewModel(text: "second cell"),
-						MyFibSquareView.ViewModel(text: "viewcontroller shutterType is \(configuration?.viewConfiguration.shutterType ?? .default)")
-					]
+				arr2.map { i in
+					MyFibSquareView.ViewModel(text: "\(i) first cell")
 				}
-				.flatMap({ $0 })
 			}
+			.didReorderItems({[weak self] oldIndex, newIndex in
+				guard let self = self else { return }
+				let item = arr2.remove(at: oldIndex)
+				arr2.insert(item, at: newIndex)
+				reload()
+			})
+			.centeringFlowLayout(spacing: 16)
 			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in
@@ -260,7 +262,7 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: 300, height: size.height + 20)
+		return .init(width: 100, height: 100)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {

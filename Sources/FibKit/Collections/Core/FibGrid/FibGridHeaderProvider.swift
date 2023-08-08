@@ -216,12 +216,14 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         guard let data = (sections[safe: index] as? SectionProtocol)?.headerData else { return UIView() }
         let view = headerViewSource.view(data: data, index: index)
         view.fb_isHeader = true
+		view.fb_provider = self
         return view
     }
 
     open func update(view: UIView, at: Int) {
         let index = at / 2
         view.fb_isHeader = true
+		view.fb_provider = self
         guard let data = (sections[safe: index] as? SectionProtocol)?.headerData else { return }
         headerViewSource.update(view: view as! ViewModelConfigurable, data: data, index: index)
     }

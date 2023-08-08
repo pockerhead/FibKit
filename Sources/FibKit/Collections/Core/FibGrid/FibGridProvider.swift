@@ -124,22 +124,26 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         return dataSource.numberOfItems
     }
     public func view(at: Int) -> UIView {
+		var view: UIView
         if separatorViewModel != nil {
             if !needLastSeparator, at == numberOfItems - 1 {
-                return viewSource.view(data: FormViewSpacer(0), index: at)
+				view = viewSource.view(data: FormViewSpacer(0), index: at)
             }
             if at % 2 != 0 {
                 if let cellSeparator = dataSource.data(at: at / 2)?.separator {
-                    return viewSource.view(data: cellSeparator, index: at)
+					view = viewSource.view(data: cellSeparator, index: at)
                 }
-                return viewSource.view(data: separatorViewModel, index: at)
+				view = viewSource.view(data: separatorViewModel, index: at)
             } else {
-                return viewSource.view(data: dataSource.data(at: at / 2), index: at / 2)
+				view = viewSource.view(data: dataSource.data(at: at / 2), index: at / 2)
             }
         }
-        return viewSource.view(data: dataSource.data(at: at), index: at)
+		view = viewSource.view(data: dataSource.data(at: at), index: at)
+		view.fb_provider = self
+		return view
     }
     public func update(view: UIView, at: Int) {
+		view.fb_provider = self
         if separatorViewModel != nil {
             if at % 2 != 0 {
                 if let cellSeparator = dataSource.data(at: at / 2)?.separator {
@@ -190,54 +194,36 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     }
 
     public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
-        let isVerticalScroll = scrollDirection == .vertical
-        if isVerticalScroll {
+//        let isVerticalScroll = scrollDirection == .vertical
+//        if isVerticalScroll {
             context.view.center.y = context.locationInCollection.y
-        } else {
+//        } else {
             context.view.center.x = context.locationInCollection.x
-        }
+//        }
         guard let intersectsView = context.intersectsCell?.cell,
             let intersectsFrame = context.intersectsCell?.cell.frame,
             let intersectsIndex = context.intersectsCell?.index,
             let previousLocation = context.previousLocationInCollection,
             let oldFrame = context.oldCellFrame else { return nil }
         let draggedFrame = context.view.frame
-        let draggedToBegin: Bool
-        if isVerticalScroll {
-            draggedToBegin = context.locationInCollection.y < previousLocation.y
-        } else {
-            draggedToBegin = context.locationInCollection.x < previousLocation.x
-        }
-        let intersectsStruct = Distance(x1: (isVerticalScroll
-            ? intersectsFrame.center.y
-            : intersectsFrame.center.x) - 20,
-                                        x2: (isVerticalScroll
-                                            ? intersectsFrame.center.y
-                                            : intersectsFrame.center.x) + 20)
-        let maxConstant = isVerticalScroll ? draggedFrame.maxY : draggedFrame.maxX
-        let intersectsCenterOnTop = draggedToBegin == false && intersectsStruct.contains(x: maxConstant)
-        let minConstant = isVerticalScroll ? draggedFrame.origin.y : draggedFrame.origin.x
-        let interesctsCenterOnBottom = draggedToBegin == true && intersectsStruct.contains(x: minConstant)
-        let needUpdateFrames = intersectsCenterOnTop || interesctsCenterOnBottom
-        if needUpdateFrames {
-            var newIntersectsFrame = intersectsFrame
-            if isVerticalScroll {
-                newIntersectsFrame.origin.y = oldFrame.origin.y
-            } else {
-                newIntersectsFrame.origin.x = oldFrame.origin.x
-            }
-			guard let cw = context.collectionView else { return nil }
-            animator?.update(collectionView: cw, view: intersectsView, at: Int(intersectsIndex), frame: newIntersectsFrame)
-            return intersectsFrame
-        }
+		let intersectionFrame = context.intersectionFrame ?? .zero
+		let draggedFrameSquare = draggedFrame.size.square
+		let intersectionFrameSquare = intersectionFrame.size.square
+		if intersectionFrameSquare > (draggedFrameSquare / 2)  {
+			let data = self.dataSource.data.remove(at: context.index)
+			self.dataSource.data.insert(data, at: intersectsIndex)
+			context.collectionView?.draggedCell?.index = intersectsIndex
+			self.reloadData()
+			return intersectsFrame
+		}
         return nil
     }
 
     public func didLongTapEnded(context: LongGestureContext) {
-        guard let finalIndex = context.lastReorderedIndex?.softClamp(0, dataSource.numberOfItems - 1) else {
+		guard let finalIndex = context.collectionView?.draggedCell?.index.softClamp(0, dataSource.numberOfItems - 1) else {
             return
         }
-        didReorderItemsClosure?(context.index, finalIndex)
+		didReorderItemsClosure?(context.collectionView?.draggedCellInitialIndex ?? 0, finalIndex)
     }
 
     public func hasReloadable(_ reloadable: CollectionReloadable) -> Bool {

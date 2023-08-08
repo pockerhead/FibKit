@@ -135,8 +135,6 @@ struct FlattenedProvider: ItemProvider {
         return apply(Int(context.index)) { provider, index in
             let mutableContext = context
             mutableContext.index = index
-            context.dragProvider = provider
-            provider.didBeginLongTapWithProvider(context: mutableContext)
         }
     }
 
