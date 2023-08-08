@@ -5,7 +5,7 @@
 //  Created by Артём Балашов on 18.07.2023.
 //
 
-import UIKit
+import FibKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -13,10 +13,35 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-		// Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-		// If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-		// This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-		guard let _ = (scene as? UIWindowScene) else { return }
+
+		guard let windowScene = (scene as? UIWindowScene) else { return }
+		
+		FibViewController.defaultConfiguration = .init(viewConfiguration: .init(roundedShutterBackground: .black.withAlphaComponent(0.2), shutterBackground: .black.withAlphaComponent(0.4), viewBackgroundColor: .white, shutterType: .rounded, backgroundView: nil))
+		RoundedCell.defaultRoundedCellAppearance.shadowClosure = { view in
+			view.layer.shadowColor = UIColor.black.cgColor
+			view.layer.shadowRadius = 10
+			view.layer.shadowOpacity = 1
+		}
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithTransparentBackground()
+		appearance.backgroundColor = UIColor.clear
+		appearance.backgroundEffect = UIBlurEffect(style: .dark) // or dark
+		appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+		
+		let scrollingAppearance = UINavigationBarAppearance()
+		scrollingAppearance.configureWithTransparentBackground()
+		//		scrollingAppearance.backgroundColor = .white // your view (superview) color
+		
+		UINavigationBar.appearance().standardAppearance = appearance
+		UINavigationBar.appearance().scrollEdgeAppearance = appearance
+		UINavigationBar.appearance().compactAppearance = appearance
+		let vc = ViewController()
+		let nav = UINavigationController(rootViewController: vc)
+		window = UIWindow(windowScene: windowScene)
+		window?.rootViewController = nav
+		nav.view.backgroundColor = .alizarin
+		window?.makeKeyAndVisible()
+		
 	}
 
 	func sceneDidDisconnect(_ scene: UIScene) {
