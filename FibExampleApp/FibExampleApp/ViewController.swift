@@ -24,7 +24,7 @@ class ViewController: FibViewController {
 			shutterBackground: .white,
 			viewBackgroundColor: .white,
 			shutterType: .rounded,
-			topInsetStrategy: .safeArea,
+			topInsetStrategy: .top,
 			headerBackgroundViewColor: .green.withAlphaComponent(0.5),
 			headerBackgroundEffectView: {
 //				return nil

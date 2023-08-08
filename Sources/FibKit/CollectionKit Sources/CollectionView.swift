@@ -606,9 +606,10 @@ open class CollectionView: UIScrollView {
 		for (index, identifier) in visibleIdentifiers.enumerated() {
 			let cell = visibleCells[index]
 			if !newIdentifierSet.contains(identifier) && cell !== draggedCell?.cell {
-//				if let cell = cell as? FormViewAppearable {
-//					cell.onDissappear(with: self as? FibGrid)
-//				}
+				if let cell = cell as? FormViewAppearable,
+				   cell.isAppearedOnFibGrid == true {
+					cell.onDissappear(with: self as? FibGrid)
+				}
 				cell.isAppearedOnFibGrid = false
 				if (cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection != nil {
 					(cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection = deletePageDirection
