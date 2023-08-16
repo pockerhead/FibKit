@@ -12,7 +12,6 @@ class ViewController: FibViewController {
 	@Reloadable var flag = false
 	
 	override var header: FibViewHeaderViewModel? {
-		guard flag else { return nil }
 		return MyFibHeader.ViewModel()
 	}
 	
@@ -25,11 +24,8 @@ class ViewController: FibViewController {
 			viewBackgroundColor: .white,
 			shutterType: .rounded,
 			topInsetStrategy: .top,
-			headerBackgroundViewColor: .green.withAlphaComponent(0.5),
-			headerBackgroundEffectView: {
-//				return nil
-				return UIVisualEffectView(effect: UIBlurEffect(style: .regular))
-			}
+			headerBackgroundViewColor: .clear,
+			headerBackgroundEffectView: nil
 		))
 	}
 	
@@ -44,7 +40,6 @@ class ViewController: FibViewController {
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			SpacerSection(16)
 			GridSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "\(i) first cell")
@@ -56,8 +51,7 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
-			.centeringFlowLayout(spacing: 16)
-			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in
 				self.flag.toggle()
@@ -97,7 +91,10 @@ class ViewController: FibViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		rootView.applyAppearance()
+//		rootView.applyAppearance()
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+			self.reload()
+		}
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
