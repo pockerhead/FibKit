@@ -180,10 +180,11 @@ open class CollectionView: UIScrollView {
 			if cell === draggedCell { continue }
 			if cell.frame.intersects(draggedCell.frame) {
 				guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
-				let intersectionSquare = cell.frame.intersection(draggedCell.frame).size.square
+				let intersectionFrame = cell.frame.intersection(draggedCell.frame)
+				let intersectionSquare = intersectionFrame.size.square
 				if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
 					context.intersectsCell = CellPath(cell: cell, index: index)
-					context.intersectionFrame = cell.frame
+					context.intersectionFrame = intersectionFrame
 				}
 			}
 		}
@@ -715,6 +716,27 @@ extension CollectionView {
 		}
 	}
 	
+	public func scrollToFirst(where predicate: ((ViewModelWithViewClass?) -> Bool), animated: Bool = true) throws {
+		let optProvider = self.provider as? SectionProvider
+		guard let provider = optProvider else {
+			debugPrint("Incorrect provider \(String(describing: optProvider))")
+			throw(CollectionKitError.unableToScroll)
+		}
+		var indexPath: IndexPath?
+		for (sectionIndex, provider) in provider.sections.enumerated() {
+			guard let section = provider as? GridSection else { continue }
+			for (index, viewModel) in section.data.enumerated() {
+				if predicate(viewModel) {
+					indexPath = .init(item: index * 2, section: sectionIndex)
+					break
+				}
+			}
+			if indexPath != nil { break }
+		}
+		guard let indexPath = indexPath else { return }
+		try scroll(to: indexPath, animated: animated)
+	}
+	
 	public func scroll(to section: GridSection, animated: Bool) throws {
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
@@ -839,7 +861,17 @@ extension CollectionView {
 		if horizontalScroll {
 			targetPoint.y = 0
 		}
+		let isUp = targetPoint.y < contentOffset.y
+		let boundsHeight = (frame.size.height)
+		let isTargetLargerThanBounds = abs(targetPoint.y - contentOffset.y) > boundsHeight
 		if animated {
+			if isTargetLargerThanBounds {
+				if isUp {
+					contentOffset.y = targetPoint.y + (boundsHeight / 2.3)
+				} else {
+					contentOffset.y = targetPoint.y - (boundsHeight / 2.3)
+				}
+			}
 			if let customScroll = customScroll {
 				customScroll(targetPoint, bounce)
 			} else {

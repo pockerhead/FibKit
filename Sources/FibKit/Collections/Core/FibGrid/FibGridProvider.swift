@@ -213,7 +213,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			let data = self.dataSource.data.remove(at: context.index)
 			self.dataSource.data.insert(data, at: intersectsIndex)
 			context.collectionView?.draggedCell?.index = intersectsIndex
-			self.reloadData()
+			self.setNeedsReload()
 			return intersectsFrame
 		}
         return nil
