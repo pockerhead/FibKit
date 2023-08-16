@@ -92,9 +92,6 @@ class ViewController: FibViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 //		rootView.applyAppearance()
-		DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-			self.reload()
-		}
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {

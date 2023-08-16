@@ -109,6 +109,11 @@ open class FibViewController: UIViewController {
         super.viewDidLoad()
         immediateReload(animated: false)
     }
+	
+	open override func viewSafeAreaInsetsDidChange() {
+		super.viewSafeAreaInsetsDidChange()
+		reload()
+	}
 
     // MARK: View's input
 
