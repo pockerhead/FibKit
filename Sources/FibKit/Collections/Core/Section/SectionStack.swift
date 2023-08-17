@@ -15,7 +15,22 @@ public class SectionStack:
 	AnySectionProtocol
 {
 	override public var description: String {
-		return "SectionStack"
+		
+		return """
+SectionStack
+\(ObjectIdentifier(self))
+id:
+
+\(self.identifier ?? ""),
+
+contentSize: \(self.contentSize),
+layout: \(layout.description)
+
+
+Sections: [
+\(sections.map({ $0.descriptionString() }).joined(separator: "\n-----------------------\n"))
+]
+"""
 	}
 	public var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)?
 	

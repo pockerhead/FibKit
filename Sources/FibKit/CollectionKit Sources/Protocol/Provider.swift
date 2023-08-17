@@ -43,3 +43,16 @@ extension Provider {
     public func didReload() {}
     public var animator: Animator? { get { nil } set {} }
 }
+
+extension CustomStringConvertible {
+	
+	func descriptionString(with nestLevel: Int = 0) -> String {
+		let tabs = (0...nestLevel).reduce(into: "") { partialResult, _ in
+			partialResult += "   "
+		}
+		return description.split(separator: "\n").map { sub in
+			return tabs + sub
+		}
+		.joined(separator: "\n")
+	}
+}

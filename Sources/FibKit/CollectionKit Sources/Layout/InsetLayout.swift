@@ -12,6 +12,14 @@ open class InsetLayout: WrapperLayout {
   public var insets: UIEdgeInsets
   public var insetProvider: ((CGSize) -> UIEdgeInsets)?
 
+	public override var description: String {
+		"""
+InsetLayout
+insets: \(insets)
+\(super.description)
+"""
+	}
+	
   struct InsetLayoutContext: LayoutContext {
     var original: LayoutContext
     var insets: UIEdgeInsets

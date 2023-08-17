@@ -8,7 +8,11 @@
 
 import UIKit
 
-open class Layout {
+open class Layout: CustomStringConvertible {
+	public var description: String {
+		"Some Layout"
+	}
+	
 	
 	open func layout(context: LayoutContext) {
 		fatalError("Subclass should provide its own layout")

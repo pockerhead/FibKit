@@ -9,6 +9,12 @@
 import UIKit
 
 open class WrapperLayout: Layout {
+	
+	public override var description: String {
+		"""
+rootLayout: \(rootLayout.description)
+"""
+	}
   var rootLayout: Layout
 
   public init(_ rootLayout: Layout) {

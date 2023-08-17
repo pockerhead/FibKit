@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable all
 
-public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider, AnyObject {
+public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider, AnyObject, CustomStringConvertible {
 	var isGuard: Bool { get set }
 	var isGuardAppend: Bool { get set }
 	var isSticky: Bool { get }
@@ -33,7 +33,14 @@ open class GridSection:
 		if splitted.count > 1 {
 			id = "\(splitted[0])\(splitted[splitted.count-1])"
 		}
-		return "GridSection with id: \(id), items: \(data.count), contentSize: \(self.contentSize)"
+		return """
+GridSection
+\(ObjectIdentifier(self))
+id: \(self.identifier ?? "")
+items: \(data.count),
+contentSize: \(self.contentSize),
+layout: \(layout.description)
+"""
 	}
 	public static func == (lhs: GridSection, rhs: GridSection) -> Bool {
         lhs.id == rhs.id
@@ -467,18 +474,7 @@ extension UIEdgeInsets {
 
 public struct FibKitDebugDescriptor {
 	public static func description(for section: SectionProtocol?) -> String {
-		var res: [String] = []
-		guard let section = section else {return ""}
-		if let section = section as? SectionProvider {
-			for i in 0...section.sections.count - 1 {
-				res.append(section.sections[i].description)
-				if i < section.sections.count - 1 {
-					res.append("↓")
-				}
-			}
-		} else {
-			res.append(section.description)
-		}
-		return res.joined(separator: "\n")
+		guard let section = section else { return "NO SECTION PROVIDED" }
+		return section.description
 	}
 }

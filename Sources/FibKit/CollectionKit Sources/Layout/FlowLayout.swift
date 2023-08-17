@@ -16,6 +16,18 @@ public class FlowLayout: VerticalSimpleLayout {
   public var alignItems: AlignItem
   public var justifyContent: JustifyContent
 
+	public override var description: String {
+		"""
+FlowLayout:
+
+lineSpacing:\(lineSpacing)
+interitemSpacing:\(interitemSpacing)
+alignContent: \(alignContent)
+alignItems: \(alignItems)
+justifyContent: \(justifyContent)
+"""
+	}
+	
   public init(lineSpacing: CGFloat = 0,
               interitemSpacing: CGFloat = 0,
               justifyContent: JustifyContent = .start,

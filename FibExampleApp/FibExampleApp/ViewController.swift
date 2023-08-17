@@ -16,7 +16,7 @@ class ViewController: FibViewController {
 		return MyFibHeader.ViewModel()
 	}
 	
-	var arr2 = Array(0...50)
+	var arr2 = Array(0...3)
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
@@ -91,18 +91,20 @@ class ViewController: FibViewController {
 			.tapHandler { _ in
 				self.flag.toggle()
 			}
+			.id("HUIMEI")
 	}
 	
 	private var bodyDebug: SectionProtocol {
 		SectionStack {
-			GridSection {
-				FibDebugView.ViewModel(section: bodyContent)
+			GridSection { section in
+				FibDebugView.ViewModel(reloadable: section, grid: self.rootView.rootFormView)
 			}
 		}
 	}
 	
 	override var body: SectionProtocol? {
 		SectionStack {
+			bodyContent
 			bodyContent
 			bodyDebug
 		}
@@ -141,6 +143,7 @@ class ViewController: FibViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		rootView.applyAppearance()
+		addDebugButton()
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -336,7 +339,8 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
 	
 	var label: UILabel = .init()
-	var section: SectionRef?
+	weak var reloadable: CollectionReloadable?
+	weak var grid: FibGrid?
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -360,7 +364,10 @@ class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		label.frame = bounds.inset(by: UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4))
-		label.text = FibKitDebugDescriptor.description(for: section)
+		let description = FibKitDebugDescriptor.description(for: (grid?.provider as? SectionProtocol))
+		guard label.text != description else { return }
+		label.text = description
+		reloadable?.setNeedsReload()
 	}
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
@@ -373,20 +380,24 @@ class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
-		self.section = data.section
-		label.text = FibKitDebugDescriptor.description(for: section)
+		self.grid = data.grid
+		self.reloadable = data.reloadable
+		label.text = FibKitDebugDescriptor.description(for: (grid?.provider as? SectionProtocol))
 	}
 	
 	class ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
-		internal init(section: SectionRef?) {
-			self.section = section
+		internal init(reloadable: CollectionReloadable?, grid: FibGrid?) {
+			self.reloadable = reloadable
+			self.grid = grid
 		}
 		
 		var id: String? {
-			guard let section = section else { return UUID().uuidString }
-			return "\(ObjectIdentifier(section))"
+			guard let grid = grid, let reloadable = reloadable else { return UUID().uuidString }
+			return "\(ObjectIdentifier(grid)),\(ObjectIdentifier(reloadable))"
 		}
-		var section: SectionRef?
+		
+		weak var reloadable: CollectionReloadable?
+		weak var grid: FibGrid?
 		
 		func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			FibDebugView.self
@@ -398,3 +409,51 @@ class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
 
 
 typealias SectionRef = (SectionProtocol & AnyObject)
+
+extension FibViewController {
+	
+	func addDebugButton() {
+		self.navigationItem.rightBarButtonItem = .init(title: "DBG", style: .plain, target: self, action: #selector(showDebugScreen))
+	}
+	
+	@objc func showDebugScreen() {
+		let nav = UINavigationController(rootViewController: DebugHelperController(parent: self))
+		nav.modalPresentationStyle = .fullScreen
+		self.present(nav, animated: true)
+	}
+	
+	func addCloseButton() {
+		self.navigationItem.leftBarButtonItem = .init(title: "Close", style: .plain, target: self, action: #selector(dismissSelf))
+	}
+	
+	@objc func dismissSelf() {
+		dismiss(animated: true)
+	}
+}
+
+final class DebugHelperController: FibViewController {
+	
+	init(parent: FibViewController?) {
+		self.parentVC = parent
+		super.init()
+	}
+	
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+	
+	weak var parentVC: FibViewController?
+	override var body: SectionProtocol? {
+		SectionStack {
+			GridSection { section in
+				FibDebugView.ViewModel(reloadable: section, grid: parentVC?.rootView.rootFormView)
+			}
+		}
+	}
+	
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		addCloseButton()
+		title = "\(String(describing: parentVC) ?? "")"
+	}
+}
