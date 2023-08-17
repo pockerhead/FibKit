@@ -536,15 +536,14 @@ open class CollectionView: UIScrollView {
 				newIndexes.last != visibleIndexes.last ||
 				newIndexes != visibleIndexes else {
 			let visibleFrameLessInset = visibleFrameLessInset
-//			collectionViewLayoutQueue.async {[weak self] in
-//				guard let self = self else { return }
+			collectionViewLayoutQueue.async {[weak self] in
+				guard let self = self else { return }
 				for (cell, frame) in zip(visibleCells, visibleFrames) {
 					appearSubviewIfNeeded(cell,
 										  cellFrame: frame,
 										  visibleFrameLessInset: visibleFrameLessInset)
 				}
-//			}
-			
+			}
 			return
 		}
 		
