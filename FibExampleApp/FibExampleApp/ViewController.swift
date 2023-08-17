@@ -25,7 +25,7 @@ class ViewController: FibViewController {
 		))
 	}
 	
-	var arr2 = Array(0...3)
+	var arr2 = Array(0...30)
 	
 	override var body: SectionProtocol? {
 		GridSection {
@@ -36,7 +36,7 @@ class ViewController: FibViewController {
 		.tapHandler({ _ in
 			self.flag.toggle()
 		})
-		.layout(flag ? StackLayout() : FlowLayout(spacing: 8))
+		.layout(flag ? StackLayout() : WaterfallLayout())
 	}
 	
 	@SectionBuilder
@@ -230,14 +230,16 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 		super.layoutSubviews()
 		label.frame = bounds
 		label.textAlignment = .center
-		backgroundColor = UIColor.red.withAlphaComponent(0.6)
+		backgroundColor = [UIColor.red, .alizarin, .amethyst, .carrot, .clouds, .flatOrange, .emerald].randomElement()!.withAlphaComponent(0.6)
+		layer.borderWidth = 1
+		layer.borderColor = UIColor.black.cgColor
 	}
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: 100, height: 100)
+		return .init(width: 100, height: (90...160).randomElement() ?? 100)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
