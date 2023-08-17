@@ -11,6 +11,12 @@ class ViewController: FibViewController {
 	
 	@Reloadable var flag = false
 	
+	override var header: FibViewHeaderViewModel? {
+		return MyFibHeader.ViewModel()
+	}
+	
+	var arr2 = Array(0...50)
+	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
 			roundedShutterBackground: .white,
@@ -18,25 +24,32 @@ class ViewController: FibViewController {
 			viewBackgroundColor: .white,
 			shutterType: .rounded,
 			topInsetStrategy: .top,
-			headerBackgroundViewColor: .green.withAlphaComponent(0.5),
-			headerBackgroundEffectView: {
-				return UIVisualEffectView(effect: UIBlurEffect(style: .regular))
-			}
+			headerBackgroundViewColor: .clear,
+			headerBackgroundEffectView: nil
 		))
 	}
 	
 	var arr2 = Array(0...30)
 	
 	override var body: SectionProtocol? {
-		GridSection {
-			arr2.map { i in
-				MyFibSquareView.ViewModel(text: "\(i) first cell")
+		SectionStack {
+			GridSection {
+				arr2.map { i in
+					MyFibSquareView.ViewModel(text: "\(i) first cell")
+				}
+			}
+			.didReorderItems({[weak self] oldIndex, newIndex in
+				guard let self = self else { return }
+				let item = arr2.remove(at: oldIndex)
+				arr2.insert(item, at: newIndex)
+				reload()
+			})
+			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+			.isSticky(false)
+			.tapHandler { _ in
+				self.flag.toggle()
 			}
 		}
-		.tapHandler({ _ in
-			self.flag.toggle()
-		})
-		.layout(flag ? StackLayout() : WaterfallLayout())
 	}
 	
 	@SectionBuilder

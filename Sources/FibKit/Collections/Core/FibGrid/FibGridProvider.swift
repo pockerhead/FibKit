@@ -135,13 +135,15 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
             if at % 2 != 0 {
                 if let cellSeparator = dataSource.data(at: at / 2)?.separator {
 					view = viewSource.view(data: cellSeparator, index: at)
-                }
-				view = viewSource.view(data: separatorViewModel, index: at)
+				} else {
+					view = viewSource.view(data: separatorViewModel, index: at)
+				}
             } else {
 				view = viewSource.view(data: dataSource.data(at: at / 2), index: at / 2)
             }
-        }
-		view = viewSource.view(data: dataSource.data(at: at), index: at)
+		} else {
+			view = viewSource.view(data: dataSource.data(at: at), index: at)
+		}
 		view.fb_provider = self
 		return view
     }
@@ -216,7 +218,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			let data = self.dataSource.data.remove(at: context.index)
 			self.dataSource.data.insert(data, at: intersectsIndex)
 			context.collectionView?.draggedCell?.index = intersectsIndex
-			self.reloadData()
+			self.setNeedsReload()
 			return intersectsFrame
 		}
         return nil

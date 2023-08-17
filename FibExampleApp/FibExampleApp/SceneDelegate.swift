@@ -27,11 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		appearance.backgroundColor = UIColor.clear
 		appearance.backgroundEffect = UIBlurEffect(style: .dark) // or dark
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-		
-		let scrollingAppearance = UINavigationBarAppearance()
-		scrollingAppearance.configureWithTransparentBackground()
-		//		scrollingAppearance.backgroundColor = .white // your view (superview) color
-		
+
 		UINavigationBar.appearance().standardAppearance = appearance
 		UINavigationBar.appearance().scrollEdgeAppearance = appearance
 		UINavigationBar.appearance().compactAppearance = appearance
