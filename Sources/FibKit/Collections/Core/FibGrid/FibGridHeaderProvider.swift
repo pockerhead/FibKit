@@ -20,7 +20,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 
     public var canReorderItems: Bool { _canReorderItems }
 
-	public weak var collectionView: CollectionView? {
+	public weak var collectionView: FibRootGrid? {
 		set {
 			self._collectionView = newValue
 		}
@@ -35,7 +35,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 		}
 	}
 	
-	private weak var _collectionView: CollectionView?
+	private weak var _collectionView: FibRootGrid?
     private var _canReorderItems: Bool = false
     private var reloadTask: DispatchWorkItem?
     public var isAsync = true
@@ -144,7 +144,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 		 layout: Layout = FlowLayout().inset(by: .zero),
          animator: Animator? = AnimatedReloadAnimator(),
          sections: [SectionProtocol] = [],
-         collectionView: CollectionView?) {
+         collectionView: FibRootGrid?) {
         self.animator = animator
         self.stickyLayout = StickyLayout(rootLayout: layout)
         self._canReorderItems = sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })

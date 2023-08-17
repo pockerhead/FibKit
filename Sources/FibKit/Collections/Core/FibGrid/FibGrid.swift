@@ -63,7 +63,7 @@ final class GridsReuseManager {
 }
 
 /// ScrollView that lay outs views form declarative descirbed sections
-final public class FibGrid: CollectionView {
+final public class FibGrid: FibRootGrid {
 	
 	public weak var swiftUIUIView: FibGrid?
 	

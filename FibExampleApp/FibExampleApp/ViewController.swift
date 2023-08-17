@@ -11,13 +11,6 @@ class ViewController: FibViewController {
 	
 	@Reloadable var flag = false
 	
-	override var header: FibViewHeaderViewModel? {
-		guard flag else { return nil }
-		return MyFibHeader.ViewModel()
-	}
-	
-	var arr2 = Array(0...3)
-	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
 			roundedShutterBackground: .white,
@@ -27,87 +20,23 @@ class ViewController: FibViewController {
 			topInsetStrategy: .top,
 			headerBackgroundViewColor: .green.withAlphaComponent(0.5),
 			headerBackgroundEffectView: {
-//				return nil
 				return UIVisualEffectView(effect: UIBlurEffect(style: .regular))
 			}
 		))
 	}
 	
-//	override var footer: FibCell.ViewModel? {
-//		.init(provider: GridSection {
-//			MyFibHeader.ViewModel(flag: flag)
-//		})
-//		.backgroundColor(.green.withAlphaComponent(0.2))
-//		.borderStyle(.shadow)
-//		.needRound(false)
-//	}
-	
-//	private var stack: SectionStack {
-//		SectionStack {
-//
-//		}
-//	}
-	
-//	private var bodyContent: SectionProtocol {
-//		SectionStack {
-//			SpacerSection(16)
-//			GridSection {
-//				arr2.map { i in
-//					MyFibSquareView.ViewModel(text: "\(i) first cell")
-//
-//				}
-//			}
-//			.didReorderItems({[weak self] oldIndex, newIndex in
-//				guard let self = self else { return }
-//				let item = arr2.remove(at: oldIndex)
-//				arr2.insert(item, at: newIndex)
-//				reload()
-//			})
-//			.centeringFlowLayout(spacing: 16)
-//			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
-//			.isSticky(false)
-//			.tapHandler { _ in
-//				self.flag.toggle()
-//			}
-//		}
-//	}
-	
-	private var bodyContent: SectionProtocol {
-			GridSection {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell")
-					
-				}
-			}
-			.didReorderItems({[weak self] oldIndex, newIndex in
-				guard let self = self else { return }
-				let item = arr2.remove(at: oldIndex)
-				arr2.insert(item, at: newIndex)
-				reload()
-			})
-			.centeringFlowLayout(spacing: 16)
-			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
-			.isSticky(false)
-			.tapHandler { _ in
-				self.flag.toggle()
-			}
-			.id("HUIMEI")
-	}
-	
-	private var bodyDebug: SectionProtocol {
-		SectionStack {
-			GridSection { section in
-				FibDebugView.ViewModel(reloadable: section, grid: self.rootView.rootFormView)
-			}
-		}
-	}
+	var arr2 = Array(0...3)
 	
 	override var body: SectionProtocol? {
-		SectionStack {
-			bodyContent
-			bodyContent
-			bodyDebug
+		GridSection {
+			arr2.map { i in
+				MyFibSquareView.ViewModel(text: "\(i) first cell")
+			}
 		}
+		.tapHandler({ _ in
+			self.flag.toggle()
+		})
+		.layout(flag ? StackLayout() : FlowLayout(spacing: 8))
 	}
 	
 	@SectionBuilder

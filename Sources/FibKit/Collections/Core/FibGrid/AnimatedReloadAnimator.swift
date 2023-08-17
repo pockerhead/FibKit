@@ -28,7 +28,7 @@ public class AnimatedReloadAnimator: Animator {
         case left
         case right
         
-        func getTx(collectionView: CollectionView, frame: CGRect) -> CGFloat {
+        func getTx(collectionView: FibRootGrid, frame: CGRect) -> CGFloat {
             switch self {
             case .left:
                 return collectionView.frame.minX - frame.width
@@ -57,7 +57,7 @@ public class AnimatedReloadAnimator: Animator {
         super.init()
     }
     
-    override open func delete(collectionView: CollectionView, view: UIView) {
+    override open func delete(collectionView: FibRootGrid, view: UIView) {
         if collectionView.isReloading, collectionView.bounds.intersects(view.frame) {
             let initialTransform = view.transform
             UIView.animate(withDuration: animationContext.deleteDuration, delay: 0, options: [.allowUserInteraction], animations: {
@@ -79,7 +79,7 @@ public class AnimatedReloadAnimator: Animator {
         }
     }
     
-    override open func insert(collectionView: CollectionView, view: UIView, at: Int, frame: CGRect) {
+    override open func insert(collectionView: FibRootGrid, view: UIView, at: Int, frame: CGRect) {
         view.bounds = frame.bounds
         view.center = frame.center
         if collectionView.isReloading, collectionView.hasReloaded, collectionView.bounds.intersects(frame) {
@@ -100,7 +100,7 @@ public class AnimatedReloadAnimator: Animator {
         }
     }
     
-    override open func update(collectionView: CollectionView, view: UIView, at: Int, frame: CGRect) {
+    override open func update(collectionView: FibRootGrid, view: UIView, at: Int, frame: CGRect) {
         let initialTransform = view.transform
 		if view.fb_isHeader == true {
             UIView.performWithoutAnimation {

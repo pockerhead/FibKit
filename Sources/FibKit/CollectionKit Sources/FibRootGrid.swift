@@ -8,7 +8,7 @@
 import UIKit
 
 // swiftlint:disable all
-open class CollectionView: UIScrollView {
+open class FibRootGrid: UIScrollView {
 	
 	public static var defaultCustomScrollClosure: ((CGPoint, CGFloat) -> Void)?
 	
@@ -249,7 +249,7 @@ open class CollectionView: UIScrollView {
 				return
 			}
 		}
-		let superCollectionView: CollectionView? = findViewInSuperViews()
+		let superCollectionView: FibRootGrid? = findViewInSuperViews()
 		if let superCollectionView = superCollectionView {
 			superCollectionView.tap(sender: tapGestureRecognizer)
 		}
@@ -667,7 +667,7 @@ open class CollectionView: UIScrollView {
 	}
 }
 
-extension CollectionView {
+extension FibRootGrid {
 	public func indexForCell(at point: CGPoint) -> Int? {
 		for (index, cell) in zip(visibleIndexes, visibleCells) {
 			if cell.point(inside: cell.convert(point, from: self), with: nil) {
@@ -692,7 +692,7 @@ extension CollectionView {
 	}
 }
 
-extension CollectionView {
+extension FibRootGrid {
 	
 	public func scroll(to index: Int, animated: Bool) throws {
 		let itemFrame = flattenedProvider.frame(at: index)
@@ -747,7 +747,7 @@ extension CollectionView {
 		animated: Bool,
 		considerNearbyItems: Bool = false,
 		bounce: CGFloat = 0,
-		customScroll: ((CGPoint, CGFloat) -> Void)? = CollectionView.defaultCustomScrollClosure
+		customScroll: ((CGPoint, CGFloat) -> Void)? = FibRootGrid.defaultCustomScrollClosure
 	) throws -> CGPoint {
 		var indexPath = indexPath
 		let optProvider = self.provider as? SectionProvider

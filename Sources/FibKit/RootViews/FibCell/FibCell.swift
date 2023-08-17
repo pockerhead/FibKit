@@ -152,7 +152,7 @@ extension FibCell: FibViewHeader {
         
         // MARK: - Collection reloadable
         
-        public var collectionView: CollectionView? {
+        public var collectionView: FibRootGrid? {
             get {
                 _grid
             }

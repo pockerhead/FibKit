@@ -53,7 +53,7 @@ public typealias ClosureViewProvider = ClosureViewSource
 @available(*, deprecated, message: "v2.0 deprecated naming")
 public typealias ArrayDataProvider = ArrayDataSource
 
-extension CollectionView {
+extension FibRootGrid {
   @available(*, deprecated, message: "v2.0 deprecated naming")
   public var loading: Bool { isLoadingCell }
 

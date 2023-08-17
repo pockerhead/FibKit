@@ -26,7 +26,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     public var sizeSource: FibGridSizeSource { didSet { setNeedsInvalidateLayout() } }
     public var layout: Layout { didSet { setNeedsInvalidateLayout() } }
     public var animator: Animator? { didSet { setNeedsReload() } }
-    public var collectionView: CollectionView? {
+    public var collectionView: FibRootGrid? {
         GridsReuseManager.shared.grids[identifier ?? ""]?.ref
     }
     public var isAsync = true
