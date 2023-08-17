@@ -10,7 +10,7 @@ import UIKit
 
 // swiftlint:disable all
 struct FlattenedProvider: ItemProvider {
-
+	public var description: String {String(describing: FlattenedProvider.self)}
     var provider: SectionProvider
 
     private var childSections: [(beginIndex: Int, sectionData: ItemProvider?)]

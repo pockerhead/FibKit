@@ -10,7 +10,7 @@ import UIKit
 
 // swiftlint:disable all
 open class ComposedProvider: SectionProvider, LayoutableProvider, CollectionReloadable {
-
+  public var description: String {String(describing: ComposedProvider.self)}
   open var identifier: String?
   open var sections: [Provider] { didSet { setNeedsReload() } }
   open var animator: Animator? { didSet { setNeedsReload() } }

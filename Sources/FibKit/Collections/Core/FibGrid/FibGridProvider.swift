@@ -12,6 +12,7 @@ import UIKit
 
 
 open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvider {
+	public var description: String {String(describing: FibGridProvider.self)}
     public var identifier: String? {
         didSet {
             GridsReuseManager.shared.sizeSources[identifier ?? ""] = sizeSource

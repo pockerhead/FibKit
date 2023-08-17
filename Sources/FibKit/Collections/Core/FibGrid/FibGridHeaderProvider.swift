@@ -12,7 +12,7 @@ import UIKit
 
 open class FibGridHeaderProvider:
 SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
-
+	public var description: String {String(describing: FibGridHeaderProvider.self)}
     public typealias HeaderViewSource = FibGridViewSource
     public typealias HeaderSizeSource = FibGridSizeSource
 

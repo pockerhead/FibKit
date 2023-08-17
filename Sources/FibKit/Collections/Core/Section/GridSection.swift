@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint:disable all
 
-public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider {
+public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider, AnyObject {
 	var isGuard: Bool { get set }
 	var isGuardAppend: Bool { get set }
 	var isSticky: Bool { get }
@@ -27,6 +27,14 @@ open class GridSection:
 	AnyGridSection,
 	AnySectionProtocol
 {
+	override public var description: String {
+		var id = self.id ?? "Warning no id"
+		let splitted = id.components(separatedBy: "/")
+		if splitted.count > 1 {
+			id = "\(splitted[0])\(splitted[splitted.count-1])"
+		}
+		return "GridSection with id: \(id), items: \(data.count), contentSize: \(self.contentSize)"
+	}
 	public static func == (lhs: GridSection, rhs: GridSection) -> Bool {
         lhs.id == rhs.id
         && Equated(wrappedValue: lhs.data, compare: .dump) == Equated(wrappedValue: rhs.data, compare: .dump)
@@ -369,6 +377,10 @@ public class EmptySpacer: GridSection {
 }
 
 public class SpacerSection: GridSection {
+	
+	override public var description: String {
+		"SpacerSection"
+	}
 
     public init(_ height: CGFloat, color: UIColor = .clear, cornerRadius: CGFloat = 0, maskedCorners: CACornerMask = []) {
         let vm = SpacerCell.ViewModel(height, color: color, cornerRadius: cornerRadius, maskedCorners: maskedCorners)
@@ -451,4 +463,22 @@ extension UIEdgeInsets {
             self.top = value
         }
     }
+}
+
+public struct FibKitDebugDescriptor {
+	public static func description(for section: SectionProtocol?) -> String {
+		var res: [String] = []
+		guard let section = section else {return ""}
+		if let section = section as? SectionProvider {
+			for i in 0...section.sections.count - 1 {
+				res.append(section.sections[i].description)
+				if i < section.sections.count - 1 {
+					res.append("↓")
+				}
+			}
+		} else {
+			res.append(section.description)
+		}
+		return res.joined(separator: "\n")
+	}
 }

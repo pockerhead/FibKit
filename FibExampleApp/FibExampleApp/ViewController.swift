@@ -42,12 +42,41 @@ class ViewController: FibViewController {
 //		.needRound(false)
 //	}
 	
-	override var body: SectionProtocol? {
-		SectionStack {
-			SpacerSection(16)
+//	private var stack: SectionStack {
+//		SectionStack {
+//
+//		}
+//	}
+	
+//	private var bodyContent: SectionProtocol {
+//		SectionStack {
+//			SpacerSection(16)
+//			GridSection {
+//				arr2.map { i in
+//					MyFibSquareView.ViewModel(text: "\(i) first cell")
+//
+//				}
+//			}
+//			.didReorderItems({[weak self] oldIndex, newIndex in
+//				guard let self = self else { return }
+//				let item = arr2.remove(at: oldIndex)
+//				arr2.insert(item, at: newIndex)
+//				reload()
+//			})
+//			.centeringFlowLayout(spacing: 16)
+//			.header(MyFibHeader.ViewModel(flag: false, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+//			.isSticky(false)
+//			.tapHandler { _ in
+//				self.flag.toggle()
+//			}
+//		}
+//	}
+	
+	private var bodyContent: SectionProtocol {
 			GridSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "\(i) first cell")
+					
 				}
 			}
 			.didReorderItems({[weak self] oldIndex, newIndex in
@@ -62,6 +91,20 @@ class ViewController: FibViewController {
 			.tapHandler { _ in
 				self.flag.toggle()
 			}
+	}
+	
+	private var bodyDebug: SectionProtocol {
+		SectionStack {
+			GridSection {
+				FibDebugView.ViewModel(section: bodyContent)
+			}
+		}
+	}
+	
+	override var body: SectionProtocol? {
+		SectionStack {
+			bodyContent
+			bodyDebug
 		}
 	}
 	
@@ -288,3 +331,70 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 		}
 	}
 }
+
+
+class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
+	
+	var label: UILabel = .init()
+	var section: SectionRef?
+	
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		configureUI()
+	}
+	
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		configureUI()
+	}
+	
+	func configureUI() {
+		addSubview(label)
+		label.numberOfLines = 0
+		label.textColor = .white
+		label.font = .monospacedSystemFont(ofSize: 10, weight: .medium)
+		label.textAlignment = .left
+		backgroundColor = .belizeHole
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		label.frame = bounds.inset(by: UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4))
+		label.text = FibKitDebugDescriptor.description(for: section)
+	}
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		guard let data = data as? ViewModel else { return .zero }
+		configure(with: data)
+		let fittingSize = CGSize(width: targetSize.width - 8, height: targetSize.height - 8)
+		let size = label.sizeThatFits(fittingSize)
+		return .init(width: targetSize.width, height: size.height + 8)
+	}
+	
+	func configure(with data: FibKit.ViewModelWithViewClass?) {
+		guard let data = data as? ViewModel else { return }
+		self.section = data.section
+		label.text = FibKitDebugDescriptor.description(for: section)
+	}
+	
+	class ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
+		internal init(section: SectionRef?) {
+			self.section = section
+		}
+		
+		var id: String? {
+			guard let section = section else { return UUID().uuidString }
+			return "\(ObjectIdentifier(section))"
+		}
+		var section: SectionRef?
+		
+		func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			FibDebugView.self
+		}
+		
+		
+	}
+}
+
+
+typealias SectionRef = (SectionProtocol & AnyObject)

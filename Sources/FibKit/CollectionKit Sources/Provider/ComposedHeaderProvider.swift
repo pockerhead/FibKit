@@ -15,7 +15,9 @@ public struct HeaderData {
 }
 
 open class ComposedHeaderProvider<HeaderView: UIView>:
-SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
+	SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
+	public var description: String {String(describing: ComposedHeaderProvider.self)}
+	
 
     public typealias HeaderViewSource = ViewSource<HeaderData, HeaderView>
     public typealias HeaderSizeSource = SizeSource<HeaderData>

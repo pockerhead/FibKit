@@ -10,6 +10,8 @@ import UIKit
 
 // swiftlint:disable all
 open class BasicProvider<Data, View: UIView>: ItemProvider, LayoutableProvider, CollectionReloadable {
+	public var description: String {String(describing: BasicProvider.self)}
+	
 
   open var identifier: String?
   open var dataSource: DataSource<Data> { didSet { setNeedsReload() } }

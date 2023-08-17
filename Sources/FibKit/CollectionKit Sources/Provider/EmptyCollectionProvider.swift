@@ -10,6 +10,7 @@ import UIKit
 
 // swiftlint:disable all
 open class EmptyCollectionProvider: ItemProvider, CollectionReloadable {
+  public var description: String {String(describing: EmptyCollectionProvider.self)}
   open var identifier: String?
 
   public init(identifier: String? = nil) {

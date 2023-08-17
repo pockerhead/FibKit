@@ -9,7 +9,7 @@
 
 import UIKit
 
-public protocol Provider {
+public protocol Provider: CustomStringConvertible {
     var identifier: String? { get set }
 
     // data

@@ -14,6 +14,9 @@ public class SectionStack:
 	AnyGridSection,
 	AnySectionProtocol
 {
+	override public var description: String {
+		return "SectionStack"
+	}
 	public var headerTapHandler: ((FibGridHeaderProvider.TapContext) -> Void)?
 	
 	public var headerData: ViewModelWithViewClass?
