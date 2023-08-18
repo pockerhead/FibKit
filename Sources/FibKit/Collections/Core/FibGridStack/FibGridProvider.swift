@@ -198,23 +198,20 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         }
     }
 
-    public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
-//        let isVerticalScroll = scrollDirection == .vertical
-//        if isVerticalScroll {
-            context.view.center.y = context.locationInCollection.y
-//        } else {
-            context.view.center.x = context.locationInCollection.x
-//        }
-        guard let intersectsView = context.intersectsCell?.cell,
-            let intersectsFrame = context.intersectsCell?.cell.frame,
-            let intersectsIndex = context.intersectsCell?.index,
-            let previousLocation = context.previousLocationInCollection,
-            let oldFrame = context.oldCellFrame else { return nil }
-        let draggedFrame = context.view.frame
+	public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
+		context.view.center.y = context.locationInCollection.y
+		context.view.center.x = context.locationInCollection.x
+		guard let intersectsView = context.intersectsCell?.cell,
+			  let intersectsIndex = context.intersectsCell?.index
+		else { return nil }
+		let draggedFrame = context.view.frame
+		let intersectsFrame = intersectsView.frame
+		let intersectsSquare = intersectsFrame.size.square
 		let intersectionFrame = context.intersectionFrame ?? .zero
 		let draggedFrameSquare = draggedFrame.size.square
 		let intersectionFrameSquare = intersectionFrame.size.square
-		if intersectionFrameSquare > (draggedFrameSquare / 2)  {
+		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2)) || (intersectionFrameSquare > (intersectsSquare / 2))
+		if needReorder {
 			let data = self.dataSource.data.remove(at: context.index)
 			self.dataSource.data.insert(data, at: intersectsIndex)
 			context.collectionView?.draggedCell?.index = intersectsIndex

@@ -33,7 +33,7 @@ extension ViewFromNibLoadable where Self: UIView {
 internal extension UIView {
 
 	@discardableResult
-	static func fromNib<T: UIView>(owner: Any? = self, bundle: Bundle? = .module) -> T? {
+	static func fromNib<T: UIView>(owner: Any? = UIView.self, bundle: Bundle? = .module) -> T? {
 		guard let view = bundle?.loadNibNamed(self.className, owner: owner, options: nil)?[0] as? T else {
 			return nil
 		}

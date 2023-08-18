@@ -58,7 +58,7 @@ extension FibGrid {
 			throw(FibGridError.unableToScroll)
 		}
 		guard let index = provider.sections.firstIndex(where: { $0.identifier == section.identifier }) else {
-			debugPrint("Incorrect section index at \(section.identifier)")
+			debugPrint("Incorrect section index at \(section.identifier ?? "undef")")
 			throw(FibGridError.unableToScroll)
 		}
 		try scroll(to: IndexPath(row: 0, section: index), animated: animated)

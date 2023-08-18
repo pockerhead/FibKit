@@ -42,7 +42,7 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
-			.layout(WaterfallLayout())
+//			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in
@@ -251,7 +251,7 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: 100, height: (90...160).randomElement() ?? 100)
+		return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {

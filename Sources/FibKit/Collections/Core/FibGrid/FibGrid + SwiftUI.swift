@@ -33,7 +33,7 @@ extension FibGrid: UIViewRepresentable {
 		swiftUIUIView = self
 		scrollToIndexPub?.sink(receiveValue: {[weak swiftUIUIView] indexPath in
 			delay {
-				try? swiftUIUIView?.scroll(to: indexPath, animated: true, considerNearbyItems: true)
+				_ = try? swiftUIUIView?.scroll(to: indexPath, animated: true, considerNearbyItems: true)
 			}
 		})
 		.store(in: &cancellables)
@@ -48,7 +48,7 @@ extension FibGrid: UIViewRepresentable {
 		uiView.provider = provider
 		scrollToIndexPub?.sink(receiveValue: {[weak uiView] indexPath in
 			delay {
-				try? uiView?.scroll(to: indexPath, animated: true, considerNearbyItems: true)
+				_ = try? uiView?.scroll(to: indexPath, animated: true, considerNearbyItems: true)
 			}
 		})
 		.store(in: &cancellables)

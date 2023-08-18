@@ -290,8 +290,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
                 self.contextViewSnapshot?.alpha = 0
             }
         }
-        withFibSpringAnimation(duration: 0.1) {[weak self] in
-            guard let self = self else { return }
+        withFibSpringAnimation(duration: 0.1) {
+//            guard let self = self else { return }
 			// TODO: @ab есть баги
 			//            if let currentAppWindow = self.currentAppWindow {
 			//                currentAppWindow?.transform = .identity

@@ -224,20 +224,21 @@ extension FibGrid {
 				}
 			}
 			switch gesture.state {
-				case .changed:
-					bringSubviewToFront(draggedCell)
-				case .cancelled:
-					clearDrag {[weak self] in
-						guard let self = self else { return }
-						self.dragProvider?.didLongTapCancelled(context: context)
-					}
-				case .ended:
-					clearDrag {[weak self] in
-						guard let self = self else { return }
-						self.dragProvider?.didLongTapEnded(context: context)
-					}
-				default:
-					break
+			case .changed:
+				bringSubviewToFront(draggedCell)
+				_ = self.dragProvider?.didLongTapContinue(context: context)
+			case .cancelled:
+				clearDrag {[weak self] in
+					guard let self = self else { return }
+					self.dragProvider?.didLongTapCancelled(context: context)
+				}
+			case .ended:
+				clearDrag {[weak self] in
+					guard let self = self else { return }
+					self.dragProvider?.didLongTapEnded(context: context)
+				}
+			default:
+				break
 			}
 		}
 		previousLocation = gesture.location(in: self)

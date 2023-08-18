@@ -284,7 +284,9 @@ public final class SwiftUIWrapper<Content>: FibViewHeaderViewModel where Content
 
 struct SwiftUIWrapper_Previews: PreviewProvider {
 
-    static let viewModel = SwiftUIWrapperView<AnyView>.ViewModel { AnyView(EmptyView()) }
+	static let viewModel = SwiftUIWrapperView<AnyView>.ViewModel (content: {
+		AnyView(EmptyView())
+	}, id: "")
 
     static var previews: some View {
         Group {

@@ -275,7 +275,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             if at % 2 == 0 {
                 return (headerProvider?.sections[safe: arrayIndex] as? GridSection)?.headerData as Any
             } else {
-                return sections[safe: arrayIndex]
+				return sections[safe: arrayIndex] as Any
             }
         }
 

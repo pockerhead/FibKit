@@ -105,7 +105,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
         formView.delegate = self
     }
     @objc private func didChangePage(_ control: UIPageControl) {
-        try? self.formView.scroll(to: IndexPath(item: self.pageControl.currentPage, section: 0), animated: true)
+        _ = try? self.formView.scroll(to: IndexPath(item: self.pageControl.currentPage, section: 0), animated: true)
     }
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
