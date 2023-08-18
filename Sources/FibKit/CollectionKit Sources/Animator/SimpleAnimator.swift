@@ -18,7 +18,7 @@ open class SimpleAnimator: Animator {
   open func hide(view: UIView) {}
   open func show(view: UIView) {}
 
-  open override func insert(collectionView: FibRootGrid, view: UIView, at: Int, frame: CGRect) {
+  open override func insert(collectionView: FibGrid, view: UIView, at: Int, frame: CGRect) {
     super.insert(collectionView: collectionView, view: view, at: at, frame: frame)
     if collectionView.isReloading, collectionView.hasReloaded, collectionView.bounds.intersects(frame) {
       hide(view: view)
@@ -28,7 +28,7 @@ open class SimpleAnimator: Animator {
     }
   }
 
-  open override func delete(collectionView: FibRootGrid, view: UIView) {
+  open override func delete(collectionView: FibGrid, view: UIView) {
     if collectionView.isReloading, collectionView.bounds.intersects(view.frame) {
       animate({
         self.hide(view: view)
@@ -43,7 +43,7 @@ open class SimpleAnimator: Animator {
     }
   }
 
-  open override func update(collectionView: FibRootGrid, view: UIView, at: Int, frame: CGRect) {
+  open override func update(collectionView: FibGrid, view: UIView, at: Int, frame: CGRect) {
     if view.bounds.size != frame.bounds.size {
       view.bounds.size = frame.bounds.size
     }

@@ -29,8 +29,6 @@ class ViewController: FibViewController {
 		))
 	}
 	
-	var arr2 = Array(0...30)
-	
 	override var body: SectionProtocol? {
 		SectionStack {
 			GridSection {

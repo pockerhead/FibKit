@@ -10,13 +10,13 @@ import UIKit
 
 // swiftlint:disable all
 public protocol CollectionReloadable: AnyObject {
-  var collectionView: FibRootGrid? { get set }
+  var collectionView: FibGrid? { get set }
   func reloadData()
   func setNeedsReload()
 }
 
 extension CollectionReloadable {
-  public var collectionView: FibRootGrid? {
+  public var collectionView: FibGrid? {
     get {
         return CollectionViewManager.shared.collectionView(for: self)
     }
@@ -37,17 +37,17 @@ extension CollectionReloadable {
 
 internal class CollectionViewManager {
   static let shared: CollectionViewManager = {
-    FibRootGrid.swizzleAdjustContentOffset() // smartly using dispatch_once
+	  FibGrid.swizzleAdjustContentOffset() // smartly using dispatch_once
     return CollectionViewManager()
   }()
 
-  var collectionViews = NSHashTable<FibRootGrid>.weakObjects()
+  var collectionViews = NSHashTable<FibGrid>.weakObjects()
 
-  func register(collectionView: FibRootGrid) {
+  func register(collectionView: FibGrid) {
     collectionViews.add(collectionView)
   }
 
-  func collectionView(for reloadable: CollectionReloadable) -> FibRootGrid? {
+  func collectionView(for reloadable: CollectionReloadable) -> FibGrid? {
     for collectionView in collectionViews.allObjects {
       if let provider = collectionView.provider, provider.hasReloadable(reloadable) {
         return collectionView
@@ -63,15 +63,15 @@ internal class CollectionViewManager {
 // this swizzling fixed the issue. where the scrollview would jump during scroll
 extension UIScrollView {
   @objc func collectionKitAdjustContentOffsetIfNecessary(_ animated: Bool) {
-    guard !(self is FibRootGrid) || !isDragging && !isDecelerating else { return }
-    self.perform(#selector(FibRootGrid.collectionKitAdjustContentOffsetIfNecessary))
+    guard !(self is FibGrid) || !isDragging && !isDecelerating else { return }
+    self.perform(#selector(FibGrid.collectionKitAdjustContentOffsetIfNecessary))
   }
 
   static func swizzleAdjustContentOffset() {
     let encoded = String("==QeyF2czV2Yl5kZJRXZzZmZPRnblRnbvNEdzVnakF2X".reversed())
     let originalMethodName = String(data: Data(base64Encoded: encoded)!, encoding: .utf8)!
     let originalSelector = NSSelectorFromString(originalMethodName)
-    let swizzledSelector = #selector(FibRootGrid.collectionKitAdjustContentOffsetIfNecessary)
+    let swizzledSelector = #selector(FibGrid.collectionKitAdjustContentOffsetIfNecessary)
     let originalMethod = class_getInstanceMethod(self, originalSelector)
     let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
     method_exchangeImplementations(originalMethod!, swizzledMethod!)

@@ -20,7 +20,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 
     public var canReorderItems: Bool { _canReorderItems }
 
-	public weak var collectionView: FibRootGrid? {
+	public weak var collectionView: FibGrid? {
 		set {
 			self._collectionView = newValue
 		}
@@ -35,7 +35,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 		}
 	}
 	
-	private weak var _collectionView: FibRootGrid?
+	private weak var _collectionView: FibGrid?
     private var _canReorderItems: Bool = false
     private var reloadTask: DispatchWorkItem?
     public var isAsync = true
@@ -144,7 +144,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 		 layout: Layout = FlowLayout().inset(by: .zero),
          animator: Animator? = AnimatedReloadAnimator(),
          sections: [SectionProtocol] = [],
-         collectionView: FibRootGrid?) {
+         collectionView: FibGrid?) {
         self.animator = animator
         self.stickyLayout = StickyLayout(rootLayout: layout)
         self._canReorderItems = sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })
@@ -172,7 +172,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             return nil
         } else {
             if self.collectionView !== GridsReuseManager.shared.grids[sections[at / 2].identifier ?? ""]?.ref {
-                GridsReuseManager.shared.grids[sections[at / 2].identifier ?? ""] = WeakRef(ref: self.collectionView as? FibGrid)
+				GridsReuseManager.shared.grids[sections[at / 2].identifier ?? ""] = WeakRef(ref: self.collectionView)
             }
             return sections[at / 2]
         }
@@ -187,7 +187,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
     open func identifier(at: Int) -> String {
         let sectionIdentifier = sections.get(at / 2)?.identifier ?? "\(at)"
         if self.collectionView !== GridsReuseManager.shared.grids[sectionIdentifier]?.ref {
-            GridsReuseManager.shared.grids[sectionIdentifier] = WeakRef(ref: self.collectionView as? FibGrid)
+			GridsReuseManager.shared.grids[sectionIdentifier] = WeakRef(ref: self.collectionView)
         }
         if at % 2 == 0 {
             return sectionIdentifier + "-header"
@@ -231,7 +231,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
     open func didTap(view: UIView, at: Int) {
         if let tapHandler = (sections[safe: at / 2] as? SectionProtocol)?.headerTapHandler {
             let index = at / 2
-            let context = TapContext(view: view, index: index, section: sections[index], grid: self.collectionView as? FibGrid)
+			let context = TapContext(view: view, index: index, section: sections[index], grid: self.collectionView)
             tapHandler(context)
         }
     }

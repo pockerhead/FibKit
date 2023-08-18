@@ -12,7 +12,7 @@ import UIKit
 extension UIScrollView {
 	
 	public var expandedRect: CGRect? {
-		guard let self = self as? FibRootGrid else { return nil }
+		guard let self = self as? FibGrid else { return nil }
 		guard self.needExpandedWidth || self.needExpandedHeight else { return nil }
 		var rect = bounds
 		if self.needExpandedWidth {

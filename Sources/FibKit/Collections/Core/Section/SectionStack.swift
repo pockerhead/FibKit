@@ -45,7 +45,7 @@ Sections: [
 		@SectionProtocolBuilder _ data: () -> [SectionProtocol],
 		line: Int = #line,
 		file: String = #file,
-		collectionView: FibRootGrid? = nil
+		collectionView: FibGrid? = nil
 	) {
 		self.init(identifier: "Section_at_\(line)_in_\(file)", sections: data(), collectionView: collectionView)
 		self.headerData = FormViewSpacer(0.1, color: .clear, width: 0.1)

@@ -24,7 +24,7 @@ public protocol ItemProvider: Provider {
 }
 
 public class LongGestureContext {
-	weak var collectionView: FibRootGrid?
+	weak var collectionView: FibGrid?
     var view: UIView,
     sectionIndex: Int?,
     locationInCollection: CGPoint,
@@ -34,13 +34,13 @@ public class LongGestureContext {
 	var initialCellIndex: Int = 0
 
     var dragProvider: ItemProvider?
-    var intersectsCell: FibRootGrid.CellPath?
+    var intersectsCell: FibGrid.CellPath?
 	var intersectionFrame: CGRect?
     var oldCellFrame: CGRect?
     var lastReorderedIndex: Int?
 
     init(view: UIView,
-         collectionView: FibRootGrid,
+         collectionView: FibGrid,
          locationInCollection: CGPoint,
          previousLocationInCollection: CGPoint?,
          index: Int) {

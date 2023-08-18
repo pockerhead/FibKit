@@ -19,7 +19,7 @@ open class Animator {
   ///   - view: the view being inserted
   ///   - at: index of the view inside the CollectionView (after flattening step)
   ///   - frame: frame provided by the layout
-  open func insert(collectionView: FibRootGrid,
+  open func insert(collectionView: FibGrid,
                    view: UIView,
                    at: Int,
                    frame: CGRect) {
@@ -36,7 +36,7 @@ open class Animator {
   /// - Parameters:
   ///   - collectionView: source CollectionView
   ///   - view: the view being deleted
-  open func delete(collectionView: FibRootGrid,
+  open func delete(collectionView: FibGrid,
                    view: UIView) {
     view.recycleForCollectionKitReuse()
   }
@@ -51,7 +51,7 @@ open class Animator {
   ///   - view: the view being updated
   ///   - at: index of the view inside the CollectionView (after flattening step)
   ///   - frame: frame provided by the layout
-  open func update(collectionView: FibRootGrid,
+  open func update(collectionView: FibGrid,
                    view: UIView,
                    at: Int,
                    frame: CGRect) {
@@ -71,7 +71,7 @@ open class Animator {
   ///   - view: the view being updated
   ///   - at: index of the view inside the CollectionView (after flattening step)
   ///   - frame: frame provided by the layout
-  open func shift(collectionView: FibRootGrid,
+  open func shift(collectionView: FibGrid,
                   delta: CGPoint,
                   view: UIView,
                   at: Int,

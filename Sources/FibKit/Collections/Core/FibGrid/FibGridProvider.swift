@@ -26,7 +26,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     public var sizeSource: FibGridSizeSource { didSet { setNeedsInvalidateLayout() } }
     public var layout: Layout { didSet { setNeedsInvalidateLayout() } }
     public var animator: Animator? { didSet { setNeedsReload() } }
-    public var collectionView: FibRootGrid? {
+    public var collectionView: FibGrid? {
         GridsReuseManager.shared.grids[identifier ?? ""]?.ref
     }
     public var isAsync = true
@@ -188,12 +188,12 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         if let tapHandler = tapHandler {
             if separatorViewModel != nil {
                 if at % 2 == 0 {
-                    let context = TapContext(grid: self.collectionView as? FibGrid, view: view as! ViewModelConfigurable, index: at / 2, dataSource: dataSource, gridSection: self)
+					let context = TapContext(grid: self.collectionView, view: view as! ViewModelConfigurable, index: at / 2, dataSource: dataSource, gridSection: self)
                     tapHandler(context)
                 }
                 return
             }
-            let context = TapContext(grid: self.collectionView as? FibGrid, view: view as! ViewModelConfigurable, index: at, dataSource: dataSource, gridSection: self)
+			let context = TapContext(grid: self.collectionView, view: view as! ViewModelConfigurable, index: at, dataSource: dataSource, gridSection: self)
             tapHandler(context)
         }
     }
