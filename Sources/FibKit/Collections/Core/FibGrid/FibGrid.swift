@@ -89,7 +89,6 @@ final public class FibGrid: UIScrollView {
 				}
 			}
 			setNeedsReload()
-			reloadSections(oldValue)
 		}
 	}
 	lazy var flattenedProvider: ItemProvider = EmptyCollectionProvider()
@@ -187,7 +186,7 @@ final public class FibGrid: UIScrollView {
 		}
 		return super.point(inside: point, with: event)
 	}
-	private func reloadSections(_ oldValue: Provider?) {}
+	
 	private func updateLayoutSubviewsTask() {
 		reloadTask?.cancel()
 		reloadTask = nil
@@ -340,6 +339,7 @@ final public class FibGrid: UIScrollView {
 		self.isChangingPage = false
 		self.flattenedProvider.didReload()
 	}
+	
 	private func _loadCells(forceReload: Bool) {
 		let newIndexes = flattenedProvider.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
 		// optimization: we assume that corresponding identifier for each index doesnt change unless forceReload is true.
@@ -357,7 +357,6 @@ final public class FibGrid: UIScrollView {
 			}
 			return
 		}
-		
 		
 		var existingIdentifierToCellMap: [String: UIView] = [:]
 		
@@ -435,6 +434,7 @@ final public class FibGrid: UIScrollView {
 			insertSubview(cell, at: index)
 		}
 	}
+	
 	private func appearSubviewIfNeeded(_ cell: UIView,
 									   cellFrame: CGRect,
 									   visibleFrameLessInset: CGRect) {
@@ -454,6 +454,7 @@ final public class FibGrid: UIScrollView {
 			}
 		}
 	}
+	
 	private func _generateCell(index: Int) -> UIView {
 		let cell = flattenedProvider.view(at: index)
 		let frame = flattenedProvider.frame(at: index)

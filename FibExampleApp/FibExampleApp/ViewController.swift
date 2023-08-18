@@ -42,6 +42,7 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
+			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in
@@ -75,7 +76,7 @@ class ViewController: FibViewController {
 			.header(MyFibView.ViewModel(text: "arr_HE232ADER_2"))
 			.isSticky(true)
 		}
-		SectionStack {
+		GridSection {
 			
 		}
 	}
