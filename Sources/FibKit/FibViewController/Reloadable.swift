@@ -54,3 +54,23 @@ public class ReloadableObject<Value: ObservableObject>: HaveControllerProp {
 		}.store(in: &cancellable)
 	}
 }
+
+@propertyWrapper
+public class StateReloadable<Value: Equatable>: HaveControllerProp {
+	
+	weak var controller: FibViewController?
+	private var stored: Value
+	public var wrappedValue: Value {
+		get { stored }
+		set {
+			guard newValue != stored else { return }
+			stored = newValue
+			guard let controller = controller else { return }
+			controller.reload()
+		}
+	}
+	
+	public init(wrappedValue stored: Value) {
+		self.stored = stored
+	}
+}
