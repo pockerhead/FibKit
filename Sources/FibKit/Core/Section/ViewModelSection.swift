@@ -20,7 +20,7 @@ public protocol SectionProtocol: AnyGridSection, AnySectionProtocol, Provider, A
 }
 
 /// Class that represents data sections in FormView, and provide behaviour to inner views, that representations stored in self.data
-open class GridSection:
+open class ViewModelSection:
 	FibGridProvider,
 	Equatable,
 	SectionProtocol,
@@ -42,7 +42,7 @@ contentSize: \(self.contentSize),
 layout: \(layout.description)
 """
 	}
-	public static func == (lhs: GridSection, rhs: GridSection) -> Bool {
+	public static func == (lhs: ViewModelSection, rhs: ViewModelSection) -> Bool {
         lhs.id == rhs.id
         && Equated(wrappedValue: lhs.data, compare: .dump) == Equated(wrappedValue: rhs.data, compare: .dump)
     }
@@ -312,7 +312,7 @@ layout: \(layout.description)
     /// - Parameters:
     ///   - data: ViewModelBuilder closure to provide models in section (with GridSection as parameter)
     public convenience init(forceReassignLayout: Bool = false,
-                            @ViewModelBuilder _ data: (GridSection) -> [ViewModelWithViewClass?],
+                            @ViewModelBuilder _ data: (ViewModelSection) -> [ViewModelWithViewClass?],
                             line: Int = #line,
                             file: String = #file) {
         self.init(data: [], id: "Section_at_\(line)_in_\(file)", forceReassignLayout: forceReassignLayout)
@@ -320,7 +320,7 @@ layout: \(layout.description)
     }
 }
 
-extension GridSection {
+extension ViewModelSection {
 
     @available(*, message: "Use native if")
     public static func `if`(_ condition: Bool,
@@ -334,7 +334,7 @@ extension GridSection {
     }
 }
 
-public class EmptySpacer: GridSection {
+public class EmptySpacer: ViewModelSection {
     public init() {
         let vm = FormViewSpacer(0)
         super.init(data: [vm],
@@ -343,7 +343,7 @@ public class EmptySpacer: GridSection {
     }
 }
 
-public class SpacerSection: GridSection {
+public class SpacerSection: ViewModelSection {
 	
 	override public var description: String {
 		"SpacerSection"
@@ -364,7 +364,7 @@ public class SpacerSection: GridSection {
 //    }
 //}
 //
-public class EmptySection: GridSection {
+public class EmptySection: ViewModelSection {
     public var viewModel: ViewModelWithViewClass
     public var height: CGFloat = 0
 
@@ -384,7 +384,7 @@ func deepId(_ object: Any) -> String {
 
 
 
-final public class ForEachSection<T>: GridSection {
+final public class ForEachSection<T>: ViewModelSection {
     
     public init(forceReassignLayout: Bool = false,
                 data: [T],

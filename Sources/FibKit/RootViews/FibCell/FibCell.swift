@@ -172,7 +172,7 @@ extension FibCell: FibViewHeader {
         public var provider: Provider?
         public var sizeHash: String?
         public var storedId: String?
-        public var storedSections: [GridSection] = []
+        public var storedSections: [ViewModelSection] = []
         public var size: NilSize?
         public var backgroundColor: UIColor?
         public var atTop: Bool = false

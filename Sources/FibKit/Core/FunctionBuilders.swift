@@ -34,56 +34,56 @@ public extension Array where Element: SectionProtocol {
 ///~~~
 @resultBuilder public struct SectionBuilder {
         
-    public static func buildBlock(_ atrs: AnySection...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildBlock(_ atrs: AnySection...) -> [ViewModelSection] {
+        if let arr = atrs as? [ViewModelSection] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [ViewModelSection]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildOptional(_ atrs: AnySection?...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildOptional(_ atrs: AnySection?...) -> [ViewModelSection] {
+        if let arr = atrs as? [ViewModelSection] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [ViewModelSection]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildArray(_ atrs: AnySection?...) -> [GridSection] {
-        if let arr = atrs as? [GridSection] {
+    public static func buildArray(_ atrs: AnySection?...) -> [ViewModelSection] {
+        if let arr = atrs as? [ViewModelSection] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [ViewModelSection]()
         fullFill(&arr, with: atrs)
         return arr
     }
     
-    public static func buildEither(first: AnySection...) -> [GridSection] {
-        if let arr = first as? [GridSection] {
+    public static func buildEither(first: AnySection...) -> [ViewModelSection] {
+        if let arr = first as? [ViewModelSection] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [ViewModelSection]()
         fullFill(&arr, with: first)
         return arr
     }
     
-    public static func buildEither(second component: AnySection...) -> [GridSection] {
-        if let arr = component as? [GridSection] {
+    public static func buildEither(second component: AnySection...) -> [ViewModelSection] {
+        if let arr = component as? [ViewModelSection] {
             return arr
         }
-        var arr = [GridSection]()
+        var arr = [ViewModelSection]()
         fullFill(&arr, with: component)
         return arr
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnySection?]) {
+    fileprivate static func fullFill(_ array: inout [ViewModelSection], with sections: [AnySection?]) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? ViewModelSection {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [ViewModelSection], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break
@@ -96,11 +96,11 @@ public extension Array where Element: SectionProtocol {
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: AnySection...) {
+    fileprivate static func fullFill(_ array: inout [ViewModelSection], with sections: AnySection...) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? ViewModelSection {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [ViewModelSection], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break
@@ -113,11 +113,11 @@ public extension Array where Element: SectionProtocol {
         }
     }
     
-    fileprivate static func fullFill(_ array: inout [GridSection], with sections: [AnySection]) {
+    fileprivate static func fullFill(_ array: inout [ViewModelSection], with sections: [AnySection]) {
         for atr in sections {
-            if let atr = atr as? GridSection {
+            if let atr = atr as? ViewModelSection {
                 array.append(atr)
-            } else if let sectionArr = atr as? [GridSection], !sectionArr.isEmpty {
+            } else if let sectionArr = atr as? [ViewModelSection], !sectionArr.isEmpty {
                 if sectionArr.allSatisfy({ $0.isGuard }) {
                     array = sectionArr
                     break

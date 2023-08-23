@@ -11,9 +11,9 @@ extension FibGrid {
 	
 	@available(*, message: "Use native if")
 	public static func `if`(_ condition: Bool,
-							@SectionBuilder append sections: () -> [GridSection],
-							@SectionBuilder elseAppend elseSections: () -> [GridSection] = {[]})
-	-> [GridSection] {
+							@SectionBuilder append sections: () -> [ViewModelSection],
+							@SectionBuilder elseAppend elseSections: () -> [ViewModelSection] = {[]})
+	-> [ViewModelSection] {
 		if condition {
 			return sections()
 		} else {
@@ -22,8 +22,8 @@ extension FibGrid {
 	}
 	
 	public static func `guard`(_ condition: Bool,
-							   @SectionBuilder elseReturn sections: () -> [GridSection])
-	-> [GridSection] {
+							   @SectionBuilder elseReturn sections: () -> [ViewModelSection])
+	-> [ViewModelSection] {
 		if !condition {
 			let s = sections()
 			s.forEach({ $0.isGuard = true })
@@ -34,8 +34,8 @@ extension FibGrid {
 	}
 	
 	public static func `guard`(_ condition: Bool,
-							   @SectionBuilder elseAppend sections: () -> [GridSection])
-	-> [GridSection] {
+							   @SectionBuilder elseAppend sections: () -> [ViewModelSection])
+	-> [ViewModelSection] {
 		if !condition {
 			let s = sections()
 			s.forEach({ $0.isGuardAppend = true })
