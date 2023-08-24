@@ -25,7 +25,7 @@ open class RootTransparentStyleViewController: UIViewController {
     }
 }
 
-internal func withStyle<T>(light: T, dark: T) -> T {
+public func withStyle<T>(light: T, dark: T) -> T {
 	guard let window = UIApplication.shared.delegate?.window else { return light }
 	guard let style = window?.overrideUserInterfaceStyle else { return light }
 	switch style {

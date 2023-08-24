@@ -33,15 +33,27 @@ class ViewController: FibViewController {
 		SectionStack {
 			GridSection {
 				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell")
+					MyFibSquareView.ViewModel(text: "\(i) first cell").rightSwipeViews(mainSwipeView: MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"))).interactive(true).onAppear {  wrapper in
+						guard let wrapper = wrapper as? SwipeControlledView,
+							  wrapper.haveSwipeAction,
+							  wrapper.isSwipeOpen == false else { return }
+						DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+							wrapper.animateSwipe(direction: .right, isOpen: true, swipeWidth: nil, initialVel: nil, completion: {
+								//wrapper.flash(numberOfFlashes: 1)
+								DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+									wrapper.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
+								}
+							})
+						}
+					}
 				}
 			}
-			.didReorderItems({[weak self] oldIndex, newIndex in
-				guard let self = self else { return }
-				let item = arr2.remove(at: oldIndex)
-				arr2.insert(item, at: newIndex)
-				reload()
-			})
+//			.didReorderItems({[weak self] oldIndex, newIndex in
+//				guard let self = self else { return }
+//				let item = arr2.remove(at: oldIndex)
+//				arr2.insert(item, at: newIndex)
+//				reload()
+//			})
 //			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
@@ -220,41 +232,32 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 	}
 }
 
-class MyFibSquareView: UIView, ViewModelConfigurable {
+class MyFibSquareView: FibCoreView {
 	
 	var label: UILabel = .init()
 	
-	override init(frame: CGRect) {
-		super.init(frame: frame)
-		configureUI()
-	}
-	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-		configureUI()
-	}
-	
-	func configureUI() {
-		addSubview(label)
+	override func configureUI() {
+		super.configureUI()
+		contentView.addSubview(label)
 	}
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		label.frame = bounds
+		label.frame = contentView.bounds
 		label.textAlignment = .center
 		backgroundColor = [UIColor.red, .alizarin, .amethyst, .carrot, .clouds, .flatOrange, .emerald].randomElement()!.withAlphaComponent(0.6)
 		layer.borderWidth = 1
 		layer.borderColor = UIColor.black.cgColor
 	}
 	
-	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
 	}
 	
-	func configure(with data: FibKit.ViewModelWithViewClass?) {
+	override func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
 		label.text = data.text
 	}
@@ -262,17 +265,15 @@ class MyFibSquareView: UIView, ViewModelConfigurable {
 
 	
 	
-	class ViewModel: ViewModelWithViewClass {
-		internal init(text: String) {
-			self.text = text
-		}
+	class ViewModel: FibCoreViewModel {
 		
-		var id: String? {
-			text
+		init(text: String) {
+			self.text = text
+			super.init()
 		}
 		var text: String
 		
-		func viewClass() -> FibKit.ViewModelConfigurable.Type {
+		override func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibSquareView.self
 		}
 	}
@@ -399,4 +400,47 @@ final class DebugHelperController: FibViewController {
 		addCloseButton()
 		title = "\(String(describing: parentVC) ?? "")"
 	}
+}
+
+
+class MyFibSwipeView: FibCoreView {
+
+	
+	private let imageView = UIImageView()
+	
+	
+	override func configureUI() {
+		super.configureUI()
+		contentView.addSubview(imageView)
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		imageView.frame = bounds
+	}
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+		return CGSize(width: 100, height: 100)
+	}
+	
+	override func configure(with data: ViewModelWithViewClass?) {
+		guard let data = data as? ViewModel else { return }
+		imageView.image = data.image
+	}
+	
+	
+	class ViewModel: FibCoreViewModel, FibSwipeViewModel {
+		let image: UIImage?
+		
+		init(image: UIImage?) {
+			self.image = image
+			super.init()
+		}
+		
+		
+		override func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MyFibSwipeView.self
+		}
+	}
+	
 }
