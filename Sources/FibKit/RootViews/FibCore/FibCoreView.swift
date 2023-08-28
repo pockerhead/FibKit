@@ -20,7 +20,7 @@ open class FibCoreView: UIView,
     
     // MARK: - Variables
     
-    private lazy var swipeCoordinator = FibCoreSwipeCoordinatorImpl(fibCoreView: self)
+    private lazy var swipeCoordinator = FibCoreSwipeCoordinator(fibCoreView: self)
     private var _needUserInteraction: Bool = false
     public var needUserInteraction: Bool { _needUserInteraction }
     public var haveSwipeAction: Bool { swipeCoordinator.haveSwipeAction }
@@ -49,6 +49,12 @@ open class FibCoreView: UIView,
     private lazy var _contentViewBackgroundColor: UIColor? = contentView.backgroundColor
     
     public var contentView = UIView()
+
+	
+	public enum Edge {
+		case left
+		case right
+	}
     
     // MARK: - Init
     

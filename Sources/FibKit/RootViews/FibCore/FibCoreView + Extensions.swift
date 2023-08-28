@@ -183,3 +183,16 @@ public extension CALayer {
 		shadowPath = nil
 	}
 }
+
+
+extension Optional {
+	
+	var isNil: Bool {
+		switch self {
+			case .none:
+				return true
+			default:
+				return false
+		}
+	}
+}

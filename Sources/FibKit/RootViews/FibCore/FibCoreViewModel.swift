@@ -18,8 +18,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     private(set) public var minHeight: CGFloat?
     private(set) public var maxHeight: CGFloat?
     private(set) public var allowedStretchDirections: Set<StretchDirection> = []
-    private(set) var rightSwipeViews: SwipesContainerViewModel?
-    private(set) var leftSwipeViews: SwipesContainerViewModel?
+	private(set) var rightSwipeViews: SwipesContainerView.ViewModel?
+    private(set) var leftSwipeViews: SwipesContainerView.ViewModel?
     private(set) var interactive: Bool = false
     private(set) var highlight: HighLight = .squeeze
     private(set) var onAppearClosure: ((UIView) -> Void)?
@@ -97,15 +97,15 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         return self
     }
     
-    public func rightSwipeViews(mainSwipeView: FibSwipeViewModel,
+	public func rightSwipeViews(mainSwipeView: FibSwipeViewModel,
                                 secondSwipeView: FibSwipeViewModel? = nil,
                                 thirdSwipeView: FibSwipeViewModel? = nil,
                                 stretchEmitMainAction: Bool = true) -> Self {
-        self.rightSwipeViews = SwipesContainerViewModelImpl(mainSwipeView: mainSwipeView,
-                                     secondSwipeView: secondSwipeView,
-                                     thridSwipeView: thirdSwipeView,
-                                     stretchEmitMainAction: stretchEmitMainAction,
-                                     edge: .right)
+		self.rightSwipeViews = .init(mainSwipeView: mainSwipeView,
+									secondSwipeView: secondSwipeView,
+									thridSwipeView: thirdSwipeView,
+									stretchEmitMainAction: stretchEmitMainAction,
+									edge: .right)
         return self
     }
     
@@ -113,11 +113,11 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
                                secondSwipeView: FibSwipeViewModel? = nil,
                                thirdSwipeView: FibSwipeViewModel? = nil,
                                stretchEmitMainAction: Bool = true) -> Self {
-        self.leftSwipeViews = SwipesContainerViewModelImpl(mainSwipeView: mainSwipeView,
-                                    secondSwipeView: secondSwipeView,
-                                    thridSwipeView: thirdSwipeView,
-                                    stretchEmitMainAction: stretchEmitMainAction,
-                                    edge: .left)
+		self.leftSwipeViews = .init(mainSwipeView: mainSwipeView,
+									secondSwipeView: secondSwipeView,
+									thridSwipeView: thirdSwipeView,
+									stretchEmitMainAction: stretchEmitMainAction,
+									edge: .left)
         return self
     }
     

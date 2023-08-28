@@ -15,7 +15,7 @@ class ViewController: FibViewController {
 		return MyFibHeader.ViewModel()
 	}
 	
-	var arr2 = Array(0...50)
+	var arr2 = Array(0...3)
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
@@ -33,19 +33,8 @@ class ViewController: FibViewController {
 		SectionStack {
 			GridSection {
 				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell").rightSwipeViews(mainSwipeView: MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"))).interactive(true).onAppear {  wrapper in
-						guard let wrapper = wrapper as? SwipeControlledView,
-							  wrapper.haveSwipeAction,
-							  wrapper.isSwipeOpen == false else { return }
-						DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-							wrapper.animateSwipe(direction: .right, isOpen: true, swipeWidth: nil, initialVel: nil, completion: {
-								//wrapper.flash(numberOfFlashes: 1)
-								DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-									wrapper.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
-								}
-							})
-						}
-					}
+					MyFibSquareView.ViewModel(text: "\(i) first cell").rightSwipeViews(mainSwipeView: MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"), backgroundColor: .cyan))
+					//MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"))
 				}
 			}
 //			.didReorderItems({[weak self] oldIndex, newIndex in
@@ -254,11 +243,13 @@ class MyFibSquareView: FibCoreView {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
+		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
+		return .init(width: targetSize.width, height: 100)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
+		super.configure(with: data)
 		label.text = data.text
 	}
 	
@@ -403,42 +394,57 @@ final class DebugHelperController: FibViewController {
 }
 
 
-class MyFibSwipeView: FibCoreView {
-
+public class MyFibSwipeView: UIView, ViewModelConfigurable, FibSwipeView {
+	
+	public var swipeEdge: FibKit.SwipesContainerView.Edge? = nil
 	
 	private let imageView = UIImageView()
 	
-	
-	override func configureUI() {
-		super.configureUI()
-		contentView.addSubview(imageView)
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		configureUI()
 	}
 	
-	override func layoutSubviews() {
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		configureUI()
+	}
+	
+	func configureUI() {
+		addSubview(imageView)
+		imageView.contentMode = .scaleAspectFit
+	}
+	
+	public override func layoutSubviews() {
 		super.layoutSubviews()
 		imageView.frame = bounds
 	}
 	
-	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
-		return CGSize(width: 100, height: 100)
+	public func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+		return CGSize(width: 84, height: 100)
 	}
 	
-	override func configure(with data: ViewModelWithViewClass?) {
+	public func configure(with data: ViewModelWithViewClass?) {
+		//super.configure(with: data)
 		guard let data = data as? ViewModel else { return }
 		imageView.image = data.image
 	}
 	
 	
-	class ViewModel: FibCoreViewModel, FibSwipeViewModel {
-		let image: UIImage?
-		
-		init(image: UIImage?) {
+	public class ViewModel: FibCoreViewModel, FibSwipeViewModel {
+		public var title: String?
+		public var secondGradientColor: UIColor?
+		public var action: (() -> Void)?
+		public var image: UIImage?
+		public var backgroundColor: UIColor = UIColor.systemBackground
+
+		public init(image: UIImage?, backgroundColor: UIColor = UIColor.systemBackground) {
 			self.image = image
+			self.backgroundColor = backgroundColor
 			super.init()
 		}
 		
-		
-		override func viewClass() -> FibKit.ViewModelConfigurable.Type {
+		public override func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibSwipeView.self
 		}
 	}
