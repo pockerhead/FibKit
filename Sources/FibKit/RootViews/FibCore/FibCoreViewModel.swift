@@ -42,6 +42,10 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     public struct Tooltip {
         var needShow: Bool
         var text: String
+		public init(needShow: Bool, text: String) {
+			self.needShow = needShow
+			self.text = text
+		}
     }
 
     open func viewClass() -> ViewModelConfigurable.Type {

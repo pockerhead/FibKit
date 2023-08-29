@@ -274,15 +274,15 @@ open class FibCoreView: UIView,
         if let menu = data.contextMenu {
             contentView.addContextMenu(menu)
         }
-//        if let tooltip = data.tooltip {
-//            if tooltip.needShow {
-//                ToolTipService.shared.showToolTip(for: self.tooltipView, text: tooltip.text)
-//            } else {
-////                ToolTipService.shared.hideTooltip(animated: true)
-//            }
-//        } else {
-////            ToolTipService.shared.hideTooltip(animated: false)
-//        }
+        if let tooltip = data.tooltip {
+            if tooltip.needShow {
+                ToolTipService.shared.showToolTip(for: self.tooltipView, text: tooltip.text)
+            } else {
+//                ToolTipService.shared.hideTooltip(animated: true)
+            }
+        } else {
+//            ToolTipService.shared.hideTooltip(animated: false)
+        }
 		if let transform = data.transform {
 			self.transform = transform
 		}

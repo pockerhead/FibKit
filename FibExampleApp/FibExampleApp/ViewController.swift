@@ -33,21 +33,27 @@ class ViewController: FibViewController {
 		SectionStack {
 			GridSection {
 				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell")
+					//MyFibSquareView.ViewModel(text: "\(i) first cell")
+					MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle")?.withRenderingMode(.alwaysOriginal).withTintColor(flag ? .red : .cyan))
+						.tooltip(.init(needShow: self.flag && i == 3, text: "sdfsfsdsdfsdfsd"))
+						.onTap({ [weak self] v in
+							self?.flag.toggle()
+						})
+						.interactive(true)
 				}
 			}
-			.didReorderItems({[weak self] oldIndex, newIndex in
-				guard let self = self else { return }
-				let item = arr2.remove(at: oldIndex)
-				arr2.insert(item, at: newIndex)
-				reload()
-			})
+//			.didReorderItems({[weak self] oldIndex, newIndex in
+//				guard let self = self else { return }
+//				let item = arr2.remove(at: oldIndex)
+//				arr2.insert(item, at: newIndex)
+//				reload()
+//			})
 			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
-			.tapHandler { _ in
-				self.flag.toggle()
-			}
+//			.tapHandler { _ in
+//				self.flag.toggle()
+//			}
 		}
 	}
 	
@@ -393,42 +399,33 @@ final class DebugHelperController: FibViewController {
 }
 
 
-public class MyFibSwipeView: UIView, ViewModelConfigurable, FibSwipeView {
+public class MyFibSwipeView: FibCoreView, FibSwipeView {
 	
 	public var swipeEdge: FibKit.SwipesContainerView.Edge? = nil
 	
 	private let imageView = UIImageView()
 	
-	override init(frame: CGRect) {
-		super.init(frame: frame)
-		configureUI()
-	}
-	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-		configureUI()
-	}
-	
-	func configureUI() {
-		addSubview(imageView)
+	public override func configureUI() {
+		super.configureUI()
+		contentView.addSubview(imageView)
 		imageView.contentMode = .scaleAspectFit
 	}
 	
 	public override func layoutSubviews() {
 		super.layoutSubviews()
-		imageView.frame = bounds
+		imageView.frame = contentView.bounds
 	}
 	
-	public func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+	
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		return CGSize(width: 84, height: 100)
 	}
 	
-	public func configure(with data: ViewModelWithViewClass?) {
-		//super.configure(with: data)
+	override public func configure(with data: ViewModelWithViewClass?) {
+		super.configure(with: data)
 		guard let data = data as? ViewModel else { return }
 		imageView.image = data.image
 	}
-	
 	
 	public class ViewModel: FibCoreViewModel, FibSwipeViewModel {
 		public var title: String?
@@ -436,7 +433,7 @@ public class MyFibSwipeView: UIView, ViewModelConfigurable, FibSwipeView {
 		public var action: (() -> Void)?
 		public var image: UIImage?
 		public var backgroundColor: UIColor = UIColor.systemBackground
-
+		
 		public init(image: UIImage?, backgroundColor: UIColor = UIColor.systemBackground) {
 			self.image = image
 			self.backgroundColor = backgroundColor
