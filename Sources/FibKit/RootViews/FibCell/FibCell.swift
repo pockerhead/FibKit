@@ -303,7 +303,7 @@ extension FibCell: FibViewHeader {
         borderStyle = data.borderStyle
         needRound = data.needRound
         data._grid = formView
-		formView.provider?.animator = nil
+	//	formView.provider?.animator = nil
         formView.isEmbedCollection = true
         _needUserInteraction = data.needUserInteraction
         if let additionalBackground = data.backgroundColor {

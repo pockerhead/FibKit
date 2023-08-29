@@ -33,17 +33,16 @@ class ViewController: FibViewController {
 		SectionStack {
 			GridSection {
 				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell").rightSwipeViews(mainSwipeView: MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"), backgroundColor: .cyan))
-					//MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle"))
+					MyFibSquareView.ViewModel(text: "\(i) first cell")
 				}
 			}
-//			.didReorderItems({[weak self] oldIndex, newIndex in
-//				guard let self = self else { return }
-//				let item = arr2.remove(at: oldIndex)
-//				arr2.insert(item, at: newIndex)
-//				reload()
-//			})
-//			.layout(WaterfallLayout())
+			.didReorderItems({[weak self] oldIndex, newIndex in
+				guard let self = self else { return }
+				let item = arr2.remove(at: oldIndex)
+				arr2.insert(item, at: newIndex)
+				reload()
+			})
+			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in

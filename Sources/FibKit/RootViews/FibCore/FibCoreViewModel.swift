@@ -137,32 +137,26 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         return self
     }
     
-    /// Определяет контекст для меню FibKit
-    /// - Parameter menu: Menu
-    /// - Returns: self
-    public func fibContextMenu(_ menu: Menu?) -> Self {
-        guard let menu = menu else {
-            return self
-        }
-		return self
-//        return self.onLongTap(
-//            .init(
-//                longTapDuration: 0.4,
-//                longTapStarted: ({ gesture, view in
-//                    PopoverService.showContextMenu(
-//						menu.actions.map(<#T##transform: (PopoverServiceInstance.Action) throws -> T##(PopoverServiceInstance.Action) throws -> T#>),
-//                        view: view,
-//                        needBlurBackground: menu.needBlurBackground,
-//                        gesture: gesture
-//                    )
-//                }),
-//                longTapEnded: ({ gesture, view in
-//
-//                })
-//            )
-//        )
-    }
-    
+	public func fibContextMenu(_ menu: ContextMenu?) -> Self {
+		guard let menu = menu else {
+			return self
+		}
+		return self.onLongTap(
+			.init(
+				longTapDuration: 0.4,
+				longTapStarted: ({ gesture, view in
+					PopoverService.showContextMenu(
+						menu,
+						view: view,
+						needBlurBackground: menu.needBlurBackground,
+						gesture: gesture
+					)
+				}),
+				longTapEnded: ({ gesture, view in
+				})
+			)
+		)
+	}
     /// Определяет модель для разделителя ячейки
     /// - Parameter separator: ViewModelWithViewClass
     /// - Returns: self
