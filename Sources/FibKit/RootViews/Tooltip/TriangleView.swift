@@ -10,7 +10,13 @@
 
 import UIKit
 
-final class TriangleView: FibCoreView {
+public protocol TooltipMarkerViewModel: FibCoreViewModel {
+	var backgroundColor: UIColor {get set}
+	var orientation: TriangleView.ViewModel.Orientation {get set}
+	init(backgroundColor: UIColor, orientation: TriangleView.ViewModel.Orientation)
+}
+
+public class TriangleView: FibCoreView {
     
     // MARK: - Views
     let imageView = UIImageView()
@@ -18,14 +24,14 @@ final class TriangleView: FibCoreView {
     // MARK: - Variables
     
     // MARK: - UI Configuration
-    override func configureUI() {
+	public override func configureUI() {
         super.configureUI()
         contentView.addSubview(imageView)
     }
     
     var vm: ViewModel?
     
-    override func layoutSubviews() {
+	public override func layoutSubviews() {
         super.layoutSubviews()
         let rect = bounds
         UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
@@ -52,7 +58,7 @@ final class TriangleView: FibCoreView {
         imageView.frame = bounds
     }
     
-    override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
         guard let data = data as? ViewModel else {
             return nil
         }
@@ -62,27 +68,27 @@ final class TriangleView: FibCoreView {
     
     // MARK: - ViewModel
     
-    final class ViewModel: FibCoreViewModel {
+    public class ViewModel: FibCoreViewModel, TooltipMarkerViewModel {
         
-        var backgroundColor: UIColor = .red
-        var orientation: Orientation = .down
+		public var backgroundColor: UIColor = .red
+		public var orientation: Orientation = .down
         
-        enum Orientation {
+        public enum Orientation {
             case up
             case down
         }
         
-        internal init(backgroundColor: UIColor = .red,
+		required public init(backgroundColor: UIColor = .red,
                       orientation: Orientation = .down) {
             self.backgroundColor = backgroundColor
             self.orientation = orientation
         }
         
-        override func viewClass() -> ViewModelConfigurable.Type {
+		public override func viewClass() -> ViewModelConfigurable.Type {
             TriangleView.self
         }
     }
-    override func configure(with data: ViewModelWithViewClass?) {
+	public override func configure(with data: ViewModelWithViewClass?) {
         super.configure(with: data)
         self.vm = data as? ViewModel
     }

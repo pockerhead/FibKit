@@ -75,8 +75,7 @@ final class ToolTipService {
 	static let shared = ToolTipService()
 	
 	private let toolTipWindow: ToolTipWindow
-	private lazy var toolTipLabel: TooltipLabel = toolTipVM.getViewUnsafe()
-	private let toolTipVM = TooltipLabel.ViewModel(text: "")
+
 	private var currentScene: UIWindowScene? {
 		UIApplication.shared.connectedScenes.first as? UIWindowScene
 	}
@@ -95,23 +94,27 @@ final class ToolTipService {
 	}
 	
 	func showToolTip(for view: UIView, text: String) {
+		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView())
+	}
+	
+	func showToolTip(for view: UIView, tooltipViewModel: TooltipViewModel, markerView: ViewModelConfigurable) {
+		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		UIView.performWithoutAnimation {
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0
 			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
 			let viewFrame = view.superview?.convert(view.frame, to: nil) ?? .init(center: self.toolTipWindow.frame.center, size: CGSize(width: 10, height: 10))
-			toolTipVM.text = text
-			let triangle = TriangleView()
+			let triangle = markerView
 			toolTipWindow.addSubview(triangle)
 			let screenWidth = UIScreen.main.bounds.width - 48
 			let screenHeight = UIScreen.main.bounds.height
-			var width =  toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: toolTipVM)?.width ?? 0
+			var width =  toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel)?.width ?? 0
 			width = width > screenWidth ? screenWidth : width
-			let height = toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: toolTipVM)?.height ?? 0
+			let height = toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel)?.height ?? 0
 			toolTipLabel.frame.size = .init(width: width, height: height)
 			toolTipLabel.frame.origin.y = 4
 			toolTipLabel.frame.origin.x = 8
-			toolTipLabel.configure(with: toolTipVM)
+			toolTipLabel.configure(with: tooltipViewModel)
 			let wrapper = UIView()
 			wrapper.backgroundColor = .systemGray6
 			wrapper.addSubview(toolTipLabel)

@@ -7,7 +7,13 @@
 
 import Foundation
 
-final class TooltipLabel: UIView, ViewModelConfigurable {
+public protocol TooltipViewModel: ViewModelWithViewClass {
+	var text: String { get set }
+}
+
+public protocol TooltipLabelView: ViewModelConfigurable {}
+
+final class TooltipLabel: UIView, TooltipLabelView {
 	
 	var label: UILabel = UILabel()
 	
@@ -46,9 +52,8 @@ final class TooltipLabel: UIView, ViewModelConfigurable {
 	}
 	
 	
-	class ViewModel: ViewModelWithViewClass {
+	class ViewModel: TooltipViewModel {
 		var text: String
-		private var textSize: CGSize = .zero
 		init(text: String) {
 			self.text = text
 		}

@@ -33,27 +33,21 @@ class ViewController: FibViewController {
 		SectionStack {
 			GridSection {
 				arr2.map { i in
-					//MyFibSquareView.ViewModel(text: "\(i) first cell")
-					MyFibSwipeView.ViewModel(image: UIImage(systemName: "circle")?.withRenderingMode(.alwaysOriginal).withTintColor(flag ? .red : .cyan))
-						.tooltip(.init(needShow: self.flag && i == 3, text: "sdfsfsdsdfsdfsd"))
-						.onTap({ [weak self] v in
-							self?.flag.toggle()
-						})
-						.interactive(true)
+					MyFibSquareView.ViewModel(text: "\(i) first cell")
 				}
 			}
-//			.didReorderItems({[weak self] oldIndex, newIndex in
-//				guard let self = self else { return }
-//				let item = arr2.remove(at: oldIndex)
-//				arr2.insert(item, at: newIndex)
-//				reload()
-//			})
-			.layout(WaterfallLayout())
+			.didReorderItems({[weak self] oldIndex, newIndex in
+				guard let self = self else { return }
+				let item = arr2.remove(at: oldIndex)
+				arr2.insert(item, at: newIndex)
+				reload()
+			})
+			//			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
-//			.tapHandler { _ in
-//				self.flag.toggle()
-//			}
+			.tapHandler { _ in
+				self.flag.toggle()
+			}
 		}
 	}
 	
@@ -445,4 +439,97 @@ public class MyFibSwipeView: FibCoreView, FibSwipeView {
 		}
 	}
 	
+}
+
+
+public class MarkerView: FibCoreView {
+
+	var color: UIColor = .clear
+	override public func configureAppearance() {
+		super.configureAppearance()
+	}
+	
+	override public func layoutSubviews() {
+		super.layoutSubviews()
+		backgroundColor = color
+	}
+	
+	public override func configure(with data: ViewModelWithViewClass?) {
+		super.configure(with: data)
+		guard let data = data as? ViewModel else { return }
+		color = data.backgroundColor
+	}
+	
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		return CGSize(width: 10, height: 10)
+	}
+	
+	public class ViewModel: FibCoreViewModel, TooltipMarkerViewModel {
+		public var backgroundColor: UIColor
+		
+		public var orientation: FibKit.TriangleView.ViewModel.Orientation
+		
+		public required init(backgroundColor: UIColor, orientation: FibKit.TriangleView.ViewModel.Orientation) {
+			self.backgroundColor = backgroundColor
+			self.orientation = orientation
+		}
+		
+		
+		public override func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MarkerView.self
+		}
+	}
+	
+}
+
+final class TooltipLabel2: UIView, TooltipLabelView {
+	
+	var label: UILabel = UILabel()
+	
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		configureUI()
+	}
+	
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		configureUI()
+	}
+	
+	private func configureUI() {
+		addSubview(label)
+		label.font = .systemFont(ofSize: 12)
+		label.textColor = .red
+		label.textAlignment = .center
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		label.frame = bounds
+	}
+	
+	func configure(with data: ViewModelWithViewClass?) {
+		guard let data = data as? ViewModel else { return }
+		label.text = data.text
+	}
+	
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+		guard let data = data as? ViewModel else { return targetSize }
+		configure(with: data)
+		let size = label.sizeThatFits(targetSize)
+		return size
+	}
+	
+	
+	class ViewModel: TooltipViewModel {
+		var text: String
+		init(text: String) {
+			self.text = text
+		}
+		func viewClass() -> ViewModelConfigurable.Type {
+			TooltipLabel2.self
+		}
+		
+	}
 }
