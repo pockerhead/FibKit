@@ -715,14 +715,3 @@ internal extension UIView {
 		return UIScreen.main.bounds.height - safeArea
 	}
 }
-
-internal extension CALayer {
-	
-	func clearShadow() {
-		shadowColor = UIColor.clear.cgColor
-		shadowOpacity = 0
-		shadowOffset = .zero
-		shadowRadius = 0
-		shadowPath = nil
-	}
-}

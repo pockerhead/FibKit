@@ -15,7 +15,7 @@ class ViewController: FibViewController {
 		return MyFibHeader.ViewModel()
 	}
 	
-	var arr2 = Array(0...50)
+	var arr2 = Array(0...3)
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
@@ -42,7 +42,7 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
-//			.layout(WaterfallLayout())
+			//			.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(false)
 			.tapHandler { _ in
@@ -220,59 +220,50 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 	}
 }
 
-class MyFibSquareView: UIView, ViewModelConfigurable {
+class MyFibSquareView: FibCoreView {
 	
 	var label: UILabel = .init()
 	
-	override init(frame: CGRect) {
-		super.init(frame: frame)
-		configureUI()
-	}
-	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-		configureUI()
-	}
-	
-	func configureUI() {
-		addSubview(label)
+	override func configureUI() {
+		super.configureUI()
+		contentView.addSubview(label)
 	}
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		label.frame = bounds
+		label.frame = contentView.bounds
 		label.textAlignment = .center
 		backgroundColor = [UIColor.red, .alizarin, .amethyst, .carrot, .clouds, .flatOrange, .emerald].randomElement()!.withAlphaComponent(0.6)
 		layer.borderWidth = 1
 		layer.borderColor = UIColor.black.cgColor
 	}
 	
-	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
+		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
+		return .init(width: targetSize.width, height: 100)
 	}
 	
-	func configure(with data: FibKit.ViewModelWithViewClass?) {
+	override func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
+		super.configure(with: data)
 		label.text = data.text
 	}
 	
 
 	
 	
-	class ViewModel: ViewModelWithViewClass {
-		internal init(text: String) {
-			self.text = text
-		}
+	class ViewModel: FibCoreViewModel {
 		
-		var id: String? {
-			text
+		init(text: String) {
+			self.text = text
+			super.init()
 		}
 		var text: String
 		
-		func viewClass() -> FibKit.ViewModelConfigurable.Type {
+		override func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibSquareView.self
 		}
 	}
@@ -398,5 +389,147 @@ final class DebugHelperController: FibViewController {
 		super.viewDidLoad()
 		addCloseButton()
 		title = "\(String(describing: parentVC) ?? "")"
+	}
+}
+
+
+public class MyFibSwipeView: FibCoreView, FibSwipeView {
+	
+	public var swipeEdge: FibKit.SwipesContainerView.Edge? = nil
+	
+	private let imageView = UIImageView()
+	
+	public override func configureUI() {
+		super.configureUI()
+		contentView.addSubview(imageView)
+		imageView.contentMode = .scaleAspectFit
+	}
+	
+	public override func layoutSubviews() {
+		super.layoutSubviews()
+		imageView.frame = contentView.bounds
+	}
+	
+	
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		return CGSize(width: 84, height: 100)
+	}
+	
+	override public func configure(with data: ViewModelWithViewClass?) {
+		super.configure(with: data)
+		guard let data = data as? ViewModel else { return }
+		imageView.image = data.image
+	}
+	
+	public class ViewModel: FibCoreViewModel, FibSwipeViewModel {
+		public var title: String?
+		public var secondGradientColor: UIColor?
+		public var action: (() -> Void)?
+		public var image: UIImage?
+		public var backgroundColor: UIColor = UIColor.systemBackground
+		
+		public init(image: UIImage?, backgroundColor: UIColor = UIColor.systemBackground) {
+			self.image = image
+			self.backgroundColor = backgroundColor
+			super.init()
+		}
+		
+		public override func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MyFibSwipeView.self
+		}
+	}
+	
+}
+
+
+public class MarkerView: FibCoreView {
+
+	var color: UIColor = .clear
+	override public func configureAppearance() {
+		super.configureAppearance()
+	}
+	
+	override public func layoutSubviews() {
+		super.layoutSubviews()
+		backgroundColor = color
+	}
+	
+	public override func configure(with data: ViewModelWithViewClass?) {
+		super.configure(with: data)
+		guard let data = data as? ViewModel else { return }
+		color = data.backgroundColor
+	}
+	
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		return CGSize(width: 10, height: 10)
+	}
+	
+	public class ViewModel: FibCoreViewModel, TooltipMarkerViewModel {
+		public var backgroundColor: UIColor
+		
+		public var orientation: FibKit.TriangleView.ViewModel.Orientation
+		
+		public required init(backgroundColor: UIColor, orientation: FibKit.TriangleView.ViewModel.Orientation) {
+			self.backgroundColor = backgroundColor
+			self.orientation = orientation
+		}
+		
+		
+		public override func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MarkerView.self
+		}
+	}
+	
+}
+
+final class TooltipLabel2: UIView, TooltipLabelView {
+	
+	var label: UILabel = UILabel()
+	
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		configureUI()
+	}
+	
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		configureUI()
+	}
+	
+	private func configureUI() {
+		addSubview(label)
+		label.font = .systemFont(ofSize: 12)
+		label.textColor = .red
+		label.textAlignment = .center
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		label.frame = bounds
+	}
+	
+	func configure(with data: ViewModelWithViewClass?) {
+		guard let data = data as? ViewModel else { return }
+		label.text = data.text
+	}
+	
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+		guard let data = data as? ViewModel else { return targetSize }
+		configure(with: data)
+		let size = label.sizeThatFits(targetSize)
+		return size
+	}
+	
+	
+	class ViewModel: TooltipViewModel {
+		var text: String
+		init(text: String) {
+			self.text = text
+		}
+		func viewClass() -> ViewModelConfigurable.Type {
+			TooltipLabel2.self
+		}
+		
 	}
 }
