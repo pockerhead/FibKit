@@ -81,7 +81,7 @@ final public class FibGrid: UIScrollView {
 					self?.didReloadClosure?()
 				}
 			}
-			if let provider = provider as? GridSection {
+			if let provider = provider as? ViewModelSection {
 				provider.collectionView = self
 				self.scrollDirection = provider.scrollDirection
 				provider.bindReload {[weak self] in

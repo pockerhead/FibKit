@@ -45,7 +45,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             if isAsync {
                 updateSetNeedsReloadTask()
             } else {
-                self._canReorderItems = sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })
+                self._canReorderItems = sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
                 setNeedsReload()
             }
         }
@@ -56,7 +56,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         reloadTask = nil
         let blockTask = DispatchWorkItem.init(block: {[weak self] in
             guard let self = self else { return }
-            self._canReorderItems = self.sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })
+            self._canReorderItems = self.sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
             self.setNeedsReload()
         })
         self.reloadTask = blockTask
@@ -147,7 +147,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
          collectionView: FibGrid?) {
         self.animator = animator
         self.stickyLayout = StickyLayout(rootLayout: layout)
-        self._canReorderItems = sections.reduce(false, { $0 || (($1 as? GridSection)?.haveDidReorderSectionsClosure ?? false) })
+        self._canReorderItems = sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
         self.sections = sections
         self._collectionView = collectionView
         self.identifier = identifier
@@ -158,7 +158,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         }
     }
     
-    public func setSections(_ sections: [GridSection] = []) {
+    public func setSections(_ sections: [ViewModelSection] = []) {
         self._canReorderItems = sections.reduce(false, { $0 || $1.haveDidReorderSectionsClosure })
         self.sections = sections
     }
@@ -273,7 +273,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         func data(at: Int) -> Any {
             let arrayIndex = at / 2
             if at % 2 == 0 {
-                return (headerProvider?.sections[safe: arrayIndex] as? GridSection)?.headerData as Any
+                return (headerProvider?.sections[safe: arrayIndex] as? ViewModelSection)?.headerData as Any
             } else {
 				return sections[safe: arrayIndex] as Any
             }

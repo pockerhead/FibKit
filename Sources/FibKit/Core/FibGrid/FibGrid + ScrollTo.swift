@@ -38,7 +38,7 @@ extension FibGrid {
 		}
 		var indexPath: IndexPath?
 		for (sectionIndex, provider) in provider.sections.enumerated() {
-			guard let section = provider as? GridSection else { continue }
+			guard let section = provider as? ViewModelSection else { continue }
 			for (index, viewModel) in section.data.enumerated() {
 				if predicate(viewModel) {
 					indexPath = .init(item: index * 2, section: sectionIndex)
@@ -51,7 +51,7 @@ extension FibGrid {
 		try scroll(to: indexPath, animated: animated)
 	}
 	
-	public func scroll(to section: GridSection, animated: Bool) throws {
+	public func scroll(to section: ViewModelSection, animated: Bool) throws {
 		let optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
 			debugPrint("Incorrect provider \(String(describing: optProvider))")

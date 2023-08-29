@@ -31,7 +31,7 @@ class ViewController: FibViewController {
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			GridSection {
+			ViewModelSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "\(i) first cell")
 				}
@@ -52,15 +52,15 @@ class ViewController: FibViewController {
 	}
 	
 	@SectionBuilder
-	var sections: [GridSection] {
-		GridSection {
+	var sections: [ViewModelSection] {
+		ViewModelSection {
 			arr2.map { i in
 				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
 			} as [ViewModelWithViewClass?]
 		}
 		.header(MyFibView.ViewModel(text: "arr_HEADER_2"))
 		.isSticky(true)
-		GridSection {
+		ViewModelSection {
 			
 		}
 	}
@@ -68,7 +68,7 @@ class ViewController: FibViewController {
 	@SectionProtocolBuilder
 	var stacks: [SectionProtocol] {
 		SectionStack {
-			GridSection {
+			ViewModelSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
 				} as [ViewModelWithViewClass?]
@@ -76,7 +76,7 @@ class ViewController: FibViewController {
 			.header(MyFibView.ViewModel(text: "arr_HE232ADER_2"))
 			.isSticky(true)
 		}
-		GridSection {
+		ViewModelSection {
 			
 		}
 	}
@@ -388,7 +388,7 @@ final class DebugHelperController: FibViewController {
 	weak var parentVC: FibViewController?
 	override var body: SectionProtocol? {
 		SectionStack {
-			GridSection { section in
+			ViewModelSection { section in
 				FibDebugView.ViewModel(reloadable: section, grid: parentVC?.rootView.rootFormView)
 			}
 		}
