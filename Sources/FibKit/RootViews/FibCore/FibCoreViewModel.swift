@@ -289,9 +289,16 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         public private(set) var longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)?
     }
     
-    public struct Menu {
+	public struct Menu {
         var actions: [PopoverServiceInstance.Action]
         var needBlurBackground: Bool = true
+		
+		public init(actions: [PopoverServiceInstance.Action], needBlurBackground: Bool = true) {
+			self.actions = actions
+			self.needBlurBackground = needBlurBackground
+		}
+		
+		
     }
     
     /// Енум для описания интеракции с вьюхой
