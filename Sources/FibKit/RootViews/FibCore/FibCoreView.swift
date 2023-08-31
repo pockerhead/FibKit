@@ -254,7 +254,7 @@ open class FibCoreView: UIView,
         // point to override
     }
     
-    public func configure(with data: ViewModelWithViewClass?, isFromSizeWith: Bool) {
+    open func configure(with data: ViewModelWithViewClass?, isFromSizeWith: Bool) {
         configure(with: data)
     }
     
