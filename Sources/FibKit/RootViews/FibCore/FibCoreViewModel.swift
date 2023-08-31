@@ -323,8 +323,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     /// DTO struct to define size of SwiftUIWrapper
     public struct Size {
 
-        var width: Strategy = .inherit
-        var height: Strategy = .inherit
+		public var width: Strategy = .inherit
+		public var height: Strategy = .inherit
         
         public static func height(_ height: FibCoreViewModel.Size.Strategy) -> Size {
             .init(height: height)
