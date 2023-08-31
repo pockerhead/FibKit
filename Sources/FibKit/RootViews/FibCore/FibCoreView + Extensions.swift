@@ -9,12 +9,12 @@ import Foundation
 
 extension PopoverServiceInstance {
 	
-	struct TopSpacer {
+	public struct TopSpacer {
 		var color: UIColor
 		var height: CGFloat
 	}
 	
-	struct Action {
+	public struct Action {
 		var title: String
 		var image: UIImage?
 		var textColor: UIColor = .darkText
