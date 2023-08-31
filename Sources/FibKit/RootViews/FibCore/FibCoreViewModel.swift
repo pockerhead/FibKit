@@ -366,7 +366,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
             /// greaterThan value
             case greaterThan(CGFloat)
             
-            func assignStrategy(to dimension: CGFloat, targetDimension: CGFloat) -> CGFloat {
+            public func assignStrategy(to dimension: CGFloat, targetDimension: CGFloat) -> CGFloat {
                 switch self {
                 case .inherit:
                     return targetDimension
