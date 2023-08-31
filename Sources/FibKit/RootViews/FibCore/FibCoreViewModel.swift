@@ -13,7 +13,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     
     private(set) public var id: String?
     private(set) public var atTop: Bool = false
-    private(set) public var sizeHash: String?
+    private(set) open var sizeHash: String?
     public var userInfo: [AnyHashable : Any]?
     private(set) public var minHeight: CGFloat?
     private(set) public var maxHeight: CGFloat?
@@ -85,7 +85,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         return self
     }
     
-    public func sizeHash(_ sizeHash: String) -> Self {
+    open func sizeHash(_ sizeHash: String) -> Self {
         self.sizeHash = sizeHash
         return self
     }
