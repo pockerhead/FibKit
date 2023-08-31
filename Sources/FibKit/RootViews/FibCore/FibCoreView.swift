@@ -40,8 +40,8 @@ open class FibCoreView: UIView,
     private var tapGesture: UITapGestureRecognizer?
     private var longTapGesture: UILongPressGestureRecognizer?
 	private let analyticsGesture: UITapGestureRecognizer
-    private(set) var event: UIEvent?
-	private(set) var corneredOnSwipe = true
+    private(set) public var event: UIEvent?
+	private(set) public var corneredOnSwipe = true
     private var onDissappearClosure: ((UIView) -> Void)?
     private var highlight: FibCoreViewModel.HighLight = .squeeze
     open var getSizeClosure: ((CGSize) -> Void)?
@@ -113,7 +113,7 @@ open class FibCoreView: UIView,
 	/// пустая реализация, необходимо переопределить в сабклассе
 	/// - Parameter point: точка касания во внутренней системе координат contentView
 	/// - Returns: Название элемента
-	func getAnalyticsMolecule(for point: CGPoint) -> String? { nil }
+	open func getAnalyticsMolecule(for point: CGPoint) -> String? { nil }
     
     @objc func receiveSwipe(_ notification: Notification) {
         guard let ref = notification.userInfo?["swipeViewRef"] as? UIView else { return }

@@ -18,15 +18,15 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     private(set) public var minHeight: CGFloat?
     private(set) public var maxHeight: CGFloat?
     private(set) public var allowedStretchDirections: Set<StretchDirection> = []
-	private(set) var rightSwipeViews: SwipesContainerView.ViewModel?
-    private(set) var leftSwipeViews: SwipesContainerView.ViewModel?
-    private(set) var interactive: Bool = false
-    private(set) var highlight: HighLight = .squeeze
-    private(set) var onAppearClosure: ((UIView) -> Void)?
-    private(set) var onDissappearClosure: ((UIView) -> Void)?
+	private(set) public var rightSwipeViews: SwipesContainerView.ViewModel?
+    private(set) public var leftSwipeViews: SwipesContainerView.ViewModel?
+    private(set) public var interactive: Bool = false
+    private(set) public var highlight: HighLight = .squeeze
+    private(set) public var onAppearClosure: ((UIView) -> Void)?
+    private(set) public var onDissappearClosure: ((UIView) -> Void)?
     private(set) public var size: Size? = nil
-    private(set) var contextMenu: FibContextMenu?
-    private(set) var tooltip: Tooltip?
+    private(set) public var contextMenu: FibContextMenu?
+    private(set) public var tooltip: Tooltip?
     public private(set) var separator: ViewModelWithViewClass?
     public private(set) var dragItemsProvider: (() -> [UIDragItem])?
     public private(set) var onTap: ((UIView) -> Void)?
@@ -34,8 +34,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     public var getSizeClosure: ((CGSize) -> Void)?
     public private(set) var longPressContext: LongTapContext?
 	public private(set) var corneredOnSwipe = true
-	private (set) var onAnalyticsTap: ((String) -> Void)?
-	var transform: CGAffineTransform?
+	private (set) public var onAnalyticsTap: ((String) -> Void)?
+	public var transform: CGAffineTransform?
 	
 	public init() {}
     

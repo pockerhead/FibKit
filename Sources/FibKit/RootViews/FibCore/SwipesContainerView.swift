@@ -8,12 +8,12 @@
 
 public class SwipesContainerView: UIView {
 	
-	var mainSwipeView: FibSwipeView?
-	var secondSwipeView: FibSwipeView?
-	var thirdSwipeView: FibSwipeView?
+	public var mainSwipeView: FibSwipeView?
+	public var secondSwipeView: FibSwipeView?
+	public var thirdSwipeView: FibSwipeView?
 	
-	var swipeEdge: Edge = .left
-	var stretchEmitMainAction: Bool = false
+	public var swipeEdge: Edge = .left
+	public var stretchEmitMainAction: Bool = false
 	let swipeViewWidth: CGFloat = 84
 	
 	override init(frame: CGRect) {
@@ -30,7 +30,7 @@ public class SwipesContainerView: UIView {
 
 	}
 	
-	struct ViewModel {
+	public struct ViewModel {
 		var mainSwipeView: FibSwipeViewModel
 		var secondSwipeView: FibSwipeViewModel?
 		var thridSwipeView: FibSwipeViewModel?
