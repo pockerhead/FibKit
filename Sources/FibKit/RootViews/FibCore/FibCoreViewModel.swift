@@ -283,7 +283,13 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		return self
 	}
 	
-    public struct LongTapContext {
+	public struct LongTapContext {
+		public init(longTapDuration: TimeInterval = 0.6, longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil, longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil) {
+			self.longTapDuration = longTapDuration
+			self.longTapStarted = longTapStarted
+			self.longTapEnded = longTapEnded
+		}
+		
         public private(set) var longTapDuration: TimeInterval = 0.6
         public private(set) var longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)?
         public private(set) var longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)?
