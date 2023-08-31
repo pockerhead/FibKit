@@ -24,7 +24,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     private(set) var highlight: HighLight = .squeeze
     private(set) var onAppearClosure: ((UIView) -> Void)?
     private(set) var onDissappearClosure: ((UIView) -> Void)?
-    private(set) var size: Size? = nil
+    private(set) public var size: Size? = nil
     private(set) var contextMenu: FibContextMenu?
     private(set) var tooltip: Tooltip?
     public private(set) var separator: ViewModelWithViewClass?

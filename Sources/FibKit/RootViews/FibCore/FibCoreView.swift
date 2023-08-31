@@ -22,7 +22,7 @@ open class FibCoreView: UIView,
     
     private lazy var swipeCoordinator = FibCoreSwipeCoordinator(fibCoreView: self)
     private var _needUserInteraction: Bool = false
-    public var needUserInteraction: Bool { _needUserInteraction }
+    open var needUserInteraction: Bool { _needUserInteraction }
     public var haveSwipeAction: Bool { swipeCoordinator.haveSwipeAction }
     public var isSwipeOpen: Bool { swipeCoordinator.isSwipeOpen }
     public var isHighlighted: Bool = false
