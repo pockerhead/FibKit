@@ -296,8 +296,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     }
     
 	public struct Menu {
-        var actions: [PopoverServiceInstance.Action]
-        var needBlurBackground: Bool = true
+		public var actions: [PopoverServiceInstance.Action]
+		public var needBlurBackground: Bool = true
 		
 		public init(actions: [PopoverServiceInstance.Action], needBlurBackground: Bool = true) {
 			self.actions = actions
