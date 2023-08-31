@@ -9,12 +9,12 @@ import Foundation
 
 extension PopoverServiceInstance {
 	
-	public struct TopSpacer {
+	struct TopSpacer {
 		var color: UIColor
 		var height: CGFloat
 	}
 	
-	public struct Action {
+	struct Action {
 		var title: String
 		var image: UIImage?
 		var textColor: UIColor = .darkText
@@ -24,7 +24,7 @@ extension PopoverServiceInstance {
 	}
 }
 
-public extension CALayer {
+extension CALayer {
 	
 	func applyShadow(with descriptor: ShadowDescriptor) {
 		applySketchShadow(style: descriptor.style,
