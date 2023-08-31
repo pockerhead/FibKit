@@ -10,8 +10,8 @@ import Foundation
 extension PopoverServiceInstance {
 	
 	public struct TopSpacer {
-		var color: UIColor
-		var height: CGFloat
+		public var color: UIColor
+		public var height: CGFloat
 		
 		public init(color: UIColor, height: CGFloat) {
 			self.color = color
@@ -20,12 +20,12 @@ extension PopoverServiceInstance {
 	}
 	
 	public struct Action {
-		var title: String
-		var image: UIImage?
-		var textColor: UIColor = .darkText
-		var isImageOnLeft = false
-		var topSpacer: TopSpacer?
-		var handler: (() -> Void)?
+		public var title: String
+		public var image: UIImage?
+		public var textColor: UIColor = .darkText
+		public var isImageOnLeft = false
+		public var topSpacer: TopSpacer?
+		public var handler: (() -> Void)?
 		
 		public init(title: String, image: UIImage? = nil, textColor: UIColor = .darkText, isImageOnLeft: Bool = false, topSpacer: PopoverServiceInstance.TopSpacer? = nil, handler: (() -> Void)? = nil) {
 			self.title = title
