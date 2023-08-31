@@ -45,7 +45,7 @@ open class FibCoreView: UIView,
     private var onDissappearClosure: ((UIView) -> Void)?
     private var highlight: FibCoreViewModel.HighLight = .squeeze
     open var getSizeClosure: ((CGSize) -> Void)?
-    weak var data: FibCoreViewModel?
+    public weak var data: FibCoreViewModel?
     private lazy var _contentViewBackgroundColor: UIColor? = contentView.backgroundColor
     
     public var contentView = UIView()

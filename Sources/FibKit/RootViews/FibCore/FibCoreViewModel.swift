@@ -11,7 +11,7 @@ import SwiftUI
 
 open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     
-    private(set) public var id: String?
+    private(set) open var id: String?
     private(set) public var atTop: Bool = false
     private(set) open var sizeHash: String?
     public var userInfo: [AnyHashable : Any]?
@@ -72,7 +72,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     /// ID вьюхи, если не проставить, то выставится UUID + index вьюхи
     /// - Parameter id: ID
     /// - Returns: self
-	public func id(_ id: String) -> Self {
+	open func id(_ id: String) -> Self {
 		self.id = id
         return self
     }
