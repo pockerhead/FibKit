@@ -305,7 +305,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         /// кастомная интеракция, принимает признак интеракции и вьюху
         case custom(closure: (FibCoreView, Bool) -> Void)
 		
-		static var card: HighLight {
+		public static var card: HighLight {
 			.custom(closure: { view, highlighted in
 				guard view.isUserInteractionEnabled else { return }
 				view.highlightSqueeze(highlighted: highlighted)
