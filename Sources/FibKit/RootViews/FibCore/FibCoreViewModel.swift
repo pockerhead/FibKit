@@ -43,7 +43,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		
 		public enum TooltipType {
 			case text(text: String)
-			case custom(view: TooltipViewModel)
+			case custom(view: ViewModelWithViewClass)
 		}
         var needShow: Bool
 		var tooltipType: TooltipType
