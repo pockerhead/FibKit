@@ -89,11 +89,11 @@ open class ToolTipService {
 		}
 	}
 	
-	func hideTooltip(animated: Bool = true) {
+	public func hideTooltip(animated: Bool = true) {
 		self.toolTipWindow.hideSelf(animated: animated)
 	}
 	
-	func showToolTip(for view: UIView, text: String) {
+	public func showToolTip(for view: UIView, text: String) {
 		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView())
 	}
 	
