@@ -97,7 +97,7 @@ open class ToolTipService {
 		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView())
 	}
 	
-	public func showToolTip(for view: UIView, tooltipViewModel: TooltipViewModel, markerView: ViewModelConfigurable) {
+	public func showToolTip(for view: UIView, tooltipViewModel: ViewModelWithViewClass, markerView: ViewModelConfigurable) {
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		UIView.performWithoutAnimation {
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
