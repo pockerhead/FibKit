@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class ToolTipService {
+open class ToolTipService {
 	
 	private var currentAppWindow: UIWindow?? {
 		if let delegate = UIApplication.shared.connectedScenes.first?.delegate as? UIWindowSceneDelegate {
@@ -72,7 +72,7 @@ final class ToolTipService {
 		}
 	}
 	
-	static let shared = ToolTipService()
+	public static let shared = ToolTipService()
 	
 	private let toolTipWindow: ToolTipWindow
 
@@ -97,7 +97,7 @@ final class ToolTipService {
 		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView())
 	}
 	
-	func showToolTip(for view: UIView, tooltipViewModel: TooltipViewModel, markerView: ViewModelConfigurable) {
+	public func showToolTip(for view: UIView, tooltipViewModel: TooltipViewModel, markerView: ViewModelConfigurable) {
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		UIView.performWithoutAnimation {
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
