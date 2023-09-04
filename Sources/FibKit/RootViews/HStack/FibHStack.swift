@@ -103,7 +103,7 @@ public class FibHStackView: FibCoreView {
     // MARK: - Private
 }
 
-public class FibHStack: FibCoreViewModel, CellRightView {
+public class FibHStack: DSCellRightView {
     
     public var viewModels: [ViewModelWithViewClass?]
 	public var spacing: CGFloat = 8

@@ -7,4 +7,4 @@
 
 import Foundation
 
-public protocol CellRightView {}
+open class DSCellRightView: FibCoreViewModel {}
