@@ -105,49 +105,49 @@ public class FibHStackView: FibCoreView {
 
 public class FibHStack: FibCoreViewModel {
     
-    var viewModels: [ViewModelWithViewClass?]
-    var spacing: CGFloat = 8
-    var justifyContent: JustifyContent = .start
-	var alignItems: AlignItem = .center
-    var insets: UIEdgeInsets = .zero
-	var backgroundColor: UIColor?
+    public var viewModels: [ViewModelWithViewClass?]
+	public var spacing: CGFloat = 8
+	public var justifyContent: JustifyContent = .start
+	public var alignItems: AlignItem = .center
+	public var insets: UIEdgeInsets = .zero
+	public var backgroundColor: UIColor?
     
-    init(@ViewModelBuilder _ viewModels: () -> [ViewModelWithViewClass?]) {
+	public init(@ViewModelBuilder _ viewModels: () -> [ViewModelWithViewClass?]) {
         self.viewModels = viewModels()
     }
     
 	@discardableResult
-    func spacing(_ spacing: CGFloat) -> Self {
+	public func spacing(_ spacing: CGFloat) -> Self {
         self.spacing = spacing
         return self
     }
     
 	@discardableResult
-    func justifyContent(_ justifyContent: JustifyContent) -> Self {
+	public func justifyContent(_ justifyContent: JustifyContent) -> Self {
         self.justifyContent = justifyContent
         return self
     }
 	
 	@discardableResult
-	func alignItems(_ alignItems: AlignItem) -> Self {
+	public func alignItems(_ alignItems: AlignItem) -> Self {
 		self.alignItems = alignItems
 		return self
 	}
     
 	@discardableResult
-    func inset(by insets: UIEdgeInsets) -> Self {
+	public func inset(by insets: UIEdgeInsets) -> Self {
         self.insets = insets
         return self
     }
 	
 	@discardableResult
-	func inset(_ inset: UIEdgeInsets.Inset, _ val: CGFloat) -> Self {
+	public func inset(_ inset: UIEdgeInsets.Inset, _ val: CGFloat) -> Self {
 		self.insets.apply(inset, value: val)
 		return self
 	}
 	
 	@discardableResult
-	func backgroundColor(_ color: UIColor) -> Self {
+	public func backgroundColor(_ color: UIColor) -> Self {
 		self.backgroundColor = color
 		return self
 	}
