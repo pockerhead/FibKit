@@ -94,53 +94,50 @@ open class ToolTipService {
 	}
 	
 	public func showToolTip(for view: UIView, text: String) {
-		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView())
+		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel())
 	}
 	
-	public func showToolTip(for view: UIView, tooltipViewModel: ViewModelWithViewClass, markerView: ViewModelConfigurable) {
+	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?) {
+		let markerView: TooltipMarkerViewModel = markerView ?? TriangleView.ViewModel()
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
+		guard let marker = markerView.getView() as? FibCoreView else { return }
 		UIView.performWithoutAnimation {
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0
 			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
 			let viewFrame = view.superview?.convert(view.frame, to: nil) ?? .init(center: self.toolTipWindow.frame.center, size: CGSize(width: 10, height: 10))
-			let triangle = markerView
-			toolTipWindow.addSubview(triangle)
+			toolTipWindow.addSubview(marker)
+			toolTipWindow.addSubview(toolTipLabel)
 			let screenWidth = UIScreen.main.bounds.width - 48
 			let screenHeight = UIScreen.main.bounds.height
-			var width =  toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel)?.width ?? 0
+			var width =  toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel)?.width ?? 0
 			width = width > screenWidth ? screenWidth : width
-			let height = toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel)?.height ?? 0
+			let height = toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel)?.height ?? 0
+			
 			toolTipLabel.frame.size = .init(width: width, height: height)
-			toolTipLabel.frame.origin.y = 4
-			toolTipLabel.frame.origin.x = 8
 			toolTipLabel.configure(with: tooltipViewModel)
-			let wrapper = UIView()
-			wrapper.backgroundColor = .systemGray6
-			wrapper.addSubview(toolTipLabel)
-			wrapper.frame.size = .init(width: width + 16, height: height + 8)
-			wrapper.layer.cornerRadius = 8
-			triangle.frame.size = .init(width: 10, height: 5)
-			let vm = TriangleView.ViewModel(backgroundColor: .systemGray6)
+			
+			marker.frame.size = marker.sizeWith(.init(width: screenWidth, height: screenHeight), data: markerView, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel) ?? CGSize(width: 10, height: 10)
 			let triangleX = viewFrame.center.x - 5
+			
 			if viewFrame.minY > screenHeight / 2 {
-				wrapper.frame.origin.y = viewFrame.minY - (height + 8) - 4
-				vm.orientation = .down
-				triangle.frame.origin = .init(x: triangleX, y: wrapper.frame.maxY)
+				toolTipLabel.frame.origin.y = viewFrame.minY - (height + marker.frame.height - 4)
+				markerView.orientation = .down
+				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.maxY)
 			} else if viewFrame.maxY < screenHeight / 2 {
-				wrapper.frame.origin.y = viewFrame.maxY + 4
-				vm.orientation = .up
-				triangle.frame.origin = .init(x: triangleX, y: wrapper.frame.minY - 4)
+				toolTipLabel.frame.origin.y = viewFrame.maxY + 4
+				markerView.orientation = .up
+				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
 			} else {
-				wrapper.frame.origin.y = viewFrame.maxY + 4
-				triangle.frame.origin = .init(x: triangleX, y: wrapper.frame.minY - 4)
-				vm.orientation = .up
+				toolTipLabel.frame.origin.y = viewFrame.maxY + 4
+				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
+				markerView.orientation = .up
 			}
-			triangle.configure(with: vm)
-			let idealX = viewFrame.maxX - wrapper.bounds.width + 12
-			wrapper.frame.origin.x = idealX.clamp(16, UIScreen.main.bounds.width - wrapper.bounds.width - 16)
-			triangle.frame.origin.x = triangleX.clamp(wrapper.frame.origin.x + 4, wrapper.frame.maxX - 14)
-			toolTipWindow.addSubview(wrapper)
+			marker.configure(with: markerView)
+			let idealX = viewFrame.maxX - toolTipLabel.bounds.width + 12
+			toolTipLabel.frame.origin.x = idealX.clamp(16, UIScreen.main.bounds.width - toolTipLabel.bounds.width - 16)
+			marker.frame.origin.x = triangleX.clamp(toolTipLabel.frame.origin.x + 4, toolTipLabel.frame.maxX - 14)
+			
 			toolTipWindow.makeKeyAndVisible()
 			toolTipWindow.windowScene = currentScene
 			toolTipWindow.isAnimatingHide = false

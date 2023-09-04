@@ -43,22 +43,19 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		
 		public enum TooltipType {
 			case text(text: String)
-			case custom(view: ViewModelWithViewClass)
+			case custom(view: FibCoreViewModel, marker: TooltipMarkerViewModel?)
 		}
         var needShow: Bool
 		var tooltipType: TooltipType
-		var markerView: ViewModelConfigurable
 
-		public init(needShow: Bool, tooltipType: TooltipType, markerView: ViewModelConfigurable? = TriangleView()) {
+		public init(needShow: Bool, tooltipType: TooltipType) {
 			self.needShow = needShow
 			self.tooltipType = tooltipType
-			self.markerView = markerView ?? TriangleView()
 		}
 		
 		public init(needShow: Bool, text: String) {
 			self.needShow = needShow
 			self.tooltipType = .text(text: text)
-			self.markerView = TriangleView()
 		}
     }
 

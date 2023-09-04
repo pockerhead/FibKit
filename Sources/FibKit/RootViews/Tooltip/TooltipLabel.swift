@@ -7,57 +7,57 @@
 
 import Foundation
 
-public protocol TooltipViewModel: ViewModelWithViewClass {
+public protocol TooltipViewModel: FibCoreViewModel {
 	var text: String { get set }
 }
 
-public protocol TooltipLabelView: ViewModelConfigurable {}
+public protocol TooltipLabelView: FibCoreView {}
 
-final class TooltipLabel: UIView, TooltipLabelView {
+final class TooltipLabel: FibCoreView {
 	
 	var label: UILabel = UILabel()
 	
-	override init(frame: CGRect) {
-		super.init(frame: frame)
-		configureUI()
-	}
 	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-		configureUI()
-	}
-	
-	private func configureUI() {
+	override func configureUI() {
+		super.configureUI()
 		addSubview(label)
-		label.font = .systemFont(ofSize: 12)
-		label.textColor = .darkText
-		label.textAlignment = .center
+		label.font = .boldSystemFont(ofSize: 12)
+		label.textColor = .tooltipTextColor
+		label.textAlignment = .left
+		label.numberOfLines = 0
+		layer.cornerRadius = 8
+	
 	}
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		label.frame = bounds
+		label.frame = bounds.inset(by: UIEdgeInsets(top: 6, left: 8, bottom: 6, right: 8))
+		backgroundColor = .tooltipBackgroundColor
 	}
 	
-	func configure(with data: ViewModelWithViewClass?) {
+	override func configure(with data: ViewModelWithViewClass?) {
+		super.configure(with: data)
 		guard let data = data as? ViewModel else { return }
 		label.text = data.text
+		
 	}
 	
-	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
+	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return targetSize }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return size
+		return CGSize(width: size.width + 16, height: size.height + 12)
+
 	}
 	
 	
-	class ViewModel: TooltipViewModel {
+	
+	class ViewModel: FibCoreViewModel, TooltipViewModel {
 		var text: String
 		init(text: String) {
 			self.text = text
 		}
-		func viewClass() -> ViewModelConfigurable.Type {
+		override func viewClass() -> ViewModelConfigurable.Type {
 			TooltipLabel.self
 		}
 	
