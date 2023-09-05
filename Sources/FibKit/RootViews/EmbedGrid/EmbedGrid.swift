@@ -40,18 +40,18 @@ public final class EmbedGrid: FibCoreView {
     
     // MARK: - ViewModel
     
-    final class ViewModel: FibCoreViewModel {
+    public final class ViewModel: FibCoreViewModel {
         var sections: [ViewModelSection]
-        var scrollDirection: UICollectionView.ScrollDirection = .horizontal
-        var backgroundColor: UIColor = .clear
-        var cornerRadius: CGFloat = 0
+		public var scrollDirection: UICollectionView.ScrollDirection = .horizontal
+		public var backgroundColor: UIColor = .clear
+		public var cornerRadius: CGFloat = 0
         public fileprivate(set) weak var grid: FibGrid?
 
-        init(@SectionBuilder _ sections: (() -> [ViewModelSection])) {
+		public init(@SectionBuilder _ sections: (() -> [ViewModelSection])) {
             self.sections = sections()
         }
         
-        override func viewClass() -> ViewModelConfigurable.Type {
+		public override func viewClass() -> ViewModelConfigurable.Type {
             EmbedGrid.self
         }
         
