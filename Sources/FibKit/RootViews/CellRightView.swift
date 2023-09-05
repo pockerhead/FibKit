@@ -7,4 +7,4 @@
 
 import Foundation
 
-open class DSCellRightView: FibCoreViewModel {}
+//open class DSCellRightView: FibCoreViewModel {}
