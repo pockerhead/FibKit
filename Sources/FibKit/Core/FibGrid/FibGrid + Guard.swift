@@ -21,7 +21,7 @@ extension FibGrid {
 		}
 	}
 	
-	public static func `guard`(_ condition: Bool,
+	public static func guardReturn(_ condition: Bool,
 							   @SectionBuilder elseReturn sections: () -> [ViewModelSection])
 	-> [ViewModelSection] {
 		if !condition {
@@ -33,7 +33,7 @@ extension FibGrid {
 		}
 	}
 	
-	public static func `guard`(_ condition: Bool,
+	public static func guardAppend(_ condition: Bool,
 							   @SectionBuilder elseAppend sections: () -> [ViewModelSection])
 	-> [ViewModelSection] {
 		if !condition {

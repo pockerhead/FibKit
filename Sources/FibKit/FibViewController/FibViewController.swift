@@ -201,7 +201,8 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 	private func setReloadable() {
 		let mir = Mirror(reflecting: self)
 		mir.children.forEach({ child in
-			if let val = child.value as? HaveControllerProp {
+			if !(child.value is Any.Type),
+			   let val = child.value as? HaveControllerProp {
 				val.controller = self
 			}
 		})

@@ -56,7 +56,7 @@ public class ReloadableObject<Value: ObservableObject>: HaveControllerProp {
 }
 
 @propertyWrapper
-public class StateReloadable<Value: Equatable>: HaveControllerProp {
+public class LazyReloadable<Value: Equatable>: HaveControllerProp {
 	
 	weak var controller: FibViewController?
 	private var stored: Value

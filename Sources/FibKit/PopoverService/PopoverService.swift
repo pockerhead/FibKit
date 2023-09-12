@@ -7,6 +7,7 @@
 //
 import UIKit
 import VisualEffectView
+import Combine
 
 /// Shared instance let for simple calling methods
 public let PopoverService = PopoverServiceInstance.shared
@@ -26,10 +27,29 @@ public class AllSimultaneouslyTapGestDelegate: NSObject, UIGestureRecognizerDele
 	}
 }
 
+public protocol PreventTouchGRProtocol {}
+public class PreventTouchGR: UITapGestureRecognizer, PreventTouchGRProtocol {}
+
 /// Class for showing conextMenu with formview inside it
 public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		// todo
+	}
+	
+	public struct Appearance {
+		public init(blurColorTint: UIColor? = nil) {
+			self.blurColorTint = blurColorTint
+		}
+		
+		public var blurColorTint: UIColor?
+	}
+	
+	public static var defaultAppearance = Appearance(
+		blurColorTint: .systemBackground
+	)
+	
+	var blurColorTint: UIColor? {
+		PopoverServiceInstance.defaultAppearance.blurColorTint
 	}
 	
 	
@@ -61,45 +81,37 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		return w
 	}()
 	
+	private var scrollView = UIScrollView()
 	public var passViewEvent: UIEvent?
 	public var completion: (() -> Void)?
-	
+
 	/// Blur view that applies with conext menu
 	private lazy var overlayView: VisualEffectView = {
 		let view = VisualEffectView()
-		view.colorTint = .systemFill
+		view.colorTint = blurColorTint
 		view.colorTintAlpha = 0.2
 		view.blurRadius = 16
 		let gr = UITapGestureRecognizer(target: self, action: #selector(hideContextMenu))
 		view.addGestureRecognizer(gr)
 		return view
 	}()
-	
+
 	/// Conext menu, contains self-sized formView with scroll
 	private var contextMenu = FibCell()
 	private var currentAppWindow: UIWindow?? {
-		if let delegate = UIApplication.shared.connectedScenes.first?.delegate as? UIWindowSceneDelegate {
-			return delegate.window
-		}
-		else {
-			return UIApplication.shared.delegate?.window
-		}
+		UIApplication.shared.delegate?.window
 	}
-	
-	private var currentScene: UIWindowScene? {
-		UIApplication.shared.connectedScenes.first as? UIWindowScene
-	}
-	
+
 	/// Snapshot of view, that captured by context
 	private var contextViewSnapshot: UIView?
-	
+
 	/// Weak reference to view, captured by context
 	private weak var contextView: UIView?
 	private weak var fromGesture: UIGestureRecognizer?
-	
+
 	/// Feedback generator
 	private var feedBack = UIImpactFeedbackGenerator(style: .medium)
-	
+	private var allHeight: CGFloat = 0
 	private var contextViewRectInWindow = CGRect()
 	private var viewToMenuSpacing: CGFloat = 16
 	private var hidingInProcess = false
@@ -127,95 +139,102 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		contextMenu.contentView.layer.masksToBounds = true
 		currentAppWindow??.endEditing(true)
 		// @ab: TODO - исправить баги
-		//        if let gesture = gesture {
-		//            self.fromGesture = gesture
-		//            gesture.addTarget(self, action: #selector(drag(_:)))
-		//            window.addGestureRecognizer(gesture)
-		//            gesture.delegate = self
-		//        }
-		let safeAreaHorizontal = window.safeAreaInsets.left + window.safeAreaInsets.right
-		let safeAreaVertical = window.safeAreaInsets.top + window.safeAreaInsets.bottom
-		let width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
-		let size = CGSize(width: width,
-						  height: window.bounds.height - 64 - safeAreaVertical)
-		let formViewSize = self.contextMenu.sizeWith(size, data: menu)
-		let formViewHeight = formViewSize?.height.clamp(0, size.height) ?? size.height
-		let viewCenterHigherThanSelfCenter = viewRect.center.y < window.center.y
-		var contextMenuY: CGFloat = viewCenterHigherThanSelfCenter
-		? viewRect.maxY + viewToMenuSpacing
-		: viewRect.minY - formViewHeight - viewToMenuSpacing
-		contextMenuY = max(contextMenuY, window.safeAreaInsets.top + 32)
-		
-		configureOverlayView(needBlur: needBlurBackground)
-		configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
-		configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
-		prepareWindow()
-		
-		feedBack.impactOccurred()
-		withFibSpringAnimation(duration: 0.4) {[weak self] in
-			self?.applyContextViewRect(
-				viewCenterHigherThanSelfCenter: viewCenterHigherThanSelfCenter,
-				contextMenuY: contextMenuY,
-				formViewHeight: formViewHeight,
-				viewRect: viewRect,
-				size: size,
-				needBlurBackground: needBlurBackground
-			)
-		} completion: {[weak self] _ in
+//        if let gesture = gesture {
+//            self.fromGesture = gesture
+//            gesture.addTarget(self, action: #selector(drag(_:)))
+//            window.addGestureRecognizer(gesture)
+//            gesture.delegate = self
+//        }
+		delay {[weak self] in
 			guard let self = self else { return }
-			self.contextMenu.configure(with: menu)
-			self.contextMenu.formView.scrollTo(edge: .top, animated: true)
+			let safeAreaHorizontal = window.safeAreaInsets.left + window.safeAreaInsets.right
+			let safeAreaVertical = window.safeAreaInsets.top + window.safeAreaInsets.bottom
+			let width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
+			let size = CGSize(width: width,
+							  height: window.bounds.height - 64 - safeAreaVertical)
+			let formViewSize = self.contextMenu.sizeWith(size, data: menu)
+			let formViewHeight = formViewSize?.height.clamp(0, size.height) ?? size.height
+			var contextMenuY: CGFloat = viewRect.maxY + viewToMenuSpacing
+			contextMenuY = max(contextMenuY, window.safeAreaInsets.top + 32)
+
+			configureOverlayView(needBlur: needBlurBackground)
+			prepareScrollView()
+			configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
+			configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
+			prepareWindow()
+			
+			let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
+			self.allHeight = allHeight
+			feedBack.impactOccurred()
+			withFibSpringAnimation(duration: 0.4) {[weak self] in
+				self?.applyContextViewRect(
+					contextMenuY: contextMenuY,
+					formViewHeight: formViewHeight,
+					viewRect: viewRect,
+					size: size,
+					needBlurBackground: needBlurBackground,
+					allHeight: allHeight,
+					viewToMenuSpacing: viewToMenuSpacing
+				)
+			} completion: {[weak self] _ in
+				guard let self = self else { return }
+				self.contextMenu.configure(with: menu)
+				self.contextMenu.formView.scrollTo(edge: .top, animated: false)
+			}
 		}
 	}
-	
+
 	private func prepareWindow() {
 		self.window.layoutIfNeeded()
 		window.isHidden = false
 		window.windowLevel = .alert
-		window.windowScene = currentScene
-		
 	}
 	
+	private func prepareScrollView() {
+		if scrollView.superview == nil {
+			window.addSubview(scrollView)
+		}
+		scrollView.showsVerticalScrollIndicator = false
+		scrollView.showsHorizontalScrollIndicator = false
+		scrollView.frame = window.bounds
+		scrollView.contentInset.top = -window.safeAreaInsets.top
+		scrollView.contentInset.bottom = 0
+		scrollView.contentInsetAdjustmentBehavior = .always
+	}
+
 	private func configureOverlayView(needBlur: Bool) {
-		window.addSubview(overlayView)
+		if overlayView.superview == nil {
+			window.addSubview(overlayView)
+		}
 		self.overlayView.fillSuperview()
 		if !needBlur {
 			overlayView.blurRadius = 0
 			overlayView.colorTint = .clear
 			overlayView.colorTintAlpha = 0
 		} else {
-			overlayView.colorTint = .systemFill
+			overlayView.colorTint = blurColorTint
 			overlayView.colorTintAlpha = 0.2
 			overlayView.blurRadius = 16
 		}
 		self.overlayView.alpha = 0
 	}
-	
+
 	private func configureSnapshot(with view: UIView?, viewRect: CGRect, oldRect: CGRect) {
 		contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 		contextView?.alpha = 0
 		view?.applyIdentityRecursive()
-		window.addSubview(contextViewSnapshot!)
+		contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
+		scrollView.addSubview(contextViewSnapshot!)
 		contextViewSnapshot!.frame = oldRect
-		contextViewSnapshot?.isUserInteractionEnabled = false
 		contextViewSnapshot?.layer.applySketchShadow()
-		delay {
-			let size = view?.frame.size ?? .zero
-			withFibSpringAnimation {
-				if viewRect != oldRect {
-					self.contextViewSnapshot?.frame = viewRect
-				}
-				let xDiff = (self.contextViewSnapshot?.frame.size.width ?? 0) - size.width
-				let yDiff = (self.contextViewSnapshot?.frame.size.height ?? 0) - size.height
-				self.contextViewSnapshot?.frame.size = size
-				self.contextViewSnapshot?.frame.origin.x += xDiff / 2
-				self.contextViewSnapshot?.frame.origin.y += yDiff / 2
-			}
-		}
 	}
 	
+	var canc: AnyCancellable?
+
 	private func configureContextMenu(with size: CGSize, viewRect: CGRect, formViewHeight: CGFloat) {
-		window.addSubview(contextMenu)
+		if contextMenu.superview == nil {
+			scrollView.addSubview(contextMenu)
+		}
 		self.contextMenu.frame.size = .init(width: size.width, height: formViewHeight)
 		self.contextMenu.backgroundColor = .clear
 		self.contextMenu.formView.showsVerticalScrollIndicator = false
@@ -224,48 +243,67 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.contextMenu.frame.origin = viewRect.center
 		self.contextMenu.alpha = 0.01
 	}
-	
-	private func applyContextViewRect(viewCenterHigherThanSelfCenter: Bool,
-									  contextMenuY: CGFloat,
+
+	private func applyContextViewRect(contextMenuY: CGFloat,
 									  formViewHeight: CGFloat,
 									  viewRect: CGRect,
 									  size: CGSize,
-									  needBlurBackground: Bool) {
+									  needBlurBackground: Bool,
+									  allHeight: CGFloat,
+									  viewToMenuSpacing: CGFloat) {
 		self.window.layoutIfNeeded()
-		let normalizedY = viewCenterHigherThanSelfCenter
-		? contextMenuY
-		: max(contextMenuY, viewRect.size.height + 16)
-		let normalizedHeight = min(formViewHeight,
-								   size.height - viewRect.size.height - 16)
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
 		let contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
 		
 		self.contextMenu.transform = .identity
 		self.contextMenu.alpha = 1
-		let finalMenuFrame = CGRect(x: contextMenuX,
-									y: normalizedY,
-									width: size.width,
-									height: normalizedHeight)
-		delay {
-			withFibSpringAnimation {[weak self] in
-				guard let self = self else { return }
-				self.contextMenu.frame = finalMenuFrame
-			}
-		}
+		
 		// TODO: @ab есть баги
 		//        if needBlurBackground, let currentAppWindow = currentAppWindow {
 		//            currentAppWindow?.transform = .init(scaleX: 0.98, y: 0.98)
 		//        }
 		self.overlayView.alpha = needBlurBackground ? 1 : 0
 		guard let contextSnapshot = self.contextViewSnapshot else { return }
-		if viewCenterHigherThanSelfCenter == false
-			&& finalMenuFrame.maxY > (contextSnapshot.frame.minY - viewToMenuSpacing) {
-			contextSnapshot.frame.origin.y = finalMenuFrame.maxY - viewToMenuSpacing
-		} else if viewCenterHigherThanSelfCenter == true
-					&& finalMenuFrame.minY < (contextSnapshot.frame.maxY + viewToMenuSpacing) {
-			contextSnapshot.frame.origin.y = finalMenuFrame.minY - contextSnapshot.frame.height + viewToMenuSpacing
+		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
+		var insetTop: CGFloat = 0
+		let contextSnapshotX = viewRect.minX.clamp(8, window.bounds.width - 8 - viewRect.width)
+		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
+									  size: viewRect.size)
+		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
+			insetTop = max(0, viewRect.minY)
+		} else {
+			if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
+				insetTop = scrollView.frame.height - allHeight - 32
+			}
 		}
+		UIView.performWithoutAnimation {
+			self.contextMenu.frame.origin.y = insetTop + viewRect.height / 2
+		}
+		scrollView.contentInset.top = insetTop - window.safeAreaInsets.top
+		
+		delay {
+			let finalMenuFrame = CGRect(x: contextMenuX,
+										y: contextSnapshot.frame.maxY + viewToMenuSpacing,
+										width: size.width,
+										height: formViewHeight)
+			withFibSpringAnimation(duration: 0.4) {[weak self] in
+				guard let self = self else { return }
+				self.contextMenu.frame = finalMenuFrame
+				let allHeight = formViewHeight + viewToMenuSpacing + contextSnapshot.frame.height + window.safeAreaInsets.top
+				self.allHeight = allHeight
+				scrollView.contentSize.height = allHeight
+				if allHeight > scrollView.frame.height {
+					scrollView.contentInset.top += 32 + window.safeAreaInsets.top
+					scrollView.contentInset.bottom += 32
+				}
+				delay {[weak self] in
+					guard let self = self else { return }
+					scrollView.setContentOffset(.init(x: 0, y: scrollView.offsetFrame.maxY), animated: true)
+				}
+			}
+		}
+		
 	}
 	
 	@objc private func willResignActive() {
@@ -278,7 +316,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	@objc public func hideContextMenu() {
 		hideContextMenu(nil)
 	}
-	
+
 	private func hideContextMenu(_ completion: (() -> Void)? = nil) {
 		guard self.hidingInProcess == false else { return }
 		self.hidingInProcess = true
@@ -304,30 +342,30 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			withFibSpringAnimation(duration: 0.3) {[weak self] in
 				guard let self = self else { return }
 				if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
+					self.scrollView.contentInset.top = -window.safeAreaInsets.top
 					self.contextViewSnapshot?.frame = viewRect
+					self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
 				}
 			}
 		}
 		withFibSpringAnimation(duration: 0.4) {[weak self] in
 			guard let self = self else { return }
 			
-			
 			self.contextMenu.transform = .init(scaleX: 0.01, y: 0.01)
-			self.contextMenu.frame.origin.x = self.contextViewRectInWindow.center.x
-			self.contextMenu.frame.origin.y = self.contextViewRectInWindow.center.y
+			self.contextMenu.frame.origin = self.contextViewRectInWindow.center
 			self.contextMenu.alpha = 0
 			self.overlayView.alpha = 0
 		} completion: {[weak self] _ in
 			guard let self = self else { return }
 			self.contextView = nil
+			self.scrollView.contentInset.top = -window.safeAreaInsets.top
+			self.scrollView.contentSize = .zero
 			self.window.isHidden = true
 			self.window.resignKey()
 			self.hidingInProcess = false
 			DispatchQueue.main.async {[weak self] in
 				guard let self = self else { return }
-				self.contextMenu.removeFromSuperview()
 				self.contextMenu.transform = .identity
-				self.overlayView.removeFromSuperview()
 				self.contextViewSnapshot?.removeFromSuperview()
 				completion?()
 				self.completion?()
@@ -336,60 +374,59 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 	
-	
 	@objc func drag(_ sender: UIGestureRecognizer) {
 		let point = sender.location(in: sender.view)
 		switch sender.state {
-			case .changed:
-				contextMenu.formView.visibleCells.forEach({ cell in
-					guard let cell = cell as? HighlightableView,
-						  let cellAbsFrame = cell.superview?.convert(cell.frame, to: window)
-					else { return }
-					let havePointInside = cellAbsFrame.contains(point)
-					if havePointInside, !cell.isHighlighted {
-						feedBack.impactOccurred()
-						cell.setHighlighted(highlighted: true)
-					} else if !havePointInside, cell.isHighlighted {
-						cell.setHighlighted(highlighted: false)
-					}
-				})
-			case .began:
-				contextMenu.formView.visibleCells.forEach({ cell in
-					guard let cell = cell as? HighlightableView else { return }
-					cell.setHighlighted(highlighted: cell.point(inside: point, with: nil))
-				})
-			case .ended,.cancelled, .failed:
-				if let fromGesture = fromGesture {
-					let view = sender.view
-					delay {
-						if view?.gestureRecognizers?.contains(where: { $0 === fromGesture }) == false {
-							view?.addGestureRecognizer(fromGesture)
-						}
-					}
-					
-					fromGesture.delegate = nil
-					fromGesture.removeTarget(self, action: #selector(drag(_:)))
-					window.removeGestureRecognizer(fromGesture)
+		case .changed:
+			contextMenu.formView.visibleCells.forEach({ cell in
+				guard let cell = cell as? HighlightableView,
+					  let cellAbsFrame = cell.superview?.convert(cell.frame, to: window)
+				else { return }
+				let havePointInside = cellAbsFrame.contains(point)
+				if havePointInside, !cell.isHighlighted {
+					feedBack.impactOccurred()
+					cell.setHighlighted(highlighted: true)
+				} else if !havePointInside, cell.isHighlighted {
+					cell.setHighlighted(highlighted: false)
 				}
-				if sender.state == .ended {
-					for (cell, index) in zip(contextMenu.formView.visibleCells, contextMenu.formView.visibleIndexes).reversed() {
-						if cell.point(inside: sender.location(in: cell), with: nil) {
-							if let cell = cell as? SwipeControlledView, cell.isSwipeOpen {
-								cell.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
-								return
-							}
-							contextMenu.formView.flattenedProvider.didTap(view: cell, at: index)
+			})
+		case .began:
+			contextMenu.formView.visibleCells.forEach({ cell in
+				guard let cell = cell as? HighlightableView else { return }
+				cell.setHighlighted(highlighted: cell.point(inside: point, with: nil))
+			})
+		case .ended,.cancelled, .failed:
+			if let fromGesture = fromGesture {
+				let view = sender.view
+				delay {
+					if view?.gestureRecognizers?.contains(where: { $0 === fromGesture }) == false {
+						view?.addGestureRecognizer(fromGesture)
+					}
+				}
+				
+				fromGesture.delegate = nil
+				fromGesture.removeTarget(self, action: #selector(drag(_:)))
+				window.removeGestureRecognizer(fromGesture)
+			}
+			if sender.state == .ended {
+				for (cell, index) in zip(contextMenu.formView.visibleCells, contextMenu.formView.visibleIndexes).reversed() {
+					if cell.point(inside: sender.location(in: cell), with: nil) {
+						if let cell = cell as? SwipeControlledView, cell.isSwipeOpen {
+							cell.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
 							return
 						}
+						contextMenu.formView.flattenedProvider.didTap(view: cell, at: index)
+						return
 					}
 				}
-				
-				contextMenu.formView.visibleCells.forEach({ cell in
-					guard let cell = cell as? HighlightableView else { return }
-					cell.setHighlighted(highlighted: false)
-				})
-				
-			default: break
+			}
+			
+			contextMenu.formView.visibleCells.forEach({ cell in
+				guard let cell = cell as? HighlightableView else { return }
+				cell.setHighlighted(highlighted: false)
+			})
+			
+		default: break
 		}
 	}
 }
