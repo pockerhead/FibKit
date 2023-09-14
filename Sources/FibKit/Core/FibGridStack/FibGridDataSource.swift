@@ -36,7 +36,7 @@ open class FibGridDataSource: CollectionReloadable {
         }
     }
 
-    public init(data: [ViewModelWithViewClass?] = [], identifierMapper: @escaping FormViewIdentifierMapperFn = { index, data in "\(data?.id ?? String(index))" }) {
+	public init(data: [ViewModelWithViewClass?] = [], identifierMapper: @escaping FormViewIdentifierMapperFn = { index, data in "\(data?.id ?? String(index))_\(String(describing: data?.viewClass()))" }) {
         self.data = data
         self.identifierMapper = identifierMapper
     }

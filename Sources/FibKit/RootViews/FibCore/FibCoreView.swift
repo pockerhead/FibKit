@@ -22,7 +22,7 @@ open class FibCoreView: UIView,
     
     private lazy var swipeCoordinator = FibCoreSwipeCoordinator(fibCoreView: self)
     private var _needUserInteraction: Bool = false
-    public var needUserInteraction: Bool { _needUserInteraction }
+    open var needUserInteraction: Bool { _needUserInteraction }
     public var haveSwipeAction: Bool { swipeCoordinator.haveSwipeAction }
     public var isSwipeOpen: Bool { swipeCoordinator.isSwipeOpen }
     public var isHighlighted: Bool = false
@@ -40,12 +40,12 @@ open class FibCoreView: UIView,
     private var tapGesture: UITapGestureRecognizer?
     private var longTapGesture: UILongPressGestureRecognizer?
 	private let analyticsGesture: UITapGestureRecognizer
-    private(set) var event: UIEvent?
-	private(set) var corneredOnSwipe = true
+    private(set) public var event: UIEvent?
+	private(set) public var corneredOnSwipe = true
     private var onDissappearClosure: ((UIView) -> Void)?
     private var highlight: FibCoreViewModel.HighLight = .squeeze
     open var getSizeClosure: ((CGSize) -> Void)?
-    weak var data: FibCoreViewModel?
+    public weak var data: FibCoreViewModel?
     private lazy var _contentViewBackgroundColor: UIColor? = contentView.backgroundColor
     
     public var contentView = UIView()
@@ -113,7 +113,7 @@ open class FibCoreView: UIView,
 	/// пустая реализация, необходимо переопределить в сабклассе
 	/// - Parameter point: точка касания во внутренней системе координат contentView
 	/// - Returns: Название элемента
-	func getAnalyticsMolecule(for point: CGPoint) -> String? { nil }
+	open func getAnalyticsMolecule(for point: CGPoint) -> String? { nil }
     
     @objc func receiveSwipe(_ notification: Notification) {
         guard let ref = notification.userInfo?["swipeViewRef"] as? UIView else { return }
@@ -254,7 +254,7 @@ open class FibCoreView: UIView,
         // point to override
     }
     
-    public func configure(with data: ViewModelWithViewClass?, isFromSizeWith: Bool) {
+    open func configure(with data: ViewModelWithViewClass?, isFromSizeWith: Bool) {
         configure(with: data)
     }
     
@@ -279,8 +279,8 @@ open class FibCoreView: UIView,
 				switch tooltip.tooltipType {
 					case .text(text: let text):
 						ToolTipService.shared.showToolTip(for: self.tooltipView, text: text)
-					case .custom(view: let view):
-						ToolTipService.shared.showToolTip(for: self.tooltipView, tooltipViewModel: view, markerView: tooltip.markerView)
+					case .custom(view: let view, marker: let marker):
+						ToolTipService.shared.showToolTip(for: self.tooltipView, tooltipViewModel: view, markerView: marker)
 				}
             } else {
 //                ToolTipService.shared.hideTooltip(animated: true)
@@ -457,7 +457,7 @@ extension FibCoreView {
 
 extension FibCoreView {
 	
-	public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+	open func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
 		if gestureRecognizer === analyticsGesture {
 			return true
 		}

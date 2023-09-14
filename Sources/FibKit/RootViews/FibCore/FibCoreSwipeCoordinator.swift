@@ -6,7 +6,7 @@
 //  Copyright © 2021 DIT. All rights reserved.
 //
 
-final class FibCoreSwipeCoordinator: NSObject {
+public class FibCoreSwipeCoordinator: NSObject {
 	// MARK: - Namespace Classes
 	final class WrapperPanGR: UIPanGestureRecognizer {}
 	final class WrapperSwipeGR: UISwipeGestureRecognizer {}

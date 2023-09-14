@@ -50,7 +50,7 @@ public class TriangleView: FibCoreView {
             context.addLine(to: .init(x: rect.midX, y: rect.maxY))
             context.closePath()
         }
-        data.backgroundColor.setFill()
+		context.setFillColor(data.backgroundColor.cgColor)
         context.fillPath()
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -59,18 +59,14 @@ public class TriangleView: FibCoreView {
     }
     
 	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
-        guard let data = data as? ViewModel else {
-            return nil
-        }
-
-        return data.size?.assignSize(selfSized: .zero, targetSize: targetSize)
+		return CGSize(width: 10, height: 5)
     }
     
     // MARK: - ViewModel
     
     public class ViewModel: FibCoreViewModel, TooltipMarkerViewModel {
         
-		public var backgroundColor: UIColor = .red
+		public var backgroundColor: UIColor = .tooltipBackgroundColor
 		public var orientation: Orientation = .down
         
         public enum Orientation {
@@ -78,7 +74,7 @@ public class TriangleView: FibCoreView {
             case down
         }
         
-		required public init(backgroundColor: UIColor = .red,
+		required public init(backgroundColor: UIColor = .tooltipBackgroundColor,
                       orientation: Orientation = .down) {
             self.backgroundColor = backgroundColor
             self.orientation = orientation

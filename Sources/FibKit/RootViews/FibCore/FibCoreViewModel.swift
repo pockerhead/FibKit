@@ -11,22 +11,22 @@ import SwiftUI
 
 open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     
-    private(set) public var id: String?
+    private(set) open var id: String?
     private(set) public var atTop: Bool = false
-    private(set) public var sizeHash: String?
+    private(set) open var sizeHash: String?
     public var userInfo: [AnyHashable : Any]?
     private(set) public var minHeight: CGFloat?
     private(set) public var maxHeight: CGFloat?
     private(set) public var allowedStretchDirections: Set<StretchDirection> = []
-	private(set) var rightSwipeViews: SwipesContainerView.ViewModel?
-    private(set) var leftSwipeViews: SwipesContainerView.ViewModel?
-    private(set) var interactive: Bool = false
-    private(set) var highlight: HighLight = .squeeze
-    private(set) var onAppearClosure: ((UIView) -> Void)?
-    private(set) var onDissappearClosure: ((UIView) -> Void)?
-    private(set) var size: Size? = nil
-    private(set) var contextMenu: FibContextMenu?
-    private(set) var tooltip: Tooltip?
+	private(set) public var rightSwipeViews: SwipesContainerView.ViewModel?
+    private(set) public var leftSwipeViews: SwipesContainerView.ViewModel?
+    private(set) public var interactive: Bool = false
+    private(set) public var highlight: HighLight = .squeeze
+    private(set) public var onAppearClosure: ((UIView) -> Void)?
+    private(set) public var onDissappearClosure: ((UIView) -> Void)?
+    private(set) public var size: Size? = nil
+    private(set) public var contextMenu: FibContextMenu?
+    private(set) public var tooltip: Tooltip?
     public private(set) var separator: ViewModelWithViewClass?
     public private(set) var dragItemsProvider: (() -> [UIDragItem])?
     public private(set) var onTap: ((UIView) -> Void)?
@@ -34,8 +34,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     public var getSizeClosure: ((CGSize) -> Void)?
     public private(set) var longPressContext: LongTapContext?
 	public private(set) var corneredOnSwipe = true
-	private (set) var onAnalyticsTap: ((String) -> Void)?
-	var transform: CGAffineTransform?
+	private (set) public var onAnalyticsTap: ((String) -> Void)?
+	public var transform: CGAffineTransform?
 	
 	public init() {}
     
@@ -43,22 +43,19 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		
 		public enum TooltipType {
 			case text(text: String)
-			case custom(view: TooltipViewModel)
+			case custom(view: FibCoreViewModel, marker: TooltipMarkerViewModel?)
 		}
         var needShow: Bool
 		var tooltipType: TooltipType
-		var markerView: ViewModelConfigurable
 
-		public init(needShow: Bool, tooltipType: TooltipType, markerView: ViewModelConfigurable? = TriangleView()) {
+		public init(needShow: Bool, tooltipType: TooltipType) {
 			self.needShow = needShow
 			self.tooltipType = tooltipType
-			self.markerView = markerView ?? TriangleView()
 		}
 		
 		public init(needShow: Bool, text: String) {
 			self.needShow = needShow
 			self.tooltipType = .text(text: text)
-			self.markerView = TriangleView()
 		}
     }
 
@@ -72,7 +69,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     /// ID вьюхи, если не проставить, то выставится UUID + index вьюхи
     /// - Parameter id: ID
     /// - Returns: self
-	public func id(_ id: String) -> Self {
+	open func id(_ id: String) -> Self {
 		self.id = id
         return self
     }
@@ -85,7 +82,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         return self
     }
     
-    public func sizeHash(_ sizeHash: String) -> Self {
+    open func sizeHash(_ sizeHash: String) -> Self {
         self.sizeHash = sizeHash
         return self
     }
@@ -283,15 +280,28 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		return self
 	}
 	
-    public struct LongTapContext {
+	public struct LongTapContext {
+		public init(longTapDuration: TimeInterval = 0.6, longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil, longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil) {
+			self.longTapDuration = longTapDuration
+			self.longTapStarted = longTapStarted
+			self.longTapEnded = longTapEnded
+		}
+		
         public private(set) var longTapDuration: TimeInterval = 0.6
         public private(set) var longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)?
         public private(set) var longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)?
     }
     
-    public struct Menu {
-        var actions: [PopoverServiceInstance.Action]
-        var needBlurBackground: Bool = true
+	public struct Menu {
+		public var actions: [PopoverServiceInstance.Action]
+		public var needBlurBackground: Bool = true
+		
+		public init(actions: [PopoverServiceInstance.Action], needBlurBackground: Bool = true) {
+			self.actions = actions
+			self.needBlurBackground = needBlurBackground
+		}
+		
+		
     }
     
     /// Енум для описания интеракции с вьюхой
@@ -305,7 +315,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         /// кастомная интеракция, принимает признак интеракции и вьюху
         case custom(closure: (FibCoreView, Bool) -> Void)
 		
-		static var card: HighLight {
+		public static var card: HighLight {
 			.custom(closure: { view, highlighted in
 				guard view.isUserInteractionEnabled else { return }
 				view.highlightSqueeze(highlighted: highlighted)
@@ -323,8 +333,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     /// DTO struct to define size of SwiftUIWrapper
     public struct Size {
 
-        var width: Strategy = .inherit
-        var height: Strategy = .inherit
+		public var width: Strategy = .inherit
+		public var height: Strategy = .inherit
         
         public static func height(_ height: FibCoreViewModel.Size.Strategy) -> Size {
             .init(height: height)
@@ -366,7 +376,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
             /// greaterThan value
             case greaterThan(CGFloat)
             
-            func assignStrategy(to dimension: CGFloat, targetDimension: CGFloat) -> CGFloat {
+            public func assignStrategy(to dimension: CGFloat, targetDimension: CGFloat) -> CGFloat {
                 switch self {
                 case .inherit:
                     return targetDimension
