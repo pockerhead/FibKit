@@ -53,6 +53,7 @@ open class FibControllerRootView: UIView {
 			viewBackgroundColor: UIColor? = nil,
 			shutterType: FibControllerRootView.Shutter? = nil,
 			backgroundView: (() -> UIView?)? = nil,
+			backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
 			shutterShadowClosure: ((ShutterView) -> Void)? = nil,
 			topInsetStrategy: TopInsetStrategy? = nil,
 			headerBackgroundViewColor: UIColor? = nil,
@@ -63,6 +64,7 @@ open class FibControllerRootView: UIView {
 			self.viewBackgroundColor = viewBackgroundColor
 			self.shutterType = shutterType
 			self.backgroundView = backgroundView
+			self.backgroundViewInsets = backgroundViewInsets
 			self.shutterShadowClosure = shutterShadowClosure
 			self.topInsetStrategy = topInsetStrategy
 			self.headerBackgroundViewColor = headerBackgroundViewColor
@@ -77,6 +79,7 @@ open class FibControllerRootView: UIView {
 		public var shutterShadowClosure: ((ShutterView) -> Void)?
 		public var shutterType: Shutter?
 		public var backgroundView: (() -> UIView?)?
+		public var backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		public var topInsetStrategy: TopInsetStrategy?
 	}
 		
@@ -105,6 +108,10 @@ open class FibControllerRootView: UIView {
 	var backgroundView: (() -> UIView?)? {
 		controller?.configuration?.viewConfiguration.backgroundView ?? defaultConfiguration.backgroundView
 	}
+	var backgroundViewInsets: UIEdgeInsets {
+		controller?.configuration?.viewConfiguration.backgroundViewInsets ?? defaultConfiguration.backgroundViewInsets
+	}
+	
 	var topInsetStrategy: TopInsetStrategy {
 		controller?.configuration?.viewConfiguration.topInsetStrategy ?? defaultConfiguration.topInsetStrategy ?? .safeArea
 	}
@@ -331,7 +338,7 @@ open class FibControllerRootView: UIView {
 			}
 			_backgroundViewRef = customBackgroundView
 			sendSubviewToBack(customBackgroundView)
-			customBackgroundView.frame = bounds
+			customBackgroundView.frame = bounds.inset(by: backgroundViewInsets)
 			applyAppearance()
 		} else {
 			_backgroundViewRef?.removeFromSuperview()
