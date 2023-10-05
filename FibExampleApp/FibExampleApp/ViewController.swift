@@ -65,6 +65,12 @@ class ViewController: FibViewController {
 		}
 	}
 	
+	override var footer: FibCell.ViewModel? {
+		.init(provider: ViewModelSection({
+			MyFibSquareView.ViewModel(text: "1--arr2_cell_")
+		}))
+	}
+	
 	@SectionProtocolBuilder
 	var stacks: [SectionProtocol] {
 		SectionStack {

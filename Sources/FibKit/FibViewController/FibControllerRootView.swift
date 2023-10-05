@@ -122,6 +122,7 @@ open class FibControllerRootView: UIView {
 	private var _backgroundViewRef: UIView?
 	
 	public let footer = FibCell()
+	private let _sizeWithFooter = FibCell()
 	private var _footerViewModel: ViewModelWithViewClass?
 	private let rootFooterBackground = RootGridViewBackground()
 
@@ -558,7 +559,7 @@ open class FibControllerRootView: UIView {
 		self._footerViewModel = footerViewModel
 		let footerHeight = footerViewModel == nil
 		? 0
-		: self.footer.sizeWith(self.bounds.size, data: footerViewModel)?.height ?? 0
+		: self._sizeWithFooter.sizeWith(self.bounds.size, data: footerViewModel)?.height ?? 0
 		let footerHeightChanged = footerHeight != self.footerHeight
 		self.footerHeight = footerHeight
 		if footerHeight == 0 {
