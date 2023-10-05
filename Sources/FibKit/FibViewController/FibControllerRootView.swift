@@ -253,15 +253,19 @@ open class FibControllerRootView: UIView {
 		shutterView.layer.mask = mask
 	}
 	
-	func layoutFibGrid() {
-		rootFormView.frame = bounds
-		rootFormView.contentInset.bottom = footerHeight
+	func layoutFibGrid(animated: Bool) {
+		if !animated {
+			UIView.performWithoutAnimation {
+				rootFormView.frame = bounds
+				rootFormView.contentInset.bottom = footerHeight
+			}
+		}
 	}
 	
 	override open func layoutSubviews() {
 		super.layoutSubviews()
-		rootGridViewBackground.frame = bounds
 		UIView.performWithoutAnimation {
+			rootGridViewBackground.frame = bounds
 			configureShutterViewFrame()
 		}
 		configureBackgroundView()
@@ -286,7 +290,7 @@ open class FibControllerRootView: UIView {
 				header?.configure(with: _headerViewModel)
 			}
 		}
-		layoutFibGrid()
+		layoutFibGrid(animated: false)
 		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
 		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop),
 								   size: .init(width: bounds.width, height: bounds.height))
@@ -558,7 +562,7 @@ open class FibControllerRootView: UIView {
 		assignRefreshControlIfNeeded()
 		rootFormView.animated = animated
 		rootFormView.provider = provider
-		layoutFibGrid()
+		layoutFibGrid(animated: animated)
 	}
 	
 	func display(_ footerViewModel: FibCell.ViewModel?, animated: Bool, secondary: Bool = false) {
