@@ -363,7 +363,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		}
         
         /// Layout strategy
-        public enum Strategy: Equatable {
+        public enum Strategy: Equatable, ExpressibleByIntegerLiteral {
             
             /// Inherits dimension from FibKit layout manager
             case inherit
@@ -390,6 +390,10 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
                     return min(dimension, val)
                 }
             }
+			
+			public init(integerLiteral value: IntegerLiteralType) {
+				self = .absolute(CGFloat(value))
+			}
         }
         
         public func assignSize(selfSized size: CGSize, targetSize: CGSize) -> CGSize {
