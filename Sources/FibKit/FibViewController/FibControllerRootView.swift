@@ -294,10 +294,17 @@ open class FibControllerRootView: UIView {
 	
 	func updateFooterFrame() {
 		let backgroundHeight = footerHeight + safeAreaInsets.bottom
-		rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
-		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-		rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
-		footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
+		UIView.performWithoutAnimation {
+			rootFooterBackground.frame.size.width = bounds.width
+			footer.frame.size.width = bounds.width
+		}
+		delay {[weak self] in
+			guard let self = self else { return }
+			rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
+			rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+			rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
+			footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
+		}
 	}
 	
 	fileprivate func calculateHeaderFrame() {

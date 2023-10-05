@@ -66,6 +66,7 @@ class ViewController: FibViewController {
 	}
 	
 	override var footer: FibCell.ViewModel? {
+		flag ? nil :
 		.init(provider: ViewModelSection({
 			MyFibSquareView.ViewModel(text: "1--arr2_cell_")
 		}))
