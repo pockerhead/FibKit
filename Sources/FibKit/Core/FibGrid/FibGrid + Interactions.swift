@@ -186,13 +186,8 @@ extension FibGrid {
 					flattenedProvider.didBeginLongTapWithProvider(context: context)
 					dragProvider = (cell.fb_provider as? ItemProvider)
 					dragProvider?.didBeginLongTapWithProvider(context: context)
-					let isVerticalScroll = (dragProvider as? ViewModelSection)?.scrollDirection == .vertical
 					UIView.animate(withDuration: 0.2) {
-						if isVerticalScroll {
-							cell.center.y = gesture.location(in: self).y
-						} else {
-							cell.center.x = gesture.location(in: self).x
-						}
+						cell.center = gesture.location(in: self)
 					}
 					draggedCell = CellPath(cell: cell,
 										   index: interProviderIndex,

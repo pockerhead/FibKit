@@ -26,9 +26,22 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     public var sizeSource: FibGridSizeSource { didSet { setNeedsInvalidateLayout() } }
     public var layout: Layout { didSet { setNeedsInvalidateLayout() } }
     public var animator: Animator? { didSet { setNeedsReload() } }
-    public var collectionView: FibGrid? {
-        GridsReuseManager.shared.grids[identifier ?? ""]?.ref
-    }
+	public weak var collectionView: FibGrid? {
+		set {
+			self._collectionView = newValue
+		}
+		get {
+			if let cw = _collectionView {
+				return cw
+			} else if let cw = GridsReuseManager.shared.grids[identifier ?? ""] {
+				return cw.ref
+			} else {
+				return nil
+			}
+		}
+	}
+	
+	private weak var _collectionView: FibGrid?
     public var isAsync = true
     var needLastSeparator: Bool = true
     var tapHandler: TapHandler?
