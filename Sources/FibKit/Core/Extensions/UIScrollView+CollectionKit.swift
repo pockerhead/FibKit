@@ -82,7 +82,13 @@ extension UIScrollView {
 		let target: CGPoint
 		switch edge {
 		case UIRectEdge.top:
-			target = CGPoint(x: contentOffset.x, y: offsetFrame.minY)
+			let currentOffset = contentOffset
+			contentOffset.y =  -adjustedContentInset.top - 100
+			var newAdjustedContentInset = adjustedContentInset
+			contentOffset.y =  -newAdjustedContentInset.top - 100
+			newAdjustedContentInset = adjustedContentInset
+			contentOffset.y =  currentOffset.y
+			target = CGPoint(x: 0, y: -newAdjustedContentInset.top)
 		case UIRectEdge.bottom:
 			target = CGPoint(x: contentOffset.x, y: offsetFrame.maxY)
 		case UIRectEdge.left:
@@ -91,6 +97,18 @@ extension UIScrollView {
 			target = CGPoint(x: offsetFrame.maxX, y: contentOffset.y)
 		default:
 			return
+		}
+		let isUp = target.y < contentOffset.y
+		let boundsHeight = (frame.size.height)
+		let isTargetLargerThanBounds = abs(target.y - contentOffset.y) > boundsHeight
+		if animated {
+			if isTargetLargerThanBounds {
+				if isUp {
+					contentOffset.y = target.y + (boundsHeight / 2.3)
+				} else {
+					contentOffset.y = target.y - (boundsHeight / 2.3)
+				}
+			}
 		}
 		setContentOffset(target, animated: animated)
 	}
