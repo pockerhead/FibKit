@@ -353,7 +353,7 @@ open class FibControllerRootView: UIView {
 	
 	func configureHeaderEffectsBackgroundView() {
 		if let customBackgroundView = headerBackgroundEffectView?() {
-			if rootHeaderBackgroundEffectView !== customBackgroundView {
+			if _rootHeaderBackgroundViewRef !== customBackgroundView {
 				_rootHeaderBackgroundViewRef?.removeFromSuperview()
 				_rootHeaderBackgroundViewRef = nil
 			}
