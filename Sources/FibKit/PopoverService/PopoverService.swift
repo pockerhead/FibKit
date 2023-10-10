@@ -69,9 +69,17 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	
 	lazy var dragGest = UIPanGestureRecognizer(target: self, action: #selector(drag(_:)))
 	let allTapDelegateHelper = AllSimultaneouslyTapGestDelegate()
+	
+	var proxyWindow: UIWindow {
+		if let scene = currentScene {
+			return DragProxyWindow(windowScene: scene)
+		} else {
+			return DragProxyWindow(frame: UIScreen.main.bounds)
+		}
+	}
 	/// Own window for alertService
 	lazy var window: UIWindow = {
-		let w = DragProxyWindow(frame: UIScreen.main.bounds)
+		let w = proxyWindow
 		dragGest.delegate = self
 		w.addGestureRecognizer(dragGest)
 		let gr = UITapGestureRecognizer(target: self, action: #selector(hideContextMenu))
@@ -98,8 +106,18 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 	/// Conext menu, contains self-sized formView with scroll
 	private var contextMenu = FibCell()
+
 	private var currentAppWindow: UIWindow?? {
-		UIApplication.shared.delegate?.window
+		if let delegate = UIApplication.shared.connectedScenes.first?.delegate as? UIWindowSceneDelegate {
+			return delegate.window
+		}
+		else {
+			return UIApplication.shared.delegate?.window
+		}
+	}
+	
+	private var currentScene: UIWindowScene? {
+		UIApplication.shared.connectedScenes.first as? UIWindowScene
 	}
 
 	/// Snapshot of view, that captured by context
