@@ -658,18 +658,10 @@ extension FibControllerRootView: UIScrollViewDelegate {
 			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
 			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
 		}
-//		if transparentNavbar {
-//			let sizePercentage = ((headerInitialHeight - size) / headerInitialHeight).clamp(0, 1)
-//			let shutterBackground = getShutterColor() ?? .clear
-//			let fadeColor = shutterBackground
-//				.withAlphaComponent(0)
-//				.fade(toColor: shutterBackground, withPercentage: sizePercentage)
-//			controller?.navigationController?.navigationBar.backgroundColor = fadeColor
-//		}
 		guard let headerViewModel = _headerViewModel else { return }
-		if headerViewModel.atTop == false {
-			minHeight = 0
-		}
+//		if headerViewModel.atTop == false {
+//			minHeight = 0
+//		}
 		guard headerViewModel.allowedStretchDirections.isEmpty == false else {
 			return
 		}
