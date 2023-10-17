@@ -209,6 +209,7 @@ extension FibGrid {
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				if cell === draggedCell { continue }
 				if cell.frame.intersects(draggedCell.frame) {
+					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject) else { return }
 					guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
 					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
 					let intersectionSquare = intersectionFrame.size.square
