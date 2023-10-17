@@ -48,7 +48,7 @@ extension UIView {
 		}
 	}
 	
-	internal var fb_provider: Provider? {
+	public internal(set) var fb_provider: Provider? {
 		get { return objc_getAssociatedObject(self, &AssociatedKeys.provider) as? Provider }
 		set {
 			objc_setAssociatedObject(self, &AssociatedKeys.provider, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
