@@ -9,10 +9,10 @@
 import UIKit
 
 public protocol LayoutContext {
-  var collectionSize: CGSize { get }
-  var numberOfItems: Int { get }
-
-  func data(at: Int) -> Any
-  func identifier(at: Int) -> String
-  func size(at index: Int, collectionSize: CGSize) -> CGSize
+	var collectionSize: CGSize { get }
+	var numberOfItems: Int { get }
+	
+	func data(at: Int) -> Any
+	func identifier(at: Int) -> String
+	func size(at index: Int, collectionSize: CGSize) -> CGSize
 }

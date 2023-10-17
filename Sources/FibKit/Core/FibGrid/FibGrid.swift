@@ -472,8 +472,3 @@ final public class FibGrid: UIScrollView {
 		return cell
 	}
 }
-
-
-
-
-

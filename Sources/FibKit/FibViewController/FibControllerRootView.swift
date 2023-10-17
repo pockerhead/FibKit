@@ -299,7 +299,9 @@ open class FibControllerRootView: UIView {
 		}
 		layoutFibGrid(animated: false)
 		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
-		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop),
+		// #crutch need maskTop + 0.01, because full view mask and blur
+		// background is not friends at all
+		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	

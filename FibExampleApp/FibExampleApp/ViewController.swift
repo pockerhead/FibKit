@@ -5,7 +5,9 @@
 //  Created by Артём Балашов on 18.07.2023.
 //
 
+import Combine
 import FibKit
+import VisualEffectView
 
 class ViewController: FibViewController {
 	
@@ -15,7 +17,17 @@ class ViewController: FibViewController {
 		return MyFibHeader.ViewModel()
 	}
 	
-	var arr2 = Array(0...3)
+	var arr2 = Array(0...33)
+	
+	let effect: VisualEffectView = {
+		let view = VisualEffectView()
+		view.blurRadius = 6
+		view.colorTint = .clear
+		view.colorTintAlpha = 0
+		return view
+	}()
+	
+//	let effect = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
 	
 	override var configuration: FibViewController.Configuration? {
 		.init(viewConfiguration: .init(
@@ -25,7 +37,7 @@ class ViewController: FibViewController {
 			shutterType: .rounded,
 			topInsetStrategy: .top,
 			headerBackgroundViewColor: .clear,
-			headerBackgroundEffectView: nil
+			headerBackgroundEffectView: { self.effect }
 		))
 	}
 	
@@ -93,6 +105,8 @@ class ViewController: FibViewController {
 		rootView.applyAppearance()
 		addDebugButton()
 	}
+	
+	var timer: AnyCancellable?
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)

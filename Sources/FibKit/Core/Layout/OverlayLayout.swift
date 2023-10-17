@@ -9,12 +9,12 @@
 import UIKit
 
 public class OverlayLayout: SimpleLayout {
-  public override func simpleLayout(context: LayoutContext) -> [CGRect] {
-    var frames: [CGRect] = []
-    for i in 0..<context.numberOfItems {
-      let size = context.size(at: i, collectionSize: context.collectionSize)
-      frames.append(CGRect(origin: .zero, size: size))
-    }
-    return frames
-  }
+	public override func simpleLayout(context: LayoutContext) -> [CGRect] {
+		var frames: [CGRect] = []
+		for i in 0..<context.numberOfItems {
+			let size = context.size(at: i, collectionSize: context.collectionSize)
+			frames.append(CGRect(origin: .zero, size: size))
+		}
+		return frames
+	}
 }

@@ -10,30 +10,30 @@ import UIKit
 
 // swiftlint:disable all
 public class StickyLayout: WrapperLayout {
-  public var isStickyFn: (Int) -> Bool
-
-  var stickyFrames: [(index: Int, frame: CGRect)] = []
-  var visibleFrame: CGRect = .zero
-  var topFrameIndex: Int = 0
-
-  public init(rootLayout: Layout,
-              isStickyFn: @escaping (Int) -> Bool = { $0 % 2 == 0 }) {
-    self.isStickyFn = isStickyFn
-    super.init(rootLayout)
-  }
-
-  public override var contentSize: CGSize {
-    return rootLayout.contentSize
-  }
-
-  public override func layout(context: LayoutContext) {
-    rootLayout.layout(context: context)
-    stickyFrames = (0..<context.numberOfItems).filter {
-      isStickyFn($0)
-    }.map {
-      (index: $0, frame: rootLayout.frame(at: $0))
-    }
-  }
+	public var isStickyFn: (Int) -> Bool
+	
+	var stickyFrames: [(index: Int, frame: CGRect)] = []
+	var visibleFrame: CGRect = .zero
+	var topFrameIndex: Int = 0
+	
+	public init(rootLayout: Layout,
+				isStickyFn: @escaping (Int) -> Bool = { $0 % 2 == 0 }) {
+		self.isStickyFn = isStickyFn
+		super.init(rootLayout)
+	}
+	
+	public override var contentSize: CGSize {
+		return rootLayout.contentSize
+	}
+	
+	public override func layout(context: LayoutContext) {
+		rootLayout.layout(context: context)
+		stickyFrames = (0..<context.numberOfItems).filter {
+			isStickyFn($0)
+		}.map {
+			(index: $0, frame: rootLayout.frame(at: $0))
+		}
+	}
 	
 	public override func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
 		self.visibleFrame = visibleFrameLessInset
