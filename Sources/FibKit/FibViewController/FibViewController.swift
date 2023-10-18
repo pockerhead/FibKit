@@ -14,11 +14,14 @@ open class FibViewController: UIViewController {
     // MARK: Properties
 	
 	public struct Configuration {
-		public init(viewConfiguration: FibControllerRootView.Configuration = .init()) {
+		public init(viewConfiguration: FibControllerRootView.Configuration = .init(),
+					navigationConfiguration: FibControllerRootView.NavigationConfiguration = .init()) {
 			self.viewConfiguration = viewConfiguration
+			self.navigationConfiguration = navigationConfiguration
 		}
 		
 		public var viewConfiguration: FibControllerRootView.Configuration = .init()
+		public var navigationConfiguration: FibControllerRootView.NavigationConfiguration = .init()
 	}
 	
 	public static var defaultConfiguration: Configuration = .init(
@@ -29,6 +32,11 @@ open class FibViewController: UIViewController {
 			shutterType: .default,
 			backgroundView: nil,
 			topInsetStrategy: .safeArea
+		),
+		navigationConfiguration: .init(
+			title: nil,
+			largeTitleViewModel: nil,
+			searchContext: nil
 		)
 	)
 	

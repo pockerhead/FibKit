@@ -42,15 +42,27 @@ class ViewController: FibViewController {
 //	let effect = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
 	
 	override var configuration: FibViewController.Configuration? {
-		.init(viewConfiguration: .init(
+		.init(
+			viewConfiguration: .init(
 			roundedShutterBackground: .white,
 			shutterBackground: .white,
 			viewBackgroundColor: .white,
-			shutterType: .rounded,
+			shutterType: .default,
 			topInsetStrategy: .safeArea,
 			headerBackgroundViewColor: .clear,
 			headerBackgroundEffectView: { self.effect }
-		))
+			),
+			navigationConfiguration: .init(
+				title: "3f23f32",
+				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32"),
+				searchContext: .init(
+					hideWhenScrolling: true,
+					onSearchResults: { text in
+						print(text)
+					}
+				)
+			)
+		)
 	}
 	
 	override var body: SectionProtocol? {
@@ -127,7 +139,6 @@ class ViewController: FibViewController {
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		title = "g34g42g234fg2"
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
 //		appearance.backgroundColor = UIColor.clear
@@ -216,6 +227,8 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 	
 	func configureUI() {
 		addSubview(label)
+		layer.borderColor = UIColor.black.cgColor
+		layer.borderWidth = 2
 	}
 	
 	override func layoutSubviews() {

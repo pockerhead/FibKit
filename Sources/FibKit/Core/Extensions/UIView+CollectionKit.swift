@@ -71,3 +71,19 @@ extension UIView {
 	
 	
 }
+
+internal extension UIView {
+	
+	func applyIdentityRecursive() {
+		transform = .identity
+		subviews.forEach { $0.applyIdentityRecursive() }
+	}
+}
+
+internal extension UIView {
+	
+	var fullEdgesHeight: CGFloat {
+		let safeArea = ((statusBarFrame?.height ?? 0) + self.safeAreaInsets.bottom)
+		return UIScreen.main.bounds.height - safeArea
+	}
+}

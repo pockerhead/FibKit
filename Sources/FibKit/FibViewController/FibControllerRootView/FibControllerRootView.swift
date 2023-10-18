@@ -10,82 +10,15 @@
 import UIKit
 import VisualEffectView
 
-private class RootGridViewBackground: UIView {
-	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-		guard FibGridPassthroughHelper.nestedInteractiveViews(in: self, contain: point, convertView: self) else {
-			return false
-		}
-		return super.point(inside: point, with: event)
-	}
-}
-
 open class FibControllerRootView: UIView {
-	
-	public enum Shutter {
-		case rounded
-		case `default`
-	}
-	
-	public enum TopInsetStrategy {
-		case safeArea
-		case statusBar
-		case top
-		case custom(@autoclosure (() -> CGFloat))
-		
-		func getTopInset(for view: UIView) -> CGFloat {
-			switch self {
-			case .safeArea:
-				return view.safeAreaInsets.top
-			case .statusBar:
-				return view.statusBarFrame?.height ?? 0
-			case .top:
-				return 0
-			case .custom(let margin):
-				return margin()
-			}
-		}
-	}
-	
-	public class Configuration {
-		public init(
-			roundedShutterBackground: UIColor? = nil,
-			shutterBackground: UIColor? = nil,
-			viewBackgroundColor: UIColor? = nil,
-			shutterType: FibControllerRootView.Shutter? = nil,
-			backgroundView: (() -> UIView?)? = nil,
-			backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
-			shutterShadowClosure: ((ShutterView) -> Void)? = nil,
-			topInsetStrategy: TopInsetStrategy? = nil,
-			headerBackgroundViewColor: UIColor? = nil,
-			headerBackgroundEffectView: (() -> UIView?)? = nil
-		) {
-			self.roundedShutterBackground = roundedShutterBackground
-			self.shutterBackground = shutterBackground
-			self.viewBackgroundColor = viewBackgroundColor
-			self.shutterType = shutterType
-			self.backgroundView = backgroundView
-			self.backgroundViewInsets = backgroundViewInsets
-			self.shutterShadowClosure = shutterShadowClosure
-			self.topInsetStrategy = topInsetStrategy
-			self.headerBackgroundViewColor = headerBackgroundViewColor
-			self.headerBackgroundEffectView = headerBackgroundEffectView
-		}
-		
-		public var roundedShutterBackground: UIColor?
-		public var shutterBackground: UIColor?
-		public var viewBackgroundColor: UIColor?
-		public var headerBackgroundViewColor: UIColor?
-		public var headerBackgroundEffectView: (() -> UIView?)?
-		public var shutterShadowClosure: ((ShutterView) -> Void)?
-		public var shutterType: Shutter?
-		public var backgroundView: (() -> UIView?)?
-		public var backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-		public var topInsetStrategy: TopInsetStrategy?
-	}
 		
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration
 	}
 	// MARK: - APPEARANCE
+	
+	var navigationConfiguration: FibControllerRootView.NavigationConfiguration? {
+		controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
+	}
 	
 	var headerBackgroundViewColor: UIColor? {
 		controller?.configuration?.viewConfiguration.headerBackgroundViewColor ?? defaultConfiguration.headerBackgroundViewColor
@@ -138,6 +71,9 @@ open class FibControllerRootView: UIView {
 	public private(set) var footerHeight: CGFloat = 0
 	
 	public var header: FibViewHeader?
+	private let rootNavigationHeaderBackground = RootGridViewBackground()
+	private let rootNavigationHeaderMask = UIView().backgroundColor(.black)
+	private weak var largeViewRef: ViewModelConfigurable?
 	private let rootHeaderBackground = RootGridViewBackground()
 	private var rootHeaderBackgroundEffectView: UIView?
 	private var _rootHeaderBackgroundViewRef: UIView?
@@ -145,6 +81,11 @@ open class FibControllerRootView: UIView {
 	private let headerSizeSource = FibGridSizeSource()
 	public let shutterView = ShutterView()
 	
+	public private(set) var isSearching = false
+	private lazy var searchBar = UISearchBar()
+	private var navItemLeftItemsRef: [UIBarButtonItem]? = []
+	private var navItemRightItemsRef: [UIBarButtonItem]? = []
+	private var navItemTitleView: UIView?
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
 	let gridMaskView = UIView()
@@ -230,7 +171,7 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	fileprivate func configureShutterViewFrame() {
+	internal func configureShutterViewFrame() {
 		let topInset = topInsetStrategy.getTopInset(for: self)
 		let topEdge = topInset - shutterView.layer.cornerRadius
 		let height = UIScreen.main.bounds.height * 2
@@ -276,6 +217,7 @@ open class FibControllerRootView: UIView {
 			rootGridViewBackground.frame = bounds
 			configureShutterViewFrame()
 		}
+		configureNavigation()
 		configureBackgroundView()
 		configureHeaderEffectsBackgroundView()
 		calculateHeaderFrame()
@@ -312,6 +254,97 @@ open class FibControllerRootView: UIView {
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	
+	func configureNavigation() {
+		guard let nav = controller?.navigationController else { return }
+		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
+		if let header = header {
+			rootHeaderBackground.insertSubview(rootNavigationHeaderBackground, belowSubview: header)
+		} else {
+			rootHeaderBackground.bringSubviewToFront(rootNavigationHeaderBackground)
+		}
+		if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
+			if let largeViewRef = largeViewRef {
+				if String(describing: largeTitleViewModel.viewClass()) != String(describing: type(of: largeViewRef)) {
+					largeViewRef.removeFromSuperview()
+					if let newLargeView = largeTitleViewModel.getView() {
+						self.largeViewRef = newLargeView
+						rootNavigationHeaderBackground.addSubview(newLargeView)
+					}
+				} else {
+					largeViewRef.configure(with: largeTitleViewModel)
+				}
+			} else if let newLargeView = largeTitleViewModel.getView() {
+				self.largeViewRef = newLargeView
+				rootNavigationHeaderBackground.addSubview(newLargeView)
+			}
+			
+		} else if let title = navigationConfiguration?.title {
+			largeViewRef?.removeFromSuperview()
+			controller?.setNavbarTitle(title)
+		}
+		if let context = navigationConfiguration?.searchContext {
+			searchBar.delegate = self
+			searchBar.placeholder = context.placeholder
+			searchBar.backgroundColor = .clear
+			searchBar.backgroundImage = UIImage()
+			if let force = context.isForceActive {
+				if force && !searchBar.isFirstResponder {
+					isSearching = true
+					searchBar.becomeFirstResponder()
+					searchBarTextDidBeginEditing(searchBar)
+				} else if !force && searchBar.isFirstResponder {
+					isSearching = false
+					searchBar.resignFirstResponder()
+					searchBarCancelButtonClicked(searchBar)
+				}
+			} else if !isSearching, searchBar.superview == nil {
+				rootNavigationHeaderBackground.addSubview(searchBar)
+			}
+		} else {
+			searchBar.removeFromSuperview()
+		}
+		assignNavigationFramesIfNeeded()
+		updateFormViewInsets(animated: false)
+	}
+	
+	func assignNavigationFramesIfNeeded() {
+		UIView.performWithoutAnimation {
+			largeViewRef?.isHidden = isSearching
+			if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
+				let height = headerSizeSource.size(
+					at: 0,
+					data: largeTitleViewModel,
+					collectionSize: bounds.size,
+					dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
+					direction: .vertical).height
+				let scrollViewShift = rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top
+				self.largeViewRef?.frame = .init(origin: .init(x: 0.01, y: 0.01 - scrollViewShift), size: .init(width: bounds.width, height: height))
+				if (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
+					controller?.setNavbarTitle(navigationConfiguration?.title)
+				} else {
+					controller?.setNavbarTitle(nil)
+				}
+			}
+			if !isSearching,
+			   let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
+				let searchBarHeight: CGFloat = 48
+				let largeViewShift = largeViewRef?.frame.maxY ?? 0
+				var searchBarPositionY: CGFloat = largeViewShift
+				if !searchContext.hideWhenScrolling {
+					searchBarPositionY = max(searchBarPositionY, 0)
+				}
+				DispatchQueue.main.async {
+					self.searchBar.frame = .init(
+						origin: .init(x: 0.01, y: searchBarPositionY),
+						size: .init(width: self.bounds.width, height: searchBarHeight))
+				}
+			}
+			rootNavigationHeaderBackground.frame = .init(x: 0.01, y: safeAreaInsets.top + 0.01, width: bounds.width, height: getHeaderAdditionalNavigationMargin())
+			rootNavigationHeaderMask.frame = .init(x: 0.01, y: 0.01, width: bounds.width, height: bounds.height)
+			rootNavigationHeaderBackground.mask = rootNavigationHeaderMask
+		}
+	}
+	
 	func updateFooterFrame() {
 		let backgroundHeight = footerHeight + safeAreaInsets.bottom
 		UIView.performWithoutAnimation {
@@ -327,11 +360,42 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	fileprivate func calculateHeaderFrame() {
-		headerTopMargin = topInsetStrategy.getTopInset(for: self)
+	func getHeaderAdditionalNavigationMargin() -> CGFloat {
+		guard let navigationConfiguration = navigationConfiguration else { return .zero }
+		var largeTitleViewModelHeight: CGFloat = 0
+		if let largeTitleViewModel = navigationConfiguration.largeTitleViewModel {
+			largeTitleViewModelHeight = headerSizeSource.size(
+				at: 0, 
+				data: largeTitleViewModel,
+				collectionSize: bounds.size, 
+				dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
+				direction: .vertical).height
+		}
+		var searchBarHeight: CGFloat = 0
+		if navigationConfiguration.searchContext != nil {
+			searchBarHeight = 48
+		}
+		return largeTitleViewModelHeight + searchBarHeight
 	}
 	
-	fileprivate func updateHeaderFrame() {
+	func getNavigationHeaderScrollShift() -> CGFloat {
+		guard let navigationConfiguration = navigationConfiguration else { return .zero }
+		if isSearching {
+			return 0
+		}
+		let scrollViewShift = rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top
+		var minShift: CGFloat = 0
+		if navigationConfiguration.searchContext?.hideWhenScrolling == false {
+			minShift = 48
+		}
+		return max(getHeaderAdditionalNavigationMargin() - scrollViewShift, minShift)
+	}
+	
+	internal func calculateHeaderFrame() {
+		headerTopMargin = topInsetStrategy.getTopInset(for: self) + getNavigationHeaderScrollShift()
+	}
+	
+	internal func updateHeaderFrame() {
 		UIView.performWithoutAnimation {
 			rootHeaderBackground.frame = .init(x: 0,
 											   y: 0,
@@ -507,6 +571,11 @@ open class FibControllerRootView: UIView {
 									   isChangedHeaderViewModel: Bool = false) {
 		let absoluteContentOffset = self.rootFormView.contentOffset.y + self.rootFormView.contentInset.top
 		var contentInsetTop = self.headerHeight
+		if !isSearching {
+			contentInsetTop += getHeaderAdditionalNavigationMargin()
+		} else {
+			contentInsetTop += getNavigationHeaderScrollShift()
+		}
 		switch topInsetStrategy {
 		case .custom(let margin):
 			contentInsetTop -= (safeAreaInsets.top - margin())
@@ -528,7 +597,7 @@ open class FibControllerRootView: UIView {
 	
 	func deleteHeader(animated: Bool) {
 		guard _headerViewModel != nil else { return }
-		self.headerHeight = 0.5
+		self.headerHeight = 0.01
 		_headerInitialHeight = 0
 		header?.removeFromSuperview()
 		header = nil
@@ -623,98 +692,80 @@ open class FibControllerRootView: UIView {
 		controller?.refreshAction?()
 	}
 	
+	public func beginSearch() {
+		navItemLeftItemsRef = controller?.navigationItem.leftBarButtonItems
+		if let single = controller?.navigationItem.leftBarButtonItem {
+			navItemLeftItemsRef = [single]
+		}
+		controller?.navigationItem.leftBarButtonItems = []
+		navItemRightItemsRef = controller?.navigationItem.rightBarButtonItems
+		if let single = controller?.navigationItem.rightBarButtonItem {
+			navItemRightItemsRef = [single]
+		}
+		controller?.navigationItem.rightBarButtonItems = []
+		navItemTitleView = controller?.navigationItem.titleView
+		controller?.navigationItem.titleView = searchBar
+		searchBar.setShowsCancelButton(true, animated: true)
+		controller?.reload()
+		setNeedsLayout()
+		DispatchQueue.main.async {
+			self.setNeedsLayout()
+			self.searchBar.backgroundColor = .clear
+			self.searchBar.backgroundImage = UIImage()
+		}
+	}
+	
+	public func endSearch() {
+		if let navItemLeftItemsRef {
+			controller?.navigationItem.leftBarButtonItems = navItemLeftItemsRef
+		}
+		if let navItemRightItemsRef {
+			controller?.navigationItem.rightBarButtonItems = navItemRightItemsRef
+		}
+		controller?.navigationItem.titleView = navItemTitleView
+		navItemLeftItemsRef = nil
+		navItemRightItemsRef = nil
+		navItemTitleView = nil
+		searchBar.removeFromSuperview()
+		self.searchBar = UISearchBar()
+		self.searchBar.delegate = self
+		controller?.reload()
+		setNeedsLayout()
+		DispatchQueue.main.async {
+			self.setNeedsLayout()
+		}
+		guard let searchContext = navigationConfiguration?.searchContext, let onSearchResult = searchContext.onSearchResults else { return }
+		onSearchResult(nil)
+		searchBar.placeholder = searchContext.placeholder
+		searchBar.backgroundColor = .clear
+		searchBar.backgroundImage = UIImage()
+	}
 }
 
-// MARK: ScrollViewDelegate
-
-extension FibControllerRootView: UIScrollViewDelegate {
+extension FibControllerRootView: UISearchBarDelegate {
 	
-	open func scrollViewDidScroll(_ scrollView: UIScrollView) {
-		proxyDelegate?.scrollViewDidScroll?(scrollView)
-		configureShutterViewFrame()
-		if rootFormView.scrollDirection == .vertical {
-			scrollView.contentOffset.x = 0
-		} else if rootFormView.scrollDirection == .horizontal {
-			scrollView.contentOffset.y = 0
-		}
-		if controller?.navigationController?.navigationBar.prefersLargeTitles == true {
-			calculateHeaderFrame()
-			header?.frame.origin.y = headerTopMargin
-		}
-		guard let headerInitialHeight = _headerInitialHeight else { return }
-		let offsetY = (scrollView.contentOffset.y + scrollView.adjustedContentInset.top)
-		let size = headerInitialHeight - offsetY
-		var minHeight: CGFloat = headerInitialHeight
-		var maxHeight: CGFloat = headerInitialHeight
-		defer {
-			self.rootFormView.additionalHeaderInset = size.clamp(minHeight, maxHeight)
-			self.rootFormView.verticalScrollIndicatorInsets.top = size.clamp(minHeight, maxHeight)
-		}
-		guard let headerViewModel = _headerViewModel else { return }
-//		if headerViewModel.atTop == false {
-//			minHeight = 0
-//		}
-		guard headerViewModel.allowedStretchDirections.isEmpty == false else {
+	public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+		guard let searchContext = navigationConfiguration?.searchContext, let onSearchResult = searchContext.onSearchResults else { return }
+		onSearchResult(searchBar.text)
+	}
+	
+	public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+		isSearching = false
+		if let searchEndClosure = navigationConfiguration?.searchContext?.onSearchEnd {
+			searchEndClosure(searchBar)
 			return
+		} else {
+			endSearch()
 		}
-		if headerViewModel.allowedStretchDirections.contains(.down) {
-			maxHeight = headerViewModel.maxHeight ?? .greatestFiniteMagnitude
-		}
-		if headerViewModel.allowedStretchDirections.contains(.up) {
-			minHeight = headerViewModel.minHeight ?? 0
-		}
-		guard headerHeight >= minHeight && headerHeight <= maxHeight else {
+	}
+	
+	public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+		isSearching = true
+		if let searchBeginClosure = navigationConfiguration?.searchContext?.onSearchBegin {
+			searchBeginClosure(searchBar)
 			return
+		} else {
+			beginSearch()
 		}
-		self.headerHeight = size.clamp(minHeight, maxHeight)
-		header?.layoutIfNeeded()
-		updateHeaderFrame()
-		header?.sizeChanged(size: CGSize(width: header?.frame.width ?? 0,
-										 height: size.clamp(minHeight, maxHeight)),
-							initialHeight: headerInitialHeight,
-							maxHeight: maxHeight,
-							minHeight: minHeight)
-	}
-	
-	public func scrollViewWillEndDragging(_ scrollView: UIScrollView,
-										  withVelocity velocity: CGPoint,
-										  targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-		proxyDelegate?.scrollViewWillEndDragging?(scrollView,
-												  withVelocity: velocity,
-												  targetContentOffset: targetContentOffset)
-	}
-	
-	public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-		proxyDelegate?.scrollViewWillBeginDragging?(scrollView)
-	}
-}
-
-public class HeaderObserver: ObservableObject {
-	@Published public var size: CGSize
-	@Published public var initialHeight: CGFloat
-	@Published public var maxHeight: CGFloat?
-	@Published public var minHeight: CGFloat?
-	
-	public init(size: CGSize = .init(width: 1, height: 1), initialHeight: CGFloat = 1) {
-		self.size = size
-		self.initialHeight = initialHeight
-	}
-}
-
-public class ShutterView: UIView {}
-
-extension UIView {
-	
-	func applyIdentityRecursive() {
-		transform = .identity
-		subviews.forEach { $0.applyIdentityRecursive() }
-	}
-}
-
-internal extension UIView {
-	
-	var fullEdgesHeight: CGFloat {
-		let safeArea = ((statusBarFrame?.height ?? 0) + self.safeAreaInsets.bottom)
-		return UIScreen.main.bounds.height - safeArea
 	}
 }
