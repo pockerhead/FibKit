@@ -283,19 +283,25 @@ open class FibControllerRootView: UIView {
 		updateFooterFrame()
 		if needsConfigureFooter {
 			needsConfigureFooter = false
-			if let footer = footer as? ViewModelConfigururableFromSizeWith {
-				footer.configure(with: _footerViewModel, isFromSizeWith: false)
-			} else {
-				footer.configure(with: _footerViewModel)
+			DispatchQueue.main.async {[weak self] in
+				guard let self = self else { return }
+				if let footer = footer as? ViewModelConfigururableFromSizeWith {
+					footer.configure(with: _footerViewModel, isFromSizeWith: false)
+				} else {
+					footer.configure(with: _footerViewModel)
+				}
 			}
 			applyAppearance()
 		}
 		if needsConfigureHeader {
 			needsConfigureHeader = false
-			if let header = header as? ViewModelConfigururableFromSizeWith {
-				header.configure(with: _headerViewModel, isFromSizeWith: false)
-			} else {
-				header?.configure(with: _headerViewModel)
+			DispatchQueue.main.async {[weak self] in
+				guard let self = self else { return }
+				if let header = header as? ViewModelConfigururableFromSizeWith {
+					header.configure(with: _headerViewModel, isFromSizeWith: false)
+				} else {
+					header?.configure(with: _headerViewModel)
+				}
 			}
 		}
 		layoutFibGrid(animated: false)
@@ -459,9 +465,9 @@ open class FibControllerRootView: UIView {
 			data: headerViewModel,
 			collectionSize: targetSize,
 			dummyView: headerViewSource.getDummyView(data: headerViewModel) as! ViewModelConfigurable,
-			direction: .unlocked
+			direction: .vertical
 		).height
-		headerViewSource.update(view: header, data: headerViewModel, index: 0)
+		needsConfigureHeader = true
 		var isChangedHeaderHeight = false
 		isChangedHeaderHeight = self._headerInitialHeight != headerHeight
 		self.headerHeight = headerHeight

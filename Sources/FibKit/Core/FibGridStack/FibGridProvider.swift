@@ -44,6 +44,9 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 	private weak var _collectionView: FibGrid?
     public var isAsync = true
     var needLastSeparator: Bool = true
+	public var canReorderItems: Bool {
+		didReorderItemsClosure != nil
+	}
     var tapHandler: TapHandler?
     var didReloadClosure: (() -> Void)?
     var scrollDirection: FibGrid.ScrollDirection

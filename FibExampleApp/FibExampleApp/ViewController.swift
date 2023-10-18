@@ -14,9 +14,21 @@ class ViewController: FibViewController {
 	@Reloadable var flag = false
 	
 	override var header: FibViewHeaderViewModel? {
-		return MyFibHeader.ViewModel()
+		return flag ? nil : EmbedCollection.ViewModel(
+			provider: ViewModelSection({
+				(0...5).map({ MyFibSquareView.ViewModel(text: "\($0)" ).id("\($0)")})
+			})
+			.centeringFlowLayout()
+			.didReorderItems({ _, _ in
+				
+			})
+		)
+		.sizeHash(UUID().uuidString)
+		.scrollDirection(.vertical)
+		.scrollEnabled(false)
 	}
 	
+	@Reloadable
 	var arr2 = Array(0...33)
 	
 	let effect: VisualEffectView = {
@@ -35,7 +47,7 @@ class ViewController: FibViewController {
 			shutterBackground: .white,
 			viewBackgroundColor: .white,
 			shutterType: .rounded,
-			topInsetStrategy: .top,
+			topInsetStrategy: .safeArea,
 			headerBackgroundViewColor: .clear,
 			headerBackgroundEffectView: { self.effect }
 		))
@@ -55,12 +67,17 @@ class ViewController: FibViewController {
 				reload()
 			})
 			//			.layout(WaterfallLayout())
-			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
-			.isSticky(false)
+//			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+//			.isSticky(false)
 			.tapHandler { _ in
-				self.flag.toggle()
+				self.arr2.removeAll()
+				DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+					self.flag.toggle()
+					self.arr2 = Array(0...10)
+				}
 			}
 		}
+		.id(UUID().uuidString)
 	}
 	
 	@SectionBuilder
@@ -264,7 +281,7 @@ class MyFibSquareView: FibCoreView {
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: targetSize.width, height: 100)
+		return .init(width: 100, height: 100)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
