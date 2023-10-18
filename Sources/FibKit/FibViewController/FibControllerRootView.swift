@@ -141,7 +141,8 @@ open class FibControllerRootView: UIView {
 	private let rootHeaderBackground = RootGridViewBackground()
 	private var rootHeaderBackgroundEffectView: UIView?
 	private var _rootHeaderBackgroundViewRef: UIView?
-
+	private let headerViewSource = FibGridViewSource()
+	private let headerSizeSource = FibGridSizeSource()
 	public let shutterView = ShutterView()
 	
 	var headerHeight: CGFloat = 0
@@ -453,31 +454,14 @@ open class FibControllerRootView: UIView {
 			sendSubviewToBack(rootHeaderBackground)
 		}
 		let targetSize = bounds.size.insets(by: safeAreaInsets)
-		let existedHeight = headerHeightSource[headerViewModel?.sizeHash ?? UUID().uuidString]
-		var headerHeight: CGFloat
-		if let existedHeight = existedHeight {
-			headerHeight = existedHeight
-			needsConfigureHeader = true
-			setNeedsLayout()
-		} else {
-			if let header = header as? ViewModelConfigururableFromSizeWith {
-				header.configure(with: headerViewModel, isFromSizeWith: true)
-			} else {
-				header.configure(with: headerViewModel)
-			}
-			headerHeight = headerViewModel?.initialHeight
-			?? header.sizeWith(targetSize, data: headerViewModel, horizontal: .required, vertical: .fittingSizeLevel)?.height
-			?? header
-				.sizeWith(targetSize, data: headerViewModel)?
-				.height
-			?? header
-				.systemLayoutSizeFitting(targetSize,
-										 withHorizontalFittingPriority: .required,
-										 verticalFittingPriority: .fittingSizeLevel)
-				.height
-				.rounded(.up)
-			headerHeightSource[headerViewModel?.sizeHash ?? UUID().uuidString] = headerHeight
-		}
+		let headerHeight = headerSizeSource.size(
+			at: 0,
+			data: headerViewModel,
+			collectionSize: targetSize,
+			dummyView: headerViewSource.getDummyView(data: headerViewModel) as! ViewModelConfigurable,
+			direction: .unlocked
+		).height
+		headerViewSource.update(view: header, data: headerViewModel, index: 0)
 		var isChangedHeaderHeight = false
 		isChangedHeaderHeight = self._headerInitialHeight != headerHeight
 		self.headerHeight = headerHeight
