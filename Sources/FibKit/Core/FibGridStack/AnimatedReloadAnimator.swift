@@ -132,20 +132,12 @@ public class AnimatedReloadAnimator: Animator {
 	}
 	
 	func needAnimateHeader(collectionView: FibGrid, view: UIView, frame: CGRect) -> Bool {
-		guard view is StickyHeaderView else { return false }
+		guard view.fb_isHeader ?? false, let root = collectionView.containedRootView else { return false }
 		let pureOffset = abs(collectionView.contentOffset.y)
-		let offset = abs(collectionView.contentOffset.y + collectionView.contentInset.top + collectionView.safeAreaInsets.top)
-		let additionalHeaderoffset = abs(collectionView.contentOffset.y + (collectionView.additionalHeaderInset ?? 0) + collectionView.safeAreaInsets.top)
-		let additionalHeaderoffsetLessSafeAreaTop = abs(collectionView.contentOffset.y + (collectionView.additionalHeaderInset ?? 0))
-		let frameAtPureOffset = frame.origin.y.isBeetween(pureOffset - 1, pureOffset + 1)
-		let frameAtOffset = frame.origin.y.isBeetween(offset - 1, offset + 1)
-		let frameAtHeaderOffset = frame.origin.y.isBeetween(additionalHeaderoffset - 1, additionalHeaderoffset + 1)
-		let frameAtHeaderOffsetLessSafeAreaTop = frame.origin.y.isBeetween(additionalHeaderoffsetLessSafeAreaTop - 1, additionalHeaderoffsetLessSafeAreaTop + 1)
-		return (frameAtOffset
-				|| frameAtHeaderOffset
-				|| frameAtHeaderOffsetLessSafeAreaTop
-				|| frameAtPureOffset) && (view.fb_isHeader ?? false)
-		
+		let insetStr = collectionView.containedRootView?.topInsetStrategy ?? .safeArea
+		let inset = insetStr.getTopInset(for: root)
+		let frameAtInset = pureOffset + inset
+		return frame.origin.y.isBeetween(frameAtInset - 3, frameAtInset + 3)
 	}
 }
 
