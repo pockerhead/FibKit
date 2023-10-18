@@ -693,13 +693,15 @@ open class FibControllerRootView: UIView {
 	}
 	
 	public func beginSearch() {
-		navItemLeftItemsRef = controller?.navigationItem.leftBarButtonItems
-		if let single = controller?.navigationItem.leftBarButtonItem {
+		if let leftBarButtonItems = controller?.navigationItem.leftBarButtonItems {
+			navItemLeftItemsRef = leftBarButtonItems
+		} else if let single = controller?.navigationItem.leftBarButtonItem {
 			navItemLeftItemsRef = [single]
 		}
 		controller?.navigationItem.leftBarButtonItems = []
-		navItemRightItemsRef = controller?.navigationItem.rightBarButtonItems
-		if let single = controller?.navigationItem.rightBarButtonItem {
+		if let rightBarButtonItems = controller?.navigationItem.rightBarButtonItems {
+			navItemRightItemsRef = rightBarButtonItems
+		} else if let single = controller?.navigationItem.rightBarButtonItem {
 			navItemRightItemsRef = [single]
 		}
 		controller?.navigationItem.rightBarButtonItems = []
