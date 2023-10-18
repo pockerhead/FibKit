@@ -42,6 +42,9 @@ extension UIScrollView {
 					visibleFrameLessInset.origin.y += grid.additionalHeaderInset ?? 0
 					visibleFrameLessInset.size.height += grid.additionalHeaderInset ?? 0
 				}
+			} else if let navigationConfiguration = gridRootView.navigationConfiguration {
+				visibleFrameLessInset.origin.y += grid.additionalHeaderInset ?? 0
+				visibleFrameLessInset.size.height += grid.additionalHeaderInset ?? 0
 			} else {
 				switch gridRootView.topInsetStrategy {
 				case .custom(let margin):

@@ -13,20 +13,20 @@ class ViewController: FibViewController {
 	
 	@Reloadable var flag = false
 	
-	override var header: FibViewHeaderViewModel? {
-		return flag ? nil : EmbedCollection.ViewModel(
-			provider: ViewModelSection({
-				(0...5).map({ MyFibSquareView.ViewModel(text: "\($0)" ).id("\($0)")})
-			})
-			.centeringFlowLayout()
-			.didReorderItems({ _, _ in
-				
-			})
-		)
-		.sizeHash(UUID().uuidString)
-		.scrollDirection(.vertical)
-		.scrollEnabled(false)
-	}
+//	override var header: FibViewHeaderViewModel? {
+//		return flag ? nil : EmbedCollection.ViewModel(
+//			provider: ViewModelSection({
+//				(0...5).map({ MyFibSquareView.ViewModel(text: "\($0)" ).id("\($0)")})
+//			})
+//			.centeringFlowLayout()
+//			.didReorderItems({ _, _ in
+//				
+//			})
+//		)
+//		.sizeHash(UUID().uuidString)
+//		.scrollDirection(.vertical)
+//		.scrollEnabled(false)
+//	}
 	
 	@Reloadable
 	var arr2 = Array(0...33)
@@ -78,9 +78,9 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
-			//			.layout(WaterfallLayout())
-//			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
-//			.isSticky(false)
+						.layout(WaterfallLayout())
+			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
+			.isSticky(true)
 			.tapHandler { _ in
 				self.arr2.removeAll()
 				DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -190,24 +190,24 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader, FormViewAppeara
 	}
 	
 	func onAppear(with formView: FibGrid?) {
-		guard let controller = viewModel?.headerStrategy?.controller else { return }
-		guard controller.navigationItem.title != nil else { return }
-		let fadeTextAnimation = CATransition()
-		fadeTextAnimation.duration = 0.1
-		fadeTextAnimation.type = .fade
-
-//		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
-		controller.navigationItem.title = nil
+//		guard let controller = viewModel?.headerStrategy?.controller else { return }
+//		guard controller.navigationItem.title != nil else { return }
+//		let fadeTextAnimation = CATransition()
+//		fadeTextAnimation.duration = 0.1
+//		fadeTextAnimation.type = .fade
+//
+////		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+//		controller.navigationItem.title = nil
 	}
 	
 	func onDissappear(with formView: FibGrid?) {
-		guard let controller = viewModel?.headerStrategy?.controller else { return }
-		guard controller.navigationItem.title == nil else { return }
-		let fadeTextAnimation = CATransition()
-		fadeTextAnimation.duration = 0.1
-		fadeTextAnimation.type = .fade
-//		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
-		controller.navigationItem.title = viewModel?.headerStrategy?.titleString
+//		guard let controller = viewModel?.headerStrategy?.controller else { return }
+//		guard controller.navigationItem.title == nil else { return }
+//		let fadeTextAnimation = CATransition()
+//		fadeTextAnimation.duration = 0.1
+//		fadeTextAnimation.type = .fade
+////		controller.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+//		controller.navigationItem.title = viewModel?.headerStrategy?.titleString
 	}
 }
 
