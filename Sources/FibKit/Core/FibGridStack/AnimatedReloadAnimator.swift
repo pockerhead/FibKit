@@ -132,10 +132,9 @@ public class AnimatedReloadAnimator: Animator {
 	}
 	
 	func needAnimateHeader(collectionView: FibGrid, view: UIView, frame: CGRect) -> Bool {
-		guard view.fb_isHeader ?? false else { return false }
 		let pureOffset = abs(collectionView.contentOffset.y)
 		let frameAtInset = pureOffset + collectionView.adjustedContentInset.top
-		return frame.origin.y.isBeetween(frameAtInset - 3, frameAtInset + 3)
+		return view.fb_isHeader ?? false
 	}
 }
 
