@@ -333,7 +333,7 @@ extension EmbedCollection: FibViewHeader {
 				do {
 					try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
 				} catch {
-					print("error \(error.localizedDescription)")
+					debugPrint("error \(error.localizedDescription)")
 				}
 			}
 		}

@@ -256,6 +256,7 @@ open class FibControllerRootView: UIView {
 	
 	func configureNavigation() {
 		guard let nav = controller?.navigationController else { return }
+		var needUpdateContentInsets = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
 		if let header = header {
 			rootHeaderBackground.insertSubview(rootNavigationHeaderBackground, belowSubview: header)
@@ -269,6 +270,7 @@ open class FibControllerRootView: UIView {
 					if let newLargeView = largeTitleViewModel.getView() {
 						self.largeViewRef = newLargeView
 						rootNavigationHeaderBackground.addSubview(newLargeView)
+						needUpdateContentInsets = true
 					}
 				} else {
 					largeViewRef.configure(with: largeTitleViewModel)
@@ -276,10 +278,14 @@ open class FibControllerRootView: UIView {
 			} else if let newLargeView = largeTitleViewModel.getView() {
 				self.largeViewRef = newLargeView
 				rootNavigationHeaderBackground.addSubview(newLargeView)
+				needUpdateContentInsets = true
 			}
 			
 		} else if let title = navigationConfiguration?.title {
-			largeViewRef?.removeFromSuperview()
+			if largeViewRef?.superview != nil {
+				largeViewRef?.removeFromSuperview()
+				needUpdateContentInsets = true
+			}
 			controller?.setNavbarTitle(title)
 		}
 		if let context = navigationConfiguration?.searchContext {
@@ -299,13 +305,19 @@ open class FibControllerRootView: UIView {
 				}
 			} else if !isSearching, searchBar.superview == nil {
 				rootNavigationHeaderBackground.addSubview(searchBar)
+				needUpdateContentInsets = true
 			}
-		} else {
+		} else if searchBar.superview != nil {
 			searchBar.removeFromSuperview()
+			needUpdateContentInsets = true
 		}
 		assignNavigationFramesIfNeeded()
-		updateFormViewInsets(animated: false)
+		if needUpdateContentInsets {
+			updateFormViewInsets(animated: false)
+		}
 	}
+	
+	let searchBarHeight: CGFloat = 66
 	
 	func assignNavigationFramesIfNeeded() {
 		UIView.performWithoutAnimation {
@@ -327,17 +339,15 @@ open class FibControllerRootView: UIView {
 			}
 			if !isSearching,
 			   let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
-				let searchBarHeight: CGFloat = 48
+				
 				let largeViewShift = largeViewRef?.frame.maxY ?? 0
 				var searchBarPositionY: CGFloat = largeViewShift
 				if !searchContext.hideWhenScrolling {
 					searchBarPositionY = max(searchBarPositionY, 0)
 				}
-				DispatchQueue.main.async {
-					self.searchBar.frame = .init(
-						origin: .init(x: 0.01, y: searchBarPositionY),
-						size: .init(width: self.bounds.width, height: searchBarHeight))
-				}
+				self.searchBar.frame = .init(
+					origin: .init(x: 8, y: searchBarPositionY),
+					size: .init(width: self.bounds.width - 16, height: searchBarHeight))
 			}
 			rootNavigationHeaderBackground.frame = .init(x: 0.01, y: safeAreaInsets.top + 0.01, width: bounds.width, height: getHeaderAdditionalNavigationMargin())
 			rootNavigationHeaderMask.frame = .init(x: 0.01, y: 0.01, width: bounds.width, height: bounds.height)
@@ -373,7 +383,7 @@ open class FibControllerRootView: UIView {
 		}
 		var searchBarHeight: CGFloat = 0
 		if navigationConfiguration.searchContext != nil {
-			searchBarHeight = 48
+			searchBarHeight = self.searchBarHeight
 		}
 		return largeTitleViewModelHeight + searchBarHeight
 	}
@@ -383,12 +393,13 @@ open class FibControllerRootView: UIView {
 		if isSearching {
 			return 0
 		}
-		let scrollViewShift = rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top
+		let scrollViewShift = -(largeViewRef?.frame.origin.y ?? 0)
 		var minShift: CGFloat = 0
 		if navigationConfiguration.searchContext?.hideWhenScrolling == false {
-			minShift = 48
+			minShift = self.searchBarHeight
 		}
-		return max(getHeaderAdditionalNavigationMargin() - scrollViewShift, minShift)
+		let result = max(getHeaderAdditionalNavigationMargin() - scrollViewShift, minShift)
+		return result
 	}
 	
 	internal func calculateHeaderFrame() {
@@ -714,6 +725,7 @@ open class FibControllerRootView: UIView {
 			self.setNeedsLayout()
 			self.searchBar.backgroundColor = .clear
 			self.searchBar.backgroundImage = UIImage()
+			self.updateFormViewInsets(animated: false)
 		}
 	}
 	

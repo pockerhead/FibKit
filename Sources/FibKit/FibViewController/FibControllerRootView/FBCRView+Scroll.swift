@@ -18,7 +18,7 @@ extension FibControllerRootView: UIScrollViewDelegate {
 			scrollView.contentOffset.y = 0
 		}
 		var navigationHeaderShift: CGFloat = 0
-		if navigationConfiguration != nil {
+		if !isSearching, navigationConfiguration != nil {
 			assignNavigationFramesIfNeeded()
 			calculateHeaderFrame()
 			updateHeaderFrame()

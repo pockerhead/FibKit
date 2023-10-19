@@ -55,12 +55,13 @@ class ViewController: FibViewController {
 			navigationConfiguration: .init(
 				title: "3f23f32",
 				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32"),
-				searchContext: .init(
-					hideWhenScrolling: true,
-					onSearchResults: { text in
-						print(text)
-					}
-				)
+				searchContext:
+					.init(
+						hideWhenScrolling: true,
+						onSearchResults: { text in
+							print(text)
+						}
+					)
 			)
 		)
 	}
@@ -242,7 +243,7 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: targetSize.width, height: size.height + 20)
+		return .init(width: targetSize.width, height: size.height + 90)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
