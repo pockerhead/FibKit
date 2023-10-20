@@ -68,28 +68,28 @@ extension FibGrid {
 	}
 	
 	func detectMovingCell() {
-		guard let draggedCell = draggedCell?.cell,
-			  let draggedCellIndex = self.draggedCell?.index else { return }
-		let context = LongGestureContext(view: draggedCell,
-										 collectionView: self,
-										 locationInCollection: longTapGestureRecognizer.location(in: self),
-										 previousLocationInCollection: previousLocation,
-										 index: draggedCellIndex)
-		context.oldCellFrame = draggedCellOldFrame
-		context.lastReorderedIndex = lastReorderedIndex
-		bringSubviewToFront(draggedCell)
-		for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
-			if cell === draggedCell { continue }
-			if cell.frame.intersects(draggedCell.frame) {
-				guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
-				let intersectionFrame = cell.frame.intersection(draggedCell.frame)
-				let intersectionSquare = intersectionFrame.size.square
-				if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
-					context.intersectsCell = CellPath(cell: cell, index: index)
-					context.intersectionFrame = intersectionFrame
-				}
-			}
-		}
+//		guard let draggedCell = draggedCell?.cell,
+//			  let draggedCellIndex = self.draggedCell?.index else { return }
+//		let context = LongGestureContext(view: draggedCell,
+//										 collectionView: self,
+//										 locationInCollection: longTapGestureRecognizer.location(in: self),
+//										 previousLocationInCollection: previousLocation,
+//										 index: draggedCellIndex)
+//		context.oldCellFrame = draggedCellOldFrame
+//		context.lastReorderedIndex = lastReorderedIndex
+//		bringSubviewToFront(draggedCell)
+//		for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
+//			if cell === draggedCell { continue }
+//			if cell.frame.intersects(draggedCell.frame) {
+//				guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
+//				let intersectionFrame = cell.frame.intersection(draggedCell.frame)
+//				let intersectionSquare = intersectionFrame.size.square
+//				if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
+//					context.intersectsCell = CellPath(cell: cell, index: index)
+//					context.intersectionFrame = intersectionFrame
+//				}
+//			}
+//		}
 	}
 	
 	func removeAllLongPressRecognizers() {
