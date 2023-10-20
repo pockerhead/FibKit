@@ -145,11 +145,10 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     public func view(at: Int) -> UIView {
 		var view: UIView
         if separatorViewModel != nil {
-            if !needLastSeparator, at == numberOfItems - 1 {
-				view = viewSource.view(data: FormViewSpacer(0), index: at)
-            }
             if at % 2 != 0 {
-                if let cellSeparator = dataSource.data(at: at / 2)?.separator {
+				if !needLastSeparator, at == numberOfItems - 1 {
+					view = viewSource.view(data: FormViewSpacer(0), index: at)
+				} else if let cellSeparator = dataSource.data(at: at / 2)?.separator {
 					view = viewSource.view(data: cellSeparator, index: at)
 				} else {
 					view = viewSource.view(data: separatorViewModel, index: at)
