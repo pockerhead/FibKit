@@ -217,8 +217,17 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		context.view.center.y = context.locationInCollection.y
 		context.view.center.x = context.locationInCollection.x
 		guard let intersectsView = context.intersectsCell?.cell,
-			  let intersectsIndex = context.intersectsCell?.index
+			  var intersectsIndex = context.intersectsCell?.index
 		else { return nil }
+		let sectionHaveSeparator = separatorViewModel != nil
+		if sectionHaveSeparator, intersectsIndex % 2 != 0 {
+			return nil
+		}
+		var draggedIndex = context.index
+		if sectionHaveSeparator {
+			intersectsIndex = intersectsIndex / 2
+			draggedIndex = draggedIndex / 2
+		}
 		let draggedFrame = context.view.frame
 		let intersectsFrame = intersectsView.frame
 		let intersectsSquare = intersectsFrame.size.square
@@ -227,7 +236,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		let intersectionFrameSquare = intersectionFrame.size.square
 		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2)) || (intersectionFrameSquare > (intersectsSquare / 2))
 		if needReorder {
-			let data = self.dataSource.data.remove(at: context.index)
+			let data = self.dataSource.data.remove(at: draggedIndex)
 			self.dataSource.data.insert(data, at: intersectsIndex)
 			context.collectionView?.draggedCell?.index = intersectsIndex
 			self.setNeedsReload()
@@ -237,10 +246,14 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     }
 
     public func didLongTapEnded(context: LongGestureContext) {
-		guard let finalIndex = context.collectionView?.draggedCell?.index.softClamp(0, dataSource.numberOfItems - 1) else {
+		guard var finalIndex = context.collectionView?.draggedCell?.index.softClamp(0, dataSource.numberOfItems - 1) else {
             return
         }
-		didReorderItemsClosure?(context.collectionView?.draggedCellInitialIndex ?? 0, finalIndex)
+		var initialIndex = context.collectionView?.draggedCellInitialIndex ?? 0
+		if separatorViewModel != nil {
+			initialIndex = initialIndex / 2
+		}
+		didReorderItemsClosure?(initialIndex, finalIndex)
     }
 
     public func hasReloadable(_ reloadable: CollectionReloadable) -> Bool {
