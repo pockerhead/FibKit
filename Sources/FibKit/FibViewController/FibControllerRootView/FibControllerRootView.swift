@@ -381,7 +381,7 @@ open class FibControllerRootView: UIView {
 				dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
 				direction: .vertical).height
 		}
-		var searchBarHeight: CGFloat = 0
+		var searchBarHeight: CGFloat = 12
 		if navigationConfiguration.searchContext != nil {
 			searchBarHeight = self.searchBarHeight
 		}
