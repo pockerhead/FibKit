@@ -163,38 +163,39 @@ extension FibGrid {
 			displayLink.add(to: .main, forMode: .default)
 			becomeFirstResponder()
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
-				if cell.point(inside: gesture.location(in: cell), with: nil) {
-					feedback.impactOccurred()
-					draggedCellOldFrame = cell.frame
-					draggedCellInitialFrame = draggedCellOldFrame
-					bringSubviewToFront(cell)
-					cell.alpha = 0.7
-					self.oldDataArray = (cell.fb_provider as? FibGridProvider)?.dataSource.data ?? []
-					UIView.animate(withDuration: 0.2) {
-						cell.center.x = gesture.location(in: self).x
-					}
-					let identifier = flattenedProvider.identifier(at: index)
-					let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
-					let interProviderIndex = interIndexPath?.1 ?? index
-					self.draggedCellInitialIndex = interProviderIndex
-					self.draggedSectionIndex = (interIndexPath?.0 ?? 1) - 1
-					let context = LongGestureContext(view: cell,
-													 collectionView: self,
-													 locationInCollection: gesture.location(in: self),
-													 previousLocationInCollection: previousLocation,
-													 index: interProviderIndex)
-					flattenedProvider.didBeginLongTapWithProvider(context: context)
-					dragProvider = (cell.fb_provider as? ItemProvider)
-					dragProvider?.didBeginLongTapWithProvider(context: context)
-					UIView.animate(withDuration: 0.2) {
-						cell.center = gesture.location(in: self)
-					}
-					draggedCell = CellPath(cell: cell,
-										   index: interProviderIndex,
-										   identifier: identifier)
-					identifierCache[index] = identifier
-					isInProcessDragging = true
+				guard cell.point(inside: gesture.location(in: cell), with: nil),
+					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true else { continue }
+				feedback.impactOccurred()
+				draggedCellOldFrame = cell.frame
+				draggedCellInitialFrame = draggedCellOldFrame
+				bringSubviewToFront(cell)
+				cell.alpha = 0.7
+				self.oldDataArray = (cell.fb_provider as? FibGridProvider)?.dataSource.data ?? []
+				UIView.animate(withDuration: 0.2) {
+					cell.center.x = gesture.location(in: self).x
 				}
+				let identifier = flattenedProvider.identifier(at: index)
+				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
+				let interProviderIndex = interIndexPath?.1 ?? index
+				self.draggedCellInitialIndex = interProviderIndex
+				self.draggedSectionIndex = (interIndexPath?.0 ?? 1) - 1
+				let context = LongGestureContext(view: cell,
+												 collectionView: self,
+												 locationInCollection: gesture.location(in: self),
+												 previousLocationInCollection: previousLocation,
+												 index: interProviderIndex)
+				flattenedProvider.didBeginLongTapWithProvider(context: context)
+				dragProvider = (cell.fb_provider as? ItemProvider)
+				dragProvider?.didBeginLongTapWithProvider(context: context)
+				UIView.animate(withDuration: 0.2) {
+					cell.center = gesture.location(in: self)
+				}
+				draggedCell = CellPath(cell: cell,
+									   index: interProviderIndex,
+									   identifier: identifier)
+				identifierCache[index] = identifier
+				isInProcessDragging = true
+				
 			}
 		} else {
 			guard let draggedCell = draggedCell?.cell,
