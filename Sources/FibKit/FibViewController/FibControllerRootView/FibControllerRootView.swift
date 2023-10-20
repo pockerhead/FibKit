@@ -373,6 +373,7 @@ open class FibControllerRootView: UIView {
 	func getHeaderAdditionalNavigationMargin() -> CGFloat {
 		guard let navigationConfiguration = navigationConfiguration else { return .zero }
 		var largeTitleViewModelHeight: CGFloat = 0
+		var searchBarHeight: CGFloat = 0
 		if let largeTitleViewModel = navigationConfiguration.largeTitleViewModel {
 			largeTitleViewModelHeight = headerSizeSource.size(
 				at: 0, 
@@ -380,8 +381,8 @@ open class FibControllerRootView: UIView {
 				collectionSize: bounds.size, 
 				dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
 				direction: .vertical).height
+			searchBarHeight = 12
 		}
-		var searchBarHeight: CGFloat = 12
 		if navigationConfiguration.searchContext != nil {
 			searchBarHeight = self.searchBarHeight
 		}
