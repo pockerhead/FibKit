@@ -322,6 +322,8 @@ open class FibControllerRootView: UIView {
 	func assignNavigationFramesIfNeeded() {
 		UIView.performWithoutAnimation {
 			largeViewRef?.isHidden = isSearching
+			let scrollViewShift = max(0.01, rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top)
+			print(scrollViewShift)
 			if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
 				let height = headerSizeSource.size(
 					at: 0,
@@ -329,7 +331,6 @@ open class FibControllerRootView: UIView {
 					collectionSize: bounds.size,
 					dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
 					direction: .vertical).height
-				let scrollViewShift = rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top
 				self.largeViewRef?.frame = .init(origin: .init(x: 0.01, y: 0.01 - scrollViewShift), size: .init(width: bounds.width, height: height))
 				if (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
 					controller?.setNavbarTitle(navigationConfiguration?.title)
@@ -340,10 +341,10 @@ open class FibControllerRootView: UIView {
 			if !isSearching,
 			   let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
 				
-				let largeViewShift = largeViewRef?.frame.maxY ?? 0
-				var searchBarPositionY: CGFloat = largeViewShift
+				let largeViewShift = largeViewRef?.frame.maxY
+				var searchBarPositionY: CGFloat = largeViewShift ?? scrollViewShift
 				if !searchContext.hideWhenScrolling {
-					searchBarPositionY = max(searchBarPositionY, 0)
+					searchBarPositionY = max(searchBarPositionY, 0.01)
 				}
 				self.searchBar.frame = .init(
 					origin: .init(x: 8, y: searchBarPositionY),
@@ -742,8 +743,9 @@ open class FibControllerRootView: UIView {
 		navItemRightItemsRef = nil
 		navItemTitleView = nil
 		searchBar.removeFromSuperview()
-		self.searchBar = UISearchBar()
-		self.searchBar.delegate = self
+		searchBar.constraints.forEach({ $0.isActive = false })
+		searchBar.translatesAutoresizingMaskIntoConstraints = true
+		searchBar.setShowsCancelButton(false, animated: false)
 		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
