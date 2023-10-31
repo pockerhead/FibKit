@@ -746,6 +746,7 @@ open class FibControllerRootView: UIView {
 		searchBar.constraints.forEach({ $0.isActive = false })
 		searchBar.translatesAutoresizingMaskIntoConstraints = true
 		searchBar.setShowsCancelButton(false, animated: false)
+		searchBar.text = nil
 		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
