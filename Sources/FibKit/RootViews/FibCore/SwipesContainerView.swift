@@ -142,14 +142,16 @@ public class SwipesContainerView: UIView {
 		secondSwipeView = viewModel.secondSwipeView?.getView() as? FibSwipeView
 		thirdSwipeView = viewModel.thridSwipeView?.getView() as? FibSwipeView
 		
-		if let mainSwipeView = mainSwipeView {
-			addSubview(mainSwipeView)
+		if let thirdSwipeView = thirdSwipeView {
+			addSubview(thirdSwipeView)
 		}
+		
 		if let secondSwipeView = secondSwipeView {
 			addSubview(secondSwipeView)
 		}
-		if let thirdSwipeView = thirdSwipeView {
-			addSubview(thirdSwipeView)
+		
+		if let mainSwipeView = mainSwipeView {
+			addSubview(mainSwipeView)
 		}
 		
 		mainSwipeView?.configure(with: viewModel.mainSwipeView)
