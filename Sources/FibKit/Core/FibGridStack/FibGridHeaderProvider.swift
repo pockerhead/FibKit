@@ -104,8 +104,9 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
     open var isSticky = true {
         didSet {
             if isSticky {
-                stickyLayout.isStickyFn = { index in
+                stickyLayout.isStickyFn = { [weak self] index in
                     if index % 2 == 0 {
+						guard let self = self  else { return false }
                         if let section = self.sections[safe: index / 2] as? SectionProtocol {
                             return section.isSticky
                         } else {
