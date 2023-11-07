@@ -323,7 +323,6 @@ open class FibControllerRootView: UIView {
 		UIView.performWithoutAnimation {
 			largeViewRef?.isHidden = isSearching
 			let scrollViewShift = max(0.01, rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top)
-			print(scrollViewShift)
 			if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
 				let height = headerSizeSource.size(
 					at: 0,
@@ -719,7 +718,9 @@ open class FibControllerRootView: UIView {
 		}
 		controller?.navigationItem.rightBarButtonItems = []
 		navItemTitleView = controller?.navigationItem.titleView
+		searchBar.removeFromSuperview()
 		controller?.navigationItem.titleView = searchBar
+		searchBar.becomeFirstResponder()
 		searchBar.setShowsCancelButton(true, animated: true)
 		controller?.reload()
 		setNeedsLayout()
@@ -742,6 +743,7 @@ open class FibControllerRootView: UIView {
 		navItemLeftItemsRef = nil
 		navItemRightItemsRef = nil
 		navItemTitleView = nil
+		searchBar.resignFirstResponder()
 		searchBar.removeFromSuperview()
 		searchBar.constraints.forEach({ $0.isActive = false })
 		searchBar.translatesAutoresizingMaskIntoConstraints = true
