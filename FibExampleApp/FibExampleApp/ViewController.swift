@@ -87,6 +87,7 @@ class ViewController: FibViewController {
 				DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
 					self.flag.toggle()
 					self.arr2 = Array(0...10)
+					self.showDebugScreen()
 				}
 			}
 		}
