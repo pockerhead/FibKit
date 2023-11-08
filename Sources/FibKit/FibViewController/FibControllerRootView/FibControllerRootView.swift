@@ -256,7 +256,6 @@ open class FibControllerRootView: UIView {
 	}
 	
 	func configureNavigation() {
-		guard let nav = controller?.navigationController else { return }
 		var needUpdateContentInsets = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
 		if let header = header {
@@ -307,9 +306,14 @@ open class FibControllerRootView: UIView {
 					searchBarCancelButtonClicked(activeSearchBar)
 				}
 			} else if !isSearching {
-				rootNavigationHeaderBackground.addSubview(inactiveSearchBar)
-				inactiveSearchBar.isHidden = false
-				needUpdateContentInsets = true
+				if inactiveSearchBar.superview == nil {
+					rootNavigationHeaderBackground.addSubview(inactiveSearchBar)
+					needUpdateContentInsets = true
+				}
+				if inactiveSearchBar.isHidden == true {
+					inactiveSearchBar.isHidden = false
+					needUpdateContentInsets = true
+				}
 			} else if isSearching {
 				inactiveSearchBar.isHidden = true
 			}
@@ -730,7 +734,6 @@ open class FibControllerRootView: UIView {
 		controller?.navigationItem.rightBarButtonItems = []
 		navItemTitleView = controller?.navigationItem.titleView
 		controller?.navigationItem.titleView = activeSearchBar
-		activeSearchBar.becomeFirstResponder()
 		activeSearchBar.setShowsCancelButton(true, animated: true)
 		controller?.reload()
 		setNeedsLayout()
@@ -739,6 +742,10 @@ open class FibControllerRootView: UIView {
 			self.activeSearchBar.backgroundColor = .clear
 			self.activeSearchBar.backgroundImage = UIImage()
 			self.updateFormViewInsets(animated: false)
+			delay(cyclesCount: 4) {[weak self] in
+				guard let self = self else { return }
+				activeSearchBar.becomeFirstResponder()
+			}
 		}
 	}
 	
@@ -788,6 +795,7 @@ extension FibControllerRootView: UISearchBarDelegate {
 	}
 	
 	public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+		guard searchBar === inactiveSearchBar else { return }
 		isSearching = true
 		if let searchBeginClosure = navigationConfiguration?.searchContext?.onSearchBegin {
 			searchBeginClosure(searchBar)

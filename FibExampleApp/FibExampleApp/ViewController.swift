@@ -29,7 +29,7 @@ class ViewController: FibViewController {
 //	}
 	
 	@Reloadable
-	var arr2 = Array(0...33)
+	var arr2 = (0...1000).map({ $0 })
 	
 	let effect: VisualEffectView = {
 		let view = VisualEffectView()
@@ -108,13 +108,6 @@ class ViewController: FibViewController {
 		}
 	}
 	
-	override var footer: FibCell.ViewModel? {
-		flag ? nil :
-		.init(provider: ViewModelSection({
-			MyFibSquareView.ViewModel(text: "1--arr2_cell_")
-		}))
-	}
-	
 	@SectionProtocolBuilder
 	var stacks: [SectionProtocol] {
 		SectionStack {
@@ -139,13 +132,18 @@ class ViewController: FibViewController {
 	
 	var timer: AnyCancellable?
 	
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+//		rootView.rootFormView.scrollDirection = .unlocked
+	}
+	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
-		addRefreshAction {
-			
-		}
+//		addRefreshAction {
+//			
+//		}
 //		appearance.backgroundColor = UIColor.clear
 //		appearance.backgroundEffect = nil
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
@@ -289,7 +287,6 @@ class MyFibSquareView: FibCoreView {
 		super.layoutSubviews()
 		label.frame = contentView.bounds
 		label.textAlignment = .center
-		backgroundColor = [UIColor.red, .alizarin, .amethyst, .carrot, .clouds, .flatOrange, .emerald].randomElement()!.withAlphaComponent(0.6)
 		layer.borderWidth = 1
 		layer.borderColor = UIColor.black.cgColor
 	}
@@ -299,13 +296,14 @@ class MyFibSquareView: FibCoreView {
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: 100, height: 100)
+		return .init(width: 48, height: 48)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
 		super.configure(with: data)
 		label.text = data.text
+		backgroundColor = data.color
 	}
 	
 
@@ -318,6 +316,12 @@ class MyFibSquareView: FibCoreView {
 			super.init()
 		}
 		var text: String
+		var color: UIColor = .white
+		
+		func color(_ color: UIColor) -> Self {
+			self.color = color
+			return self
+		}
 		
 		override func viewClass() -> FibKit.ViewModelConfigurable.Type {
 			MyFibSquareView.self
