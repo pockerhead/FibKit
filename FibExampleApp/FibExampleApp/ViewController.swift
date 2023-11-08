@@ -143,6 +143,9 @@ class ViewController: FibViewController {
 		super.viewWillAppear(animated)
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
+		addRefreshAction {
+			
+		}
 //		appearance.backgroundColor = UIColor.clear
 //		appearance.backgroundEffect = nil
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]

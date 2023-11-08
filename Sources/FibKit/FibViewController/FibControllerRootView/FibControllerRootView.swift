@@ -330,7 +330,10 @@ open class FibControllerRootView: UIView {
 	func assignNavigationFramesIfNeeded() {
 		UIView.performWithoutAnimation {
 			largeViewRef?.isHidden = isSearching
-			let scrollViewShift = max(0.01, rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top)
+			var scrollViewShift = rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top
+			if rootFormView.refreshControl != nil {
+				scrollViewShift = max(0.01, scrollViewShift)
+			}
 			if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
 				let height = headerSizeSource.size(
 					at: 0,
