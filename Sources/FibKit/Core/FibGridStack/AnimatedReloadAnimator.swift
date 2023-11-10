@@ -99,7 +99,9 @@ public class AnimatedReloadAnimator: Animator {
 				view.alpha = 1
 			})
 		} else {
-			view.alpha = 1
+			UIView.performWithoutAnimation {
+				view.alpha = 1
+			}
 		}
 	}
 	
