@@ -232,7 +232,7 @@ final public class FibGrid: UIScrollView {
 	
 	public override func layoutSubviews() {
 		super.layoutSubviews()
-		if self.isAsync {
+		if self.isAsync, (needsReload || needsInvalidateLayout) {
 			_asyncLayoutSubviews()
 		} else {
 			_layoutSubviews()
