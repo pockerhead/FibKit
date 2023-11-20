@@ -34,7 +34,7 @@ open class FibViewController: UIViewController {
 			topInsetStrategy: .safeArea
 		),
 		navigationConfiguration: .init(
-			title: nil,
+			titleViewModel: nil,
 			largeTitleViewModel: nil,
 			searchContext: nil
 		)

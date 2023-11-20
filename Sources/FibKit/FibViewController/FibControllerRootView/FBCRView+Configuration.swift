@@ -64,17 +64,17 @@ public extension FibControllerRootView {
 		}
 		
 		public init(
-			title: String? = nil,
+			titleViewModel: ViewModelWithViewClass? = nil,
 			largeTitleViewModel: ViewModelWithViewClass? = nil,
 			searchContext: FibControllerRootView.NavigationConfiguration.SearchContext? = nil
 		) {
-			self.title = title
+			self.titleViewModel = titleViewModel
 			self.largeTitleViewModel = largeTitleViewModel
 			self.searchContext = searchContext
 		}
 		
 		
-		public var title: String? = nil
+		public var titleViewModel: ViewModelWithViewClass? = nil
 		public var largeTitleViewModel: ViewModelWithViewClass? = nil
 		public var searchContext: SearchContext? = nil
 	}

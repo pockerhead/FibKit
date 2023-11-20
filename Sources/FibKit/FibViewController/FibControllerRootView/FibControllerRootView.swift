@@ -218,7 +218,7 @@ open class FibControllerRootView: UIView {
 			rootGridViewBackground.frame = bounds
 			configureShutterViewFrame()
 		}
-		configureNavigation()
+		reloadNavigation()
 		configureBackgroundView()
 		configureHeaderEffectsBackgroundView()
 		calculateHeaderFrame()
@@ -255,7 +255,23 @@ open class FibControllerRootView: UIView {
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	
-	func configureNavigation() {
+	private func createNavItemViewIfNeeded(titleViewModel: ViewModelWithViewClass?,forceSet: Bool = false) {
+		guard let titleViewModel = titleViewModel else {
+			navItemTitleView = nil
+			return
+		}
+		if let existed = navItemTitleView as? ViewModelConfigurable,
+		   type(of: existed) == titleViewModel.viewClass() {
+			existed.configure(with: titleViewModel)
+		} else {
+			navItemTitleView = titleViewModel.getView()
+			if forceSet {
+				controller?.setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
+			}
+		}
+	}
+	
+	public func reloadNavigation() {
 		var needUpdateContentInsets = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
 		if let header = header {
@@ -280,13 +296,20 @@ open class FibControllerRootView: UIView {
 				rootNavigationHeaderBackground.addSubview(newLargeView)
 				needUpdateContentInsets = true
 			}
-			
-		} else if let title = navigationConfiguration?.title {
+			createNavItemViewIfNeeded(titleViewModel: navigationConfiguration?.titleViewModel)
+		} else if let titleViewModel = navigationConfiguration?.titleViewModel {
 			if largeViewRef?.superview != nil {
 				largeViewRef?.removeFromSuperview()
 				needUpdateContentInsets = true
 			}
-			controller?.setNavbarTitle(title)
+			createNavItemViewIfNeeded(titleViewModel: titleViewModel, forceSet: true)
+		} else {
+			if largeViewRef?.superview != nil {
+				largeViewRef?.removeFromSuperview()
+				needUpdateContentInsets = true
+			}
+			controller?.setNavbarTitleView(nil, vm: navigationConfiguration?.titleViewModel, animated: false)
+			navItemTitleView = nil
 		}
 		if let context = navigationConfiguration?.searchContext {
 			[activeSearchBar, inactiveSearchBar].forEach({ searchBar in
@@ -346,10 +369,10 @@ open class FibControllerRootView: UIView {
 					dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
 					direction: .vertical).height
 				self.largeViewRef?.frame = .init(origin: .init(x: 0.01, y: 0.01 - scrollViewShift), size: .init(width: bounds.width, height: height))
-				if (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
-					controller?.setNavbarTitle(navigationConfiguration?.title)
-				} else {
-					controller?.setNavbarTitle(nil)
+				if !isSearching, (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
+					controller?.setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
+				} else if !isSearching {
+					controller?.setNavbarTitleView(nil, vm: nil)
 				}
 			}
 			if let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
