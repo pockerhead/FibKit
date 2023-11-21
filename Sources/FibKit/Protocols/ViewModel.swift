@@ -156,3 +156,15 @@ public extension ViewModelConfigurable {
 		Bundle(for: self)
 	}
 }
+
+public protocol HighlightableView: ViewModelConfigurable {
+	
+	var isHighlighted: Bool { get set }
+	
+	func setHighlighted(highlighted: Bool)
+}
+
+public protocol DragControlledView {
+	
+	var canBeReordered: Bool { get }
+}

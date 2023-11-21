@@ -29,7 +29,10 @@ class ViewController: FibViewController {
 //	}
 	
 	@Reloadable
-	var arr2 = (0...1000).map({ $0 })
+	var arr2 = (0...11).map({ $0 })
+	
+	@Reloadable
+	var isForceActive = false
 	
 	let effect: VisualEffectView = {
 		let view = VisualEffectView()
@@ -53,15 +56,8 @@ class ViewController: FibViewController {
 			headerBackgroundEffectView: { self.effect }
 			),
 			navigationConfiguration: .init(
-				titleViewModel: MyFibView.ViewModel(text: "3f23f32"),
-				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32"),
-				searchContext:
-					.init(
-						hideWhenScrolling: false,
-						onSearchResults: { text in
-							print(text)
-						}
-					)
+				titleViewModel: MyFibView2.ViewModel(text: "3f23f32"),
+				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32")
 			)
 		)
 	}
@@ -71,6 +67,8 @@ class ViewController: FibViewController {
 			ViewModelSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "\(i) first cell")
+						.id("\(i) first cell")
+						.canBeReordered(i > 3)
 				}
 			}
 			.didReorderItems({[weak self] oldIndex, newIndex in
@@ -79,19 +77,20 @@ class ViewController: FibViewController {
 				arr2.insert(item, at: newIndex)
 				reload()
 			})
-						.layout(WaterfallLayout())
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(true)
-			.tapHandler { _ in
-				self.arr2.removeAll()
-				DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-					self.flag.toggle()
-					self.arr2 = Array(0...10)
-					self.showDebugScreen()
-				}
-			}
 		}
 		.id(UUID().uuidString)
+	}
+	
+	
+	
+	func addDebugButton() {
+		self.navigationItem.rightBarButtonItem = .init(title: "DBG", style: .plain, target: self, action: #selector(showDebugScreen))
+	}
+	
+	@objc func showDebugScreen() {
+		isForceActive.toggle()
 	}
 	
 	@SectionBuilder
@@ -141,9 +140,9 @@ class ViewController: FibViewController {
 		super.viewWillAppear(animated)
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
-//		addRefreshAction {
-//			
-//		}
+		addRefreshAction {
+			print("32f23f23")
+		}
 //		appearance.backgroundColor = UIColor.clear
 //		appearance.backgroundEffect = nil
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
@@ -217,6 +216,7 @@ class MyFibHeader: UIView, ViewModelConfigurable, FibViewHeader, FormViewAppeara
 class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 	
 	var label: UILabel = .init()
+	var contentView = UIView()
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -228,24 +228,36 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 		configureUI()
 	}
 	
+	override var intrinsicContentSize: CGSize {
+		contentView.systemLayoutSizeFitting(bounds.size)
+	}
+	
 	func configureUI() {
-		addSubview(label)
+		addSubview(contentView)
+		contentView.addSubview(label)
 		layer.borderColor = UIColor.black.cgColor
 		layer.borderWidth = 2
+		label.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			label.topAnchor.constraint(equalTo: contentView.topAnchor),
+			label.leftAnchor.constraint(equalTo: contentView.leftAnchor),
+			label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+			label.rightAnchor.constraint(equalTo: contentView.rightAnchor)
+		])
+		label.textAlignment = .center
+		backgroundColor = UIColor.systemBackground
 	}
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		label.frame = bounds
-		label.textAlignment = .center
-		backgroundColor = UIColor.systemBackground
+		contentView.frame = bounds
 	}
 	
 	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: targetSize.width, height: size.height + 90)
+		return .init(width: size.width, height: size.height + 90)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {
@@ -274,6 +286,74 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 	}
 }
 
+class MyFibView2: UIView, ViewModelConfigurable, FibViewHeader {
+	
+	var label: UILabel = .init()
+	var contentView = UIView()
+	
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		configureUI()
+	}
+	
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		configureUI()
+	}
+	
+	override var frame: CGRect {
+		didSet {
+			print(oldValue, frame)
+		}
+	}
+	
+	func configureUI() {
+		addSubview(contentView)
+		contentView.addSubview(label)
+		layer.borderColor = UIColor.black.cgColor
+		layer.borderWidth = 2
+		backgroundColor = UIColor.systemBackground
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		contentView.frame = bounds
+		label.frame = contentView.bounds
+	}
+	
+	func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		guard let data = data as? ViewModel else { return .zero }
+		configure(with: data)
+		let size = label.sizeThatFits(targetSize)
+		return .init(width: 160, height: size.height + 90)
+	}
+	
+	func configure(with data: FibKit.ViewModelWithViewClass?) {
+		guard let data = data as? ViewModel else { return }
+		label.text = data.text
+	}
+	
+	class ViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
+		internal init(text: String) {
+			self.text = text
+		}
+		
+		var id: String? {
+			text
+		}
+		var atTop: Bool {
+			true
+		}
+		var text: String
+		
+		func viewClass() -> FibKit.ViewModelConfigurable.Type {
+			MyFibView2.self
+		}
+		
+		
+	}
+}
+
 class MyFibSquareView: FibCoreView {
 	
 	var label: UILabel = .init()
@@ -296,7 +376,7 @@ class MyFibSquareView: FibCoreView {
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: 48, height: 48)
+		return .init(width: 120, height: 120)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
@@ -405,16 +485,6 @@ class FibDebugView: UIView, ViewModelConfigurable, FibViewHeader {
 typealias SectionRef = (SectionProtocol & AnyObject)
 
 extension FibViewController {
-	
-	func addDebugButton() {
-		self.navigationItem.rightBarButtonItem = .init(title: "DBG", style: .plain, target: self, action: #selector(showDebugScreen))
-	}
-	
-	@objc func showDebugScreen() {
-		let nav = UINavigationController(rootViewController: DebugHelperController(parent: self))
-		nav.modalPresentationStyle = .fullScreen
-		self.present(nav, animated: true)
-	}
 	
 	func addCloseButton() {
 		self.navigationItem.leftBarButtonItem = .init(title: "Close", style: .plain, target: self, action: #selector(dismissSelf))

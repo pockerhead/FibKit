@@ -11,85 +11,37 @@ import Foundation
 extension FibGrid {
 	@objc func scrollWhenDragIfNeeded() {
 		guard isInProcessDragging, let cell = draggedCell?.cell,
-			  let selfWindowFrame = superview?.convert(frame, to: nil).inset(by: adjustedContentInset),
+			  let selfWindowFrame = superview?.convert(getCurrentFrameLessInset(), to: nil),
 			  let cellWindowFrame = cell.superview?.convert(cell.frame, to: nil),
 			  let provider = dragProvider as? FibGridProvider else { return }
 		bringSubviewToFront(cell)
 		let maxManualOffset: CGFloat = 5
-		if provider.layout is FlowLayout || (provider.layout as? WrapperLayout)?.rootLayout is FlowLayout {
-			if cellWindowFrame.maxY > selfWindowFrame.maxY {
-				let x = contentOffset.x
-				var y = contentOffset.y
-				let offset = (cellWindowFrame.maxY - selfWindowFrame.maxY).clamp(0, maxManualOffset)
-				y = (y + offset).clamp(0, contentSize.height - bounds.height)
-				let increasedContentOffset = CGPoint(x: x, y: y)
+		let maxNegativeManualOffset: CGFloat = -5
+		let xCellOffsetMin: CGFloat? = (cellWindowFrame.minX - selfWindowFrame.minX < 0) ? (cellWindowFrame.minX - selfWindowFrame.minX) : nil
+		let xCellOffsetMax: CGFloat? = (cellWindowFrame.maxX - selfWindowFrame.maxX > 0) ? (cellWindowFrame.maxX - selfWindowFrame.maxX) : nil
+		
+		let yCellOffsetMin: CGFloat? = (cellWindowFrame.minY - selfWindowFrame.minY < 0) ? (cellWindowFrame.minY - selfWindowFrame.minY) : nil
+		let yCellOffsetMax: CGFloat? = (cellWindowFrame.maxY - selfWindowFrame.maxY > 0) ? (cellWindowFrame.maxY - selfWindowFrame.maxY) : nil
+		
+		let minContentOffset = CGPoint(x: -adjustedContentInset.right, y: -adjustedContentInset.top)
+		let maxContentOffset = CGPoint(x: contentSize.width + adjustedContentInset.left - bounds.width, y: contentSize.height + adjustedContentInset.bottom - bounds.height)
+		
+		if (xCellOffsetMin != nil && contentOffset.x > minContentOffset.x)
+			|| (yCellOffsetMin != nil && contentOffset.y > minContentOffset.y)
+			|| (xCellOffsetMax != nil && contentOffset.x < maxContentOffset.x)
+			|| (yCellOffsetMax != nil && contentOffset.y < maxContentOffset.y) {
+			var x = contentOffset.x
+			var y = contentOffset.y
+			let offsetY = (yCellOffsetMin ?? yCellOffsetMax ?? 0).clamp(maxNegativeManualOffset, maxManualOffset)
+			let offsetX = (xCellOffsetMin ?? xCellOffsetMax ?? 0).clamp(maxNegativeManualOffset, maxManualOffset)
+			y = (y + offsetY).clamp(minContentOffset.y,	maxContentOffset.y)
+			x = (x + offsetX).clamp(minContentOffset.x, maxContentOffset.x)
+			let increasedContentOffset = CGPoint(x: x, y: y)
+			if increasedContentOffset != contentOffset {
 				setContentOffset(increasedContentOffset, animated: false)
-				DispatchQueue.main.async {
-					self.draggedCell?.cell.center.x = self.longTapGestureRecognizer.location(in: self).x
-					self.detectMovingCell()
-				}
-			} else if cellWindowFrame.origin.y < selfWindowFrame.origin.y {
-				let x = contentOffset.x
-				var y = contentOffset.y
-				let offset = abs(cellWindowFrame.origin.y - selfWindowFrame.origin.y).clamp(0, maxManualOffset)
-				y = (y - offset).clamp(0, contentSize.height - bounds.height)
-				let increasedContentOffset = CGPoint(x: x, y: y)
-				setContentOffset(increasedContentOffset, animated: false)
-				DispatchQueue.main.async {
-					self.draggedCell?.cell.center.x = self.longTapGestureRecognizer.location(in: self).x
-					self.detectMovingCell()
-				}
-			}
-		} else if provider.layout is RowLayout || (provider.layout as? WrapperLayout)?.rootLayout is RowLayout {
-			if cellWindowFrame.maxX > selfWindowFrame.maxX {
-				var x = contentOffset.x
-				let y = contentOffset.y
-				let offset = (cellWindowFrame.maxX - selfWindowFrame.maxX).clamp(0, maxManualOffset)
-				x = (x + offset).clamp(0, contentSize.width - bounds.width)
-				let increasedContentOffset = CGPoint(x: x, y: y)
-				setContentOffset(increasedContentOffset, animated: false)
-				DispatchQueue.main.async {
-					self.draggedCell?.cell.center.x = self.longTapGestureRecognizer.location(in: self).x
-					self.detectMovingCell()
-				}
-			} else if cellWindowFrame.origin.x < selfWindowFrame.origin.x {
-				var x = contentOffset.x
-				let y = contentOffset.y
-				let offset = abs(cellWindowFrame.origin.x - selfWindowFrame.origin.x).clamp(0, maxManualOffset)
-				x = (x - offset).clamp(0, contentSize.width - bounds.width)
-				let increasedContentOffset = CGPoint(x: x, y: y)
-				setContentOffset(increasedContentOffset, animated: false)
-				DispatchQueue.main.async {
-					self.draggedCell?.cell.center.x = self.longTapGestureRecognizer.location(in: self).x
-					self.detectMovingCell()
-				}
 			}
 		}
-	}
-	
-	func detectMovingCell() {
-//		guard let draggedCell = draggedCell?.cell,
-//			  let draggedCellIndex = self.draggedCell?.index else { return }
-//		let context = LongGestureContext(view: draggedCell,
-//										 collectionView: self,
-//										 locationInCollection: longTapGestureRecognizer.location(in: self),
-//										 previousLocationInCollection: previousLocation,
-//										 index: draggedCellIndex)
-//		context.oldCellFrame = draggedCellOldFrame
-//		context.lastReorderedIndex = lastReorderedIndex
-//		bringSubviewToFront(draggedCell)
-//		for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
-//			if cell === draggedCell { continue }
-//			if cell.frame.intersects(draggedCell.frame) {
-//				guard let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 else { return }
-//				let intersectionFrame = cell.frame.intersection(draggedCell.frame)
-//				let intersectionSquare = intersectionFrame.size.square
-//				if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
-//					context.intersectsCell = CellPath(cell: cell, index: index)
-//					context.intersectionFrame = intersectionFrame
-//				}
-//			}
-//		}
+		self.draggedCell?.cell.center = self.longTapGestureRecognizer.location(in: self)
 	}
 	
 	func removeAllLongPressRecognizers() {
@@ -160,11 +112,12 @@ extension FibGrid {
 	@IBAction func longTap(gesture: UILongPressGestureRecognizer) {
 		guard let provider = (provider as? ItemProvider), provider.canReorderItems == true else { return }
 		if gesture.state == .began {
-			displayLink.add(to: .main, forMode: .default)
+			displayLink.add(to: .main, forMode: .common)
 			becomeFirstResponder()
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				guard cell.point(inside: gesture.location(in: cell), with: nil),
-					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true else { continue }
+					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true,
+					  ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
 				feedback.impactOccurred()
 				draggedCellOldFrame = cell.frame
 				draggedCellInitialFrame = draggedCellOldFrame
@@ -187,9 +140,6 @@ extension FibGrid {
 				flattenedProvider.didBeginLongTapWithProvider(context: context)
 				dragProvider = (cell.fb_provider as? ItemProvider)
 				dragProvider?.didBeginLongTapWithProvider(context: context)
-				UIView.animate(withDuration: 0.2) {
-					cell.center = gesture.location(in: self)
-				}
 				draggedCell = CellPath(cell: cell,
 									   index: interProviderIndex,
 									   identifier: identifier)
@@ -210,7 +160,7 @@ extension FibGrid {
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				if cell === draggedCell { continue }
 				if cell.frame.intersects(draggedCell.frame) {
-					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject) else { continue }
+					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject), ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
 					let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
 					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
 					let intersectionSquare = intersectionFrame.size.square
@@ -242,7 +192,7 @@ extension FibGrid {
 	}
 	
 	private func clearDrag(closure: (() -> Void)?) {
-		displayLink.remove(from: .main, forMode: .default)
+		displayLink.remove(from: .main, forMode: .common)
 		self.resignFirstResponder()
 		self.isInProcessDragging = false
 		DispatchQueue.main.async { [weak self] in

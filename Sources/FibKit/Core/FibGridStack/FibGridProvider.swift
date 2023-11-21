@@ -214,8 +214,6 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     }
 
 	public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
-		context.view.center.y = context.locationInCollection.y
-		context.view.center.x = context.locationInCollection.x
 		guard let intersectsView = context.intersectsCell?.cell,
 			  var intersectsIndex = context.intersectsCell?.index
 		else { return nil }

@@ -60,6 +60,35 @@ extension UIScrollView {
 		}
 		return visibleFrameLessInset
 	}
+	
+	public func getCurrentFrameLessInset() -> CGRect {
+		var visibleFrameLessInset = frame.inset(by: adjustedContentInset)
+		if let grid = self as? FibGrid, let gridRootView = grid.containedRootView {
+			if let headerViewModel = gridRootView._headerViewModel {
+				let headerHeight = grid.containedRootView?._headerInitialHeight ?? 0
+				visibleFrameLessInset.origin.y -= headerHeight
+				if headerViewModel.atTop {
+					visibleFrameLessInset.origin.y += grid.additionalHeaderInset ?? 0
+					visibleFrameLessInset.size.height -= grid.additionalHeaderInset ?? 0
+				}
+			} else if let navigationConfiguration = gridRootView.navigationConfiguration {
+				visibleFrameLessInset.origin.y += grid.additionalHeaderInset ?? 0
+				visibleFrameLessInset.size.height -= grid.additionalHeaderInset ?? 0
+			} else {
+				switch gridRootView.topInsetStrategy {
+				case .custom(let margin):
+					visibleFrameLessInset.origin.y -= (gridRootView.safeAreaInsets.top - margin())
+				case .safeArea: break
+				case .top:
+					visibleFrameLessInset.origin.y -= gridRootView.safeAreaInsets.top
+				case .statusBar:
+					visibleFrameLessInset.origin.y -= (gridRootView.safeAreaInsets.top - (gridRootView.statusBarFrame?.height ?? 0))
+				}
+			}
+						
+		}
+		return visibleFrameLessInset
+	}
 	public var absoluteFrameLessInset: CGRect {
 		let insetRect = CGRect(origin: .zero, size: bounds.size).inset(by: contentInset)
 		if let self = self as? FibGrid, self.isEmbedCollection {

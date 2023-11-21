@@ -269,13 +269,10 @@ final public class FibGrid: UIScrollView {
 		isLoadingCell = true
 		
 		_loadCells(forceReload: false)
-		if !isInProcessDragging {
-			for (cell, index) in zip(visibleCells, visibleIndexes) {
-				let animator = cell.currentCollectionAnimator ?? self.animator
-				animator.update(collectionView: self, view: cell, at: index, frame: flattenedProvider.frame(at: index))
-			}
+		for (cell, index) in zip(visibleCells, visibleIndexes) where cell !== draggedCell?.cell {
+			let animator = cell.currentCollectionAnimator ?? self.animator
+			animator.update(collectionView: self, view: cell, at: index, frame: flattenedProvider.frame(at: index))
 		}
-		
 		lastLoadBounds = bounds
 		isLoadingCell = false
 	}

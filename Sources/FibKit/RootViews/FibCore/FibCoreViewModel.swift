@@ -25,6 +25,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     private(set) public var onAppearClosure: ((UIView) -> Void)?
     private(set) public var onDissappearClosure: ((UIView) -> Void)?
     private(set) public var size: Size? = nil
+	private(set) public var canBeReordered: Bool = true
     private(set) public var contextMenu: FibContextMenu?
     private(set) public var tooltip: Tooltip?
     public private(set) var separator: ViewModelWithViewClass?
@@ -277,6 +278,12 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 	@discardableResult
 	public func corneredOnSwipe(_ corneredOnSwipe: Bool) -> Self {
 		self.corneredOnSwipe = corneredOnSwipe
+		return self
+	}
+	
+	@discardableResult
+	public func canBeReordered(_ can: Bool) -> Self {
+		self.canBeReordered = can
 		return self
 	}
 	

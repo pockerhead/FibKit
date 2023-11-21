@@ -16,7 +16,8 @@ open class FibCoreView: UIView,
                         FibViewHeader,
                         CollectionViewReusableView,
                         UIGestureRecognizerDelegate,
-                        HighlightableView {
+                        HighlightableView,
+						DragControlledView {
     
     // MARK: - Variables
     
@@ -31,6 +32,7 @@ open class FibCoreView: UIView,
         contentView
     }
 
+	public internal(set) var canBeReordered: Bool = true
 	private var onAnalyticsTap: ((String) -> Void)?
     private var onAppearClosure: ((UIView) -> Void)?
     private var onTap: ((UIView) -> Void)?
@@ -291,6 +293,7 @@ open class FibCoreView: UIView,
 		if let transform = data.transform {
 			self.transform = transform
 		}
+		canBeReordered = data.canBeReordered
         _needUserInteraction = data.interactive
         getSizeClosure = data.getSizeClosure
         highlight = data.highlight

@@ -11,12 +11,6 @@ import Combine
 
 /// Shared instance let for simple calling methods
 public let PopoverService = PopoverServiceInstance.shared
-public protocol HighlightableView: ViewModelConfigurable {
-	
-	var isHighlighted: Bool { get set }
-	
-	func setHighlighted(highlighted: Bool)
-}
 
 public typealias ContextMenu = FibCell.ViewModel
 

@@ -322,7 +322,7 @@ open class FibControllerRootView: UIView {
 				if force && !activeSearchBar.isFirstResponder {
 					isSearching = true
 					activeSearchBar.becomeFirstResponder()
-					searchBarTextDidBeginEditing(activeSearchBar)
+					searchBarTextDidBeginEditing(inactiveSearchBar)
 				} else if !force && activeSearchBar.isFirstResponder {
 					isSearching = false
 					activeSearchBar.resignFirstResponder()
@@ -376,15 +376,15 @@ open class FibControllerRootView: UIView {
 				}
 			}
 			if let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
-				
 				let largeViewShift = largeViewRef?.frame.maxY
-				var searchBarPositionY: CGFloat = largeViewShift ?? scrollViewShift
+				var searchBarPositionY: CGFloat = largeViewShift ?? (0.01 - scrollViewShift)
 				if !searchContext.hideWhenScrolling {
 					searchBarPositionY = max(searchBarPositionY, 0.01)
 				}
 				self.inactiveSearchBar.frame = .init(
 					origin: .init(x: 8, y: searchBarPositionY),
-					size: .init(width: self.bounds.width - 16, height: searchBarHeight))
+					size: .init(width: self.bounds.width - 16, height: searchBarHeight)
+				)
 			}
 			rootNavigationHeaderBackground.frame = .init(x: 0.01, y: safeAreaInsets.top + 0.01, width: bounds.width, height: getHeaderAdditionalNavigationMargin())
 			rootNavigationHeaderMask.frame = .init(x: 0.01, y: 0.01, width: bounds.width, height: bounds.height)
@@ -420,7 +420,7 @@ open class FibControllerRootView: UIView {
 				direction: .vertical).height
 			searchBarHeight = 12
 		}
-		if navigationConfiguration.searchContext != nil {
+		if let context = navigationConfiguration.searchContext, (context.isForceActive ?? true) == true {
 			searchBarHeight = self.searchBarHeight
 		}
 		return largeTitleViewModelHeight + searchBarHeight
@@ -431,7 +431,10 @@ open class FibControllerRootView: UIView {
 		if isSearching {
 			return 0
 		}
-		let scrollViewShift = -(largeViewRef?.frame.origin.y ?? 0)
+		var scrollViewShift = (rootFormView.contentOffset.y + rootFormView.adjustedContentInset.top)
+		if controller?.refreshAction != nil {
+			scrollViewShift = max(0.01, scrollViewShift)
+		}
 		var minShift: CGFloat = 0
 		if navigationConfiguration.searchContext?.hideWhenScrolling == false {
 			minShift = self.searchBarHeight
@@ -758,6 +761,10 @@ open class FibControllerRootView: UIView {
 		navItemTitleView = controller?.navigationItem.titleView
 		controller?.navigationItem.titleView = activeSearchBar
 		activeSearchBar.setShowsCancelButton(true, animated: true)
+		let fadeTextAnimation = CATransition()
+		fadeTextAnimation.duration = 0.1
+		fadeTextAnimation.type = .fade
+		controller?.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
 		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
@@ -786,11 +793,16 @@ open class FibControllerRootView: UIView {
 		activeSearchBar.setShowsCancelButton(false, animated: false)
 		activeSearchBar.resignFirstResponder()
 		activeSearchBar.text = nil
+		let fadeTextAnimation = CATransition()
+		fadeTextAnimation.duration = 0.1
+		fadeTextAnimation.type = .fade
+		controller?.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
 		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
 			self.controller?.navigationItem.titleView = self.navItemTitleView
 			self.setNeedsLayout()
+			self.updateFormViewInsets(animated: true)
 		}
 		guard let searchContext = navigationConfiguration?.searchContext, let onSearchResult = searchContext.onSearchResults else { return }
 		onSearchResult(nil)
