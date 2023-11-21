@@ -133,7 +133,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var contextViewRectInWindow = CGRect()
 	private var viewToMenuSpacing: CGFloat = 16
 	private var hidingInProcess = false
-	
+	private var onHideAction: (() -> Void)? = nil
+
 	/// Shows conext menu for choosed view
 	/// - Parameters:
 	///   - menu: see FibCell.ViewModel
@@ -143,7 +144,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								view: UIView?,
 								needBlurBackground: Bool = true,
 								gesture: UIGestureRecognizer?,
-								viewToMenuSpacing: CGFloat = 16) {
+								viewToMenuSpacing: CGFloat = 16,
+								menuWidth: CGFloat? = nil,
+								onHideAction: (() -> Void)? = nil) {
 		guard var viewRect = view?.superview?.convert(view?.frame ?? .zero, to: nil) else { return }
 		let oldRect = viewRect
 		if viewRect.minY < window.safeAreaInsets.top {
@@ -156,6 +159,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.viewToMenuSpacing = viewToMenuSpacing
 		contextMenu.contentView.layer.masksToBounds = true
 		currentAppWindow??.endEditing(true)
+		self.onHideAction = onHideAction
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture
@@ -167,7 +171,12 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			guard let self = self else { return }
 			let safeAreaHorizontal = window.safeAreaInsets.left + window.safeAreaInsets.right
 			let safeAreaVertical = window.safeAreaInsets.top + window.safeAreaInsets.bottom
-			let width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
+			var width: CGFloat = 0
+			if let strategyWidth = menuWidth {
+				width = strategyWidth
+			} else {
+				width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
+			}
 			let size = CGSize(width: width,
 							  height: window.bounds.height - 64 - safeAreaVertical)
 			let formViewSize = self.contextMenu.sizeWith(size, data: menu)
@@ -385,6 +394,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				guard let self = self else { return }
 				self.contextMenu.transform = .identity
 				self.contextViewSnapshot?.removeFromSuperview()
+				onHideAction?()
 				completion?()
 				self.completion?()
 				self.completion = nil
