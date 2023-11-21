@@ -42,6 +42,33 @@ extension UIViewController {
 			navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
 		}
 		navigationItem.title = title
+		navigationItem.titleView = nil
 		navigationController?.navigationBar.setNeedsLayout()
 	}
+}
+
+public extension UIViewController {
+	func setNavbarTitleView(_ titleView: UIView?, vm: ViewModelWithViewClass?, animated: Bool = true) {
+		guard navigationItem.titleView !== titleView else { return }
+		if animated {
+			let fadeTextAnimation = CATransition()
+			fadeTextAnimation.duration = 0.1
+			fadeTextAnimation.type = .fade
+			navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+		}
+		if let titleView = titleView as? ViewModelConfigurable,
+			let vm,
+			let size = titleView.sizeWith(.init(width: CGFloat.greatestFiniteMagnitude, height: 44), data: vm, horizontal: .fittingSizeLevel, vertical: .required) {
+			titleView.frame.size = .init(width: size.width, height: 44)
+		} else {
+			titleView?.frame.size = .init(width: titleView?.intrinsicContentSize.width ?? .greatestFiniteMagnitude, height: 44)
+		}
+		navigationItem.titleView = titleView
+		navigationItem.title = nil
+		navigationController?.navigationBar.setNeedsLayout()
+	}
+}
+
+public extension UIView {
+	
 }

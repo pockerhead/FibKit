@@ -53,11 +53,11 @@ class ViewController: FibViewController {
 			headerBackgroundEffectView: { self.effect }
 			),
 			navigationConfiguration: .init(
-				title: "3f23f32",
+				titleViewModel: MyFibView.ViewModel(text: "3f23f32"),
 				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32"),
 				searchContext:
 					.init(
-						hideWhenScrolling: true,
+						hideWhenScrolling: false,
 						onSearchResults: { text in
 							print(text)
 						}
