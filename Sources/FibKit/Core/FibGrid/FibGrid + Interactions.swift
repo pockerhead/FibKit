@@ -39,6 +39,7 @@ extension FibGrid {
 			let increasedContentOffset = CGPoint(x: x, y: y)
 			if increasedContentOffset != contentOffset {
 				setContentOffset(increasedContentOffset, animated: false)
+				longTap(gesture: self.longTapGestureRecognizer)
 			}
 		}
 		self.draggedCell?.cell.center = self.longTapGestureRecognizer.location(in: self)
@@ -125,7 +126,7 @@ extension FibGrid {
 				cell.alpha = 0.7
 				self.oldDataArray = (cell.fb_provider as? FibGridProvider)?.dataSource.data ?? []
 				UIView.animate(withDuration: 0.2) {
-					cell.center.x = gesture.location(in: self).x
+					cell.center = gesture.location(in: self)
 				}
 				let identifier = flattenedProvider.identifier(at: index)
 				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
