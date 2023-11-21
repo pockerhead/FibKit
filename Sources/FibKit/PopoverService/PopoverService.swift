@@ -133,7 +133,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var contextViewRectInWindow = CGRect()
 	private var viewToMenuSpacing: CGFloat = 16
 	private var hidingInProcess = false
-	
+	private var onHideAction: (() -> Void)? = nil
+
 	/// Shows conext menu for choosed view
 	/// - Parameters:
 	///   - menu: see FibCell.ViewModel
@@ -144,7 +145,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								needBlurBackground: Bool = true,
 								gesture: UIGestureRecognizer?,
 								viewToMenuSpacing: CGFloat = 16,
-								menuWidth: CGFloat? = nil) {
+								menuWidth: CGFloat? = nil,
+								onHideAction: (() -> Void)? = nil) {
 		guard var viewRect = view?.superview?.convert(view?.frame ?? .zero, to: nil) else { return }
 		let oldRect = viewRect
 		if viewRect.minY < window.safeAreaInsets.top {
@@ -157,6 +159,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.viewToMenuSpacing = viewToMenuSpacing
 		contextMenu.contentView.layer.masksToBounds = true
 		currentAppWindow??.endEditing(true)
+		self.onHideAction = onHideAction
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture
@@ -391,6 +394,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				guard let self = self else { return }
 				self.contextMenu.transform = .identity
 				self.contextViewSnapshot?.removeFromSuperview()
+				onHideAction?()
 				completion?()
 				self.completion?()
 				self.completion = nil
