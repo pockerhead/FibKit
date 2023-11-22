@@ -29,7 +29,7 @@ class ViewController: FibViewController {
 //	}
 	
 	@Reloadable
-	var arr2 = (0...11).map({ $0 })
+	var arr2 = (0...10).map({ $0 })
 	
 	@Reloadable
 	var isForceActive = false
@@ -79,6 +79,7 @@ class ViewController: FibViewController {
 			})
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(true)
+			.layout(XBaselineCenteringFlowLayout(spacing: 8))
 		}
 		.id(UUID().uuidString)
 	}
@@ -376,7 +377,7 @@ class MyFibSquareView: FibCoreView {
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: 120, height: 120)
+		return .init(width: 100, height: 100)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
