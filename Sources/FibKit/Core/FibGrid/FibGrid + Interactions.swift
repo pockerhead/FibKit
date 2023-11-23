@@ -7,6 +7,15 @@
 
 import Foundation
 
+public struct ReorderContext {
+	public init(didBeginReorderSession: (() -> Void)? = nil, didEndReorderSession: @escaping ((Int, Int) -> Void)) {
+		self.didEndReorderSession = didEndReorderSession
+		self.didBeginReorderSession = didBeginReorderSession
+	}
+	
+	public private(set) var didEndReorderSession: ((Int, Int) -> Void)
+	public private(set) var didBeginReorderSession: (() -> Void)?
+}
 
 extension FibGrid {
 	@objc func scrollWhenDragIfNeeded() {

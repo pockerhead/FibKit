@@ -194,16 +194,6 @@ layout: \(layout.description)
 		self.reorderContext = context
 		return self
 	}
-	
-	public struct ReorderContext {
-		public init(didBeginReorderSession: (() -> Void)? = nil, didEndReorderSession: @escaping ((Int, Int) -> Void)) {
-			self.didEndReorderSession = didEndReorderSession
-			self.didBeginReorderSession = didBeginReorderSession
-		}
-		
-		public private(set) var didEndReorderSession: ((Int, Int) -> Void)
-		public private(set) var didBeginReorderSession: (() -> Void)?
-	}
 		
 	/// Page direction of reload animation of Section
 	/// - Parameter pageDirection: enum left or right
