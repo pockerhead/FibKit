@@ -51,7 +51,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     var didReloadClosure: (() -> Void)?
     var scrollDirection: FibGrid.ScrollDirection
     var didReorderItemsClosure: ((Int, Int) -> Void)?
-	var reorderContext: ViewModelSection.ReorderContext?
+	var reorderContext: ReorderContext?
     var separatorViewModel: ViewModelWithViewClass?
     public typealias TapHandler = (TapContext) -> Void
     
