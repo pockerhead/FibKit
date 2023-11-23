@@ -192,7 +192,7 @@ extension FibGrid {
 		previousLocation = gesture.location(in: self)
 	}
 	
-	private func clearDrag(closure: (() -> Void)?) {
+	internal func clearDrag(closure: (() -> Void)?) {
 		displayLink.remove(from: .main, forMode: .common)
 		self.resignFirstResponder()
 		self.isInProcessDragging = false

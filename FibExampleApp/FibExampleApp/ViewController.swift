@@ -28,6 +28,8 @@ class ViewController: FibViewController {
 //		.scrollEnabled(false)
 //	}
 	
+	lazy var cancelDragTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(cancelDrag(sender:)))
+	
 	@Reloadable
 	var arr2 = (0...10).map({ $0 })
 	
@@ -62,21 +64,28 @@ class ViewController: FibViewController {
 		)
 	}
 	
+	@Reloadable var isDragInProcess = false
+	
 	override var body: SectionProtocol? {
 		SectionStack {
 			ViewModelSection {
 				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell")
+					MyFibSquareView.ViewModel(text: "\(i) first cell", needShakeAnimation: isDragInProcess)
 						.id("\(i) first cell")
 						.canBeReordered(i > 3)
 				}
 			}
-			.didReorderItems({[weak self] oldIndex, newIndex in
-				guard let self = self else { return }
-				let item = arr2.remove(at: oldIndex)
-				arr2.insert(item, at: newIndex)
-				reload()
-			})
+			.didReorderItems(context: .init(
+				didBeginReorderSession: {[weak self] in
+					self?.isDragInProcess = true
+				},
+				didEndReorderSession: {[weak self] oldIndex, newIndex in
+					guard let self = self else { return }
+					let item = arr2.remove(at: oldIndex)
+					arr2.insert(item, at: newIndex)
+					reload()
+				}
+			))
 			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(true)
 			.layout(XBaselineCenteringFlowLayout(spacing: 8))
@@ -94,40 +103,12 @@ class ViewController: FibViewController {
 		isForceActive.toggle()
 	}
 	
-	@SectionBuilder
-	var sections: [ViewModelSection] {
-		ViewModelSection {
-			arr2.map { i in
-				MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
-			} as [ViewModelWithViewClass?]
-		}
-		.header(MyFibView.ViewModel(text: "arr_HEADER_2"))
-		.isSticky(true)
-		ViewModelSection {
-			
-		}
-	}
-	
-	@SectionProtocolBuilder
-	var stacks: [SectionProtocol] {
-		SectionStack {
-			ViewModelSection {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "1--arr2_cell_\(i)")
-				} as [ViewModelWithViewClass?]
-			}
-			.header(MyFibView.ViewModel(text: "arr_HE232ADER_2"))
-			.isSticky(true)
-		}
-		ViewModelSection {
-			
-		}
-	}
-	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		rootView.applyAppearance()
 		addDebugButton()
+		view.addGestureRecognizer(cancelDragTapRecognizer)
+		cancelDragTapRecognizer.delegate = self
 	}
 	
 	var timer: AnyCancellable?
@@ -149,6 +130,23 @@ class ViewController: FibViewController {
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
 		navigationController?.navigationBar.standardAppearance = appearance
 		navigationController?.navigationBar.scrollEdgeAppearance = appearance
+	}
+	
+	@objc func cancelDrag(sender: UITapGestureRecognizer) {
+		let loc = sender.location(in: self.view)
+		let hitView = self.view.hitTest(loc, with: nil)
+		// TODO find DSWidgetButton in hitView superViews
+		if hitView === rootView.rootFormView {
+			isDragInProcess = false
+		}
+	}
+	
+}
+
+extension ViewController: UIGestureRecognizerDelegate {
+	
+	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+		true
 	}
 }
 
@@ -358,18 +356,21 @@ class MyFibView2: UIView, ViewModelConfigurable, FibViewHeader {
 class MyFibSquareView: FibCoreView {
 	
 	var label: UILabel = .init()
-	
+	private var shakeAnimator: UIViewPropertyAnimator = .init()
+
 	override func configureUI() {
 		super.configureUI()
 		contentView.addSubview(label)
 	}
 	
 	override func layoutSubviews() {
-		super.layoutSubviews()
+		if !shakeAnimator.isRunning {
+			super.layoutSubviews()
+		}
 		label.frame = contentView.bounds
 		label.textAlignment = .center
-		layer.borderWidth = 1
-		layer.borderColor = UIColor.black.cgColor
+		contentView.layer.borderWidth = 1
+		contentView.layer.borderColor = UIColor.black.cgColor
 	}
 	
 	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
@@ -384,16 +385,40 @@ class MyFibSquareView: FibCoreView {
 		guard let data = data as? ViewModel else { return }
 		super.configure(with: data)
 		label.text = data.text
-		backgroundColor = data.color
+		if data.needShakeAnimation && !shakeAnimator.isRunning {
+			start()
+		} else if !data.needShakeAnimation && shakeAnimator.isRunning {
+			stop()
+		}
 	}
 	
+	func start(_ reversed: Bool? = nil) {
+		shakeAnimator = .init(duration: 0.15, curve: .linear)
+		shakeAnimator.addAnimations {[weak self] in
+			self?.contentView.transform = .init(rotationAngle: (reversed ?? false) ? .pi / 25 : -(.pi / 25))
+		}
+		shakeAnimator.addCompletion {[weak self] _ in
+			self?.start(!(reversed ?? true))
+		}
+		shakeAnimator.startAnimation(afterDelay: reversed == nil ? TimeInterval.random(in: 0...0.3) : 0)
+	}
 
+	func stop() {
+		shakeAnimator.stopAnimation(true)
+		shakeAnimator.finishAnimation(at: .current)
+		UIView.animate(withDuration: 0.2) {
+			self.contentView.transform = .identity
+		}
+	}
 	
 	
 	class ViewModel: FibCoreViewModel {
 		
-		init(text: String) {
+		var needShakeAnimation = false
+		
+		init(text: String, needShakeAnimation: Bool = false) {
 			self.text = text
+			self.needShakeAnimation = needShakeAnimation
 			super.init()
 		}
 		var text: String

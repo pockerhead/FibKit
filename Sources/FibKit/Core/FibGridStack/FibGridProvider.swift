@@ -45,12 +45,13 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     public var isAsync = true
     var needLastSeparator: Bool = true
 	public var canReorderItems: Bool {
-		didReorderItemsClosure != nil
+		didReorderItemsClosure != nil || reorderContext != nil
 	}
     var tapHandler: TapHandler?
     var didReloadClosure: (() -> Void)?
     var scrollDirection: FibGrid.ScrollDirection
     var didReorderItemsClosure: ((Int, Int) -> Void)?
+	var reorderContext: ViewModelSection.ReorderContext?
     var separatorViewModel: ViewModelWithViewClass?
     public typealias TapHandler = (TapContext) -> Void
     
@@ -212,6 +213,10 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
             tapHandler(context)
         }
     }
+	
+	public func didBeginLongTapWithProvider(context: LongGestureContext) {
+		reorderContext?.didBeginReorderSession?()
+	}
 
 	public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
 		guard let intersectsView = context.intersectsCell?.cell,
@@ -232,7 +237,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		let intersectionFrame = context.intersectionFrame ?? .zero
 		let draggedFrameSquare = draggedFrame.size.square
 		let intersectionFrameSquare = intersectionFrame.size.square
-		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2)) || (intersectionFrameSquare > (intersectsSquare / 2))
+		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2.2)) || (intersectionFrameSquare > (intersectsSquare / 2.2))
 		if needReorder {
 			let data = self.dataSource.data.remove(at: draggedIndex)
 			self.dataSource.data.insert(data, at: intersectsIndex)
@@ -252,6 +257,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			initialIndex = initialIndex / 2
 		}
 		didReorderItemsClosure?(initialIndex, finalIndex)
+		reorderContext?.didEndReorderSession(initialIndex, finalIndex)
     }
 
     public func hasReloadable(_ reloadable: CollectionReloadable) -> Bool {

@@ -285,6 +285,18 @@ final public class FibGrid: UIScrollView {
 		} else {
 			removeGestureRecognizer(longTapGestureRecognizer)
 		}
+		if isInProcessDragging {
+			let oldDragId = dragProvider?.identifier
+			if provider is FibGridProvider, provider?.identifier == oldDragId {
+				dragProvider = provider as? ItemProvider
+			} else if let sectionStack = provider as? FibGridHeaderProvider, let newDrag = sectionStack.sections.first(where: { $0.identifier == oldDragId }) {
+				dragProvider = newDrag as? ItemProvider
+			} else {
+				isInProcessDragging = false
+				clearDrag(closure: nil)
+				return
+			}
+		}
 		flattenedProvider = (provider ?? EmptyCollectionProvider()).flattenedProvider()
 		isReloading = true
 		let size = self.innerSize

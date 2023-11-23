@@ -90,8 +90,6 @@ open class FibCoreView: UIView,
     /// Конфигурирует иерархию вью, обязательно вызывать super
     open func configureUI() {
         addSubview(contentView)
-        layer.rasterizationScale = UIScreen.main.nativeScale
-        contentView.layer.rasterizationScale = UIScreen.main.nativeScale
         configureAppearance()
         let notification = NSNotification.Name("startSwipeOnSwiftUIWrapper")
         NotificationCenter.default.addObserver(self,
