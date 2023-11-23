@@ -155,10 +155,9 @@ interitemSpacing:\(interitemSpacing)
 		guard numberOfItems > 0 else { return (offset, spacing) }
 		if totalPrimary + CGFloat(numberOfItems - 1) * minimunSpacing < maxPrimary {
 			let leftOverPrimary = maxPrimary - totalPrimary
+			offset += (leftOverPrimary - minimunSpacing * CGFloat(numberOfItems - 1)) / 2
 			if let minimalXOffset {
-				offset = minimalXOffset
-			} else {
-				offset += (leftOverPrimary - minimunSpacing * CGFloat(numberOfItems - 1)) / 2
+				offset = min(minimalXOffset, offset)
 			}
 		}
 		return (offset, spacing)
@@ -179,17 +178,25 @@ interitemSpacing:\(interitemSpacing)
 														 numberOfItems: lineData.count)
 		
 		var index = 0
-		var minimalXOffset: CGFloat?
+		var minimalXOffset: CGFloat = CGFloat.greatestFiniteMagnitude
 		for (lineSize, count) in lineData {
-			let (xOffset, lineInteritemSpacing) =
+			let (xOffset, _) =
 			distribute(minimalXOffset: minimalXOffset,
 					   maxPrimary: context.collectionSize.width,
 					   totalPrimary: lineSize.width,
 					   minimunSpacing: interitemSpacing,
 					   numberOfItems: count)
-			minimalXOffset = min(minimalXOffset ?? xOffset, xOffset)
+			minimalXOffset = min(minimalXOffset, xOffset)
+		}
+		for (lineSize, count) in lineData {
+			let (_, lineInteritemSpacing) =
+			distribute(minimalXOffset: minimalXOffset,
+					   maxPrimary: context.collectionSize.width,
+					   totalPrimary: lineSize.width,
+					   minimunSpacing: interitemSpacing,
+					   numberOfItems: count)
 			let lineFrames = LayoutHelper.alignItem(alignItems: .start,
-													startingPrimaryOffset: xOffset,
+													startingPrimaryOffset: minimalXOffset,
 													spacing: lineInteritemSpacing,
 													sizes: sizes[index..<(index + count)],
 													secondaryRange: yOffset...(yOffset + lineSize.height))

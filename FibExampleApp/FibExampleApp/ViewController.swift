@@ -73,6 +73,7 @@ class ViewController: FibViewController {
 					MyFibSquareView.ViewModel(text: "\(i) first cell", needShakeAnimation: isDragInProcess)
 						.id("\(i) first cell")
 						.canBeReordered(i > 3)
+						.expanded(i == 2)
 				}
 			}
 			.didReorderItems(context: .init(
@@ -378,7 +379,7 @@ class MyFibSquareView: FibCoreView {
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
 		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: 100, height: 100)
+		return .init(width: data.expanded ? 300 : 100, height: 100)
 	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
@@ -421,11 +422,17 @@ class MyFibSquareView: FibCoreView {
 			self.needShakeAnimation = needShakeAnimation
 			super.init()
 		}
+		var expanded: Bool = false
 		var text: String
 		var color: UIColor = .white
 		
 		func color(_ color: UIColor) -> Self {
 			self.color = color
+			return self
+		}
+		
+		func expanded(_ color: Bool) -> Self {
+			self.expanded = color
 			return self
 		}
 		
