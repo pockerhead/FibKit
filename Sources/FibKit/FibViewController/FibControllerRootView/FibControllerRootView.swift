@@ -89,7 +89,6 @@ open class FibControllerRootView: UIView {
 	private var navItemTitleView: UIView?
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
-	let gridMaskView = UIView()
 			
 	internal var _headerInitialHeight: CGFloat?
 	var _headerViewModel: FibViewHeaderViewModel?
@@ -151,8 +150,7 @@ open class FibControllerRootView: UIView {
 			guard let self = self else { return }
 			self.controller?.viewDidReloadCollection(with: self.fullContentHeight())
 		}
-		gridMaskView.backgroundColor = .black
-		rootGridViewBackground.mask = gridMaskView
+		rootGridViewBackground.layer.masksToBounds = true
 	}
 	
 	func assignRefreshControlIfNeeded() {
@@ -215,7 +213,6 @@ open class FibControllerRootView: UIView {
 	override open func layoutSubviews() {
 		super.layoutSubviews()
 		UIView.performWithoutAnimation {
-			rootGridViewBackground.frame = bounds
 			configureShutterViewFrame()
 		}
 		reloadNavigation()
@@ -251,7 +248,7 @@ open class FibControllerRootView: UIView {
 		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
 		// #crutch need maskTop + 0.01, because full view mask and blur
 		// background is not friends at all
-		gridMaskView.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
+		rootGridViewBackground.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
 								   size: .init(width: bounds.width, height: bounds.height))
 	}
 	
