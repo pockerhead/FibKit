@@ -25,15 +25,23 @@ extension PopoverServiceInstance {
 		public var textColor: UIColor = .darkText
 		public var isImageOnLeft = false
 		public var topSpacer: TopSpacer?
+		public var needHideAfterAction: Bool
 		public var handler: (() -> Void)?
 		
-		public init(title: String, image: UIImage? = nil, textColor: UIColor = .darkText, isImageOnLeft: Bool = false, topSpacer: PopoverServiceInstance.TopSpacer? = nil, handler: (() -> Void)? = nil) {
+		public init(title: String, 
+					image: UIImage? = nil,
+					textColor: UIColor = .darkText,
+					isImageOnLeft: Bool = false,
+					topSpacer: PopoverServiceInstance.TopSpacer? = nil,
+					needHideAfterAction: Bool = true,
+					handler: (() -> Void)? = nil) {
 			self.title = title
 			self.image = image
 			self.textColor = textColor
 			self.isImageOnLeft = isImageOnLeft
 			self.topSpacer = topSpacer
 			self.handler = handler
+			self.needHideAfterAction = needHideAfterAction
 		}
 		
 	}
