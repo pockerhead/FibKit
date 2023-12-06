@@ -76,7 +76,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		let w = proxyWindow
 		dragGest.delegate = self
 		w.addGestureRecognizer(dragGest)
-		let gr = UITapGestureRecognizer(target: self, action: #selector(hideContextMenu))
+		let gr = UITapGestureRecognizer(target: self, 
+										action: #selector(hideContextMenuAfterAction))
 		w.addGestureRecognizer(gr)
 		gr.delegate = allTapDelegateHelper
 		w.rootViewController = RootTransparentStyleViewController()
@@ -93,7 +94,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		view.colorTint = blurColorTint
 		view.colorTintAlpha = 0.2
 		view.blurRadius = 16
-		let gr = UITapGestureRecognizer(target: self, action: #selector(hideContextMenu))
+		let gr = UITapGestureRecognizer(target: self,
+										action: #selector(hideContextMenuAfterAction))
 		view.addGestureRecognizer(gr)
 		return view
 	}()
@@ -127,6 +129,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var contextViewRectInWindow = CGRect()
 	private var viewToMenuSpacing: CGFloat = 16
 	private var hidingInProcess = false
+	private var menuWidth: CGFloat?
+	private var needBlurBackground = true
+	public private(set) var needHideAfterAction = true
 	private var onHideAction: (() -> Void)? = nil
 
 	/// Shows conext menu for choosed view
@@ -140,6 +145,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								gesture: UIGestureRecognizer?,
 								viewToMenuSpacing: CGFloat = 16,
 								menuWidth: CGFloat? = nil,
+								needHideAfterAction: Bool = true,
 								onHideAction: (() -> Void)? = nil) {
 		guard var viewRect = view?.superview?.convert(view?.frame ?? .zero, to: nil) else { return }
 		let oldRect = viewRect
@@ -148,12 +154,15 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		} else if viewRect.maxY > window.frame.height - window.safeAreaInsets.bottom {
 			viewRect.origin.y = window.frame.height - window.safeAreaInsets.bottom - viewRect.height
 		}
+		self.menuWidth = menuWidth
+		self.needBlurBackground = needBlurBackground
 		contextView = view
 		contextViewRectInWindow = viewRect
 		self.viewToMenuSpacing = viewToMenuSpacing
 		contextMenu.contentView.layer.masksToBounds = true
 		currentAppWindow??.endEditing(true)
 		self.onHideAction = onHideAction
+		self.needHideAfterAction = needHideAfterAction
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture
@@ -203,6 +212,61 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				self.contextMenu.formView.scrollTo(edge: .top, animated: false)
 			}
 		}
+	}
+	
+	public func update(menu: ContextMenu, 
+					   menuWidth: CGFloat? = nil) {
+		guard let viewRect = calculateViewRect(for: contextView) else { return }
+		var width: CGFloat = 0
+		let safeAreaHorizontal = window.safeAreaInsets.left + window.safeAreaInsets.right
+		let safeAreaVertical = window.safeAreaInsets.top + window.safeAreaInsets.bottom
+		self.menuWidth = menuWidth
+		if let strategyWidth = self.menuWidth {
+			width = strategyWidth
+		} else {
+			width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
+		}
+		let size = CGSize(width: width,
+						  height: window.bounds.height - 64 - safeAreaVertical)
+		let formViewSize = self.contextMenu.sizeWith(size, data: menu)
+		let formViewHeight = formViewSize?.height.clamp(0, size.height) ?? size.height
+		var contextMenuY: CGFloat = viewRect.maxY + viewToMenuSpacing
+		contextMenuY = max(contextMenuY, window.safeAreaInsets.top + 32)
+		let oldOrigin = contextMenu.frame.origin
+		configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
+		contextMenu.transform = .identity
+		contextMenu.alpha = 1
+		contextMenu.frame.origin = oldOrigin
+		let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
+		self.allHeight = allHeight
+		feedBack.impactOccurred()
+		withFibSpringAnimation(duration: 0.4) {[weak self] in
+			self?.applyContextViewRect(
+				contextMenuY: contextMenuY,
+				formViewHeight: formViewHeight,
+				viewRect: viewRect,
+				size: size,
+				needBlurBackground: self?.needBlurBackground ?? true,
+				allHeight: allHeight,
+				viewToMenuSpacing: self?.viewToMenuSpacing ?? 16,
+				isUpdating: true
+			)
+		} completion: {[weak self] _ in
+			guard let self = self else { return }
+			self.contextMenu.configure(with: menu)
+			self.contextMenu.formView.scrollTo(edge: .top, animated: false)
+		}
+	}
+	
+	private func calculateViewRect(for view: UIView?) -> CGRect? {
+		guard var viewRect = contextView?.superview?
+			.convert(contextView?.frame ?? .zero, to: nil) else { return nil }
+		if viewRect.minY < window.safeAreaInsets.top {
+			viewRect.origin.y = window.safeAreaInsets.top
+		} else if viewRect.maxY > window.frame.height - window.safeAreaInsets.bottom {
+			viewRect.origin.y = window.frame.height - window.safeAreaInsets.bottom - viewRect.height
+		}
+		return viewRect
 	}
 
 	private func prepareWindow() {
@@ -271,7 +335,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									  size: CGSize,
 									  needBlurBackground: Bool,
 									  allHeight: CGFloat,
-									  viewToMenuSpacing: CGFloat) {
+									  viewToMenuSpacing: CGFloat,
+									  isUpdating: Bool = false) {
 		self.window.layoutIfNeeded()
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
@@ -298,8 +363,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				insetTop = scrollView.frame.height - allHeight - 32
 			}
 		}
-		UIView.performWithoutAnimation {
-			self.contextMenu.frame.origin.y = insetTop + viewRect.height / 2
+		if isUpdating == false {
+			UIView.performWithoutAnimation {
+				self.contextMenu.frame.origin.y = insetTop + viewRect.height / 2
+			}
 		}
 		scrollView.contentInset.top = insetTop - window.safeAreaInsets.top
 		
@@ -334,7 +401,22 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 	
-	@objc public func hideContextMenu() {
+	@objc private func hideContextMenuAfterAction(gesture: UITapGestureRecognizer) {
+		let location = gesture.location(in: nil)
+		let clickedView = window.hitTest(location, with: nil)
+		if clickedView === window || 
+			clickedView === overlayView ||
+			clickedView === scrollView ||
+			clickedView === contextViewSnapshot ||
+			clickedView == nil {
+			hideContextMenu(nil)
+		} else {
+			guard needHideAfterAction else { return }
+			hideContextMenu(nil)
+		}
+	}
+	
+	public func hideContextMenu() {
 		hideContextMenu(nil)
 	}
 
