@@ -86,14 +86,15 @@ extension FibGrid {
 		customScroll: ((CGPoint, CGFloat) -> Void)? = FibGrid.defaultCustomScrollClosure
 	) throws -> CGPoint {
 		var indexPath = indexPath
-		let optProvider = self.provider as? SectionProvider
-		guard let provider = optProvider else {
-			debugPrint("Incorrect provider \(String(describing: optProvider))")
-			throw(FibGridError.unableToScroll)
+		var innerProvider: (Provider & LayoutableProvider)?
+		var sectionProvider = self.provider as? SectionProvider
+		if let sectionProvider {
+			innerProvider = sectionProvider.sections.get(indexPath.section) as? (Provider & LayoutableProvider)
+		} else {
+			innerProvider = self.provider as? (Provider & LayoutableProvider)
 		}
-		let optInner = provider.sections.get(indexPath.section) as? (Provider & LayoutableProvider)
-		guard let innerProvider = optInner else {
-			debugPrint("Incorrect inner provider \(String(describing: optInner)) in \(provider) provider")
+		guard let innerProvider else {
+			debugPrint("Incorrect inner provider \(String(describing: innerProvider))")
 			throw(FibGridError.unableToScroll)
 		}
 		
@@ -105,7 +106,7 @@ extension FibGrid {
 		var topMargin: CGFloat = 0
 		if indexPath.section > 0 {
 			topMargin = (0...(indexPath.section - 1)).reduce(0, { accum, nextIndex in
-				let sectionInnerSize = (provider.sections.get(nextIndex)?.contentSize.height ?? 0)
+				let sectionInnerSize = (sectionProvider?.sections.get(nextIndex)?.contentSize.height ?? 0)
 				var headerSize = CGSize.zero
 				if let fvhp = provider as? FibGridHeaderProvider,
 				   let data = (fvhp.sections.get(nextIndex) as? SectionProtocol)?.headerData,
@@ -128,7 +129,7 @@ extension FibGrid {
 		var horizontalScroll = false
 		if ((innerProvider.layout as? WrapperLayout)?
 			.rootLayout as? RowLayout) != nil {
-			if provider.sections.count != 1 {
+			if let sectionProvider, sectionProvider.sections.count != 1 {
 				throw(FibGridError.unableToScroll)
 			}
 			horizontalScroll = true
