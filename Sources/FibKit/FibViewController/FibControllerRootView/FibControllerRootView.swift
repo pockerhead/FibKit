@@ -174,7 +174,7 @@ open class FibControllerRootView: UIView {
 		let topInset = topInsetStrategy.getTopInset(for: self)
 		let topEdge = topInset - shutterView.layer.cornerRadius
 		let height = UIScreen.main.bounds.height * 2
-		let shutterViewY = (rootFormView.frame.origin.y - rootFormView.contentOffset.y).clamp(topEdge, .greatestFiniteMagnitude)
+		let shutterViewY = (rootFormView.frame.origin.y - rootFormView.contentOffset.y).clamp(0, .greatestFiniteMagnitude)
 		shutterView.frame = CGRect(x: rootFormView.frame.origin.x,
 								   y: shutterViewY,
 								   width: rootFormView.frame.width,
