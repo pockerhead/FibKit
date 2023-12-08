@@ -320,7 +320,7 @@ extension EmbedCollection: FibViewHeader {
         formView.contentInsetAdjustmentBehavior = .never
         formViewBackgroundColor = data.backgroundColor
         formView.provider = data.provider
-//		formView.layoutSubviews()
+		formView.layoutSubviews()
 //        pageControl.numberOfPages = data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
