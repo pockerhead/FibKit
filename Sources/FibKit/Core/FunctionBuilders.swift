@@ -169,6 +169,24 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
+	public static func buildIf(_ atrs: AnySection?...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildIf(_ atrs: [AnySection?]) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
 	public static func buildArray(_ atrs: AnySection?...) -> [SectionProtocol] {
 		if let arr = atrs as? [SectionProtocol] {
 			return arr
