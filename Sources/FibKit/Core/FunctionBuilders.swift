@@ -133,7 +133,16 @@ public extension Array where Element: SectionProtocol {
 
 @resultBuilder public struct SectionProtocolBuilder {
 		
-	public static func buildBlock(_ atrs: AnySection...) -> [SectionProtocol] {
+	public static func buildBlock(_ atrs: AnySection?...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildBlock(_ atrs: [AnySection?]) -> [SectionProtocol] {
 		if let arr = atrs as? [SectionProtocol] {
 			return arr
 		}
@@ -151,7 +160,25 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
+	public static func buildOptional(_ atrs: [AnySection?]) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
 	public static func buildArray(_ atrs: AnySection?...) -> [SectionProtocol] {
+		if let arr = atrs as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs)
+		return arr
+	}
+	
+	public static func buildArray(_ atrs: [AnySection?]) -> [SectionProtocol] {
 		if let arr = atrs as? [SectionProtocol] {
 			return arr
 		}
@@ -169,7 +196,25 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
+	public static func buildEither(first: [AnySection]) -> [SectionProtocol] {
+		if let arr = first as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: first)
+		return arr
+	}
+	
 	public static func buildEither(second component: AnySection...) -> [SectionProtocol] {
+		if let arr = component as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: component)
+		return arr
+	}
+	
+	public static func buildEither(second component: [AnySection]) -> [SectionProtocol] {
 		if let arr = component as? [SectionProtocol] {
 			return arr
 		}
