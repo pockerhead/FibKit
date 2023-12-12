@@ -31,7 +31,7 @@ class ViewController: FibViewController {
 	lazy var cancelDragTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(cancelDrag(sender:)))
 	
 	@Reloadable
-	var arr2 = (0...10).map({ $0 })
+	var arr2 = (0...0).map({ $0 })
 	
 	@Reloadable
 	var isForceActive = false
@@ -55,12 +55,10 @@ class ViewController: FibViewController {
 			shutterType: .default,
 			topInsetStrategy: .safeArea,
 			headerBackgroundViewColor: .clear,
-			headerBackgroundEffectView: { self.effect }
+			headerBackgroundEffectView: { self.effect },
+			needFooterKeyboardSticks: true
 			),
-			navigationConfiguration: .init(
-				titleViewModel: MyFibView2.ViewModel(text: "3f23f32"),
-				largeTitleViewModel: MyFibView.ViewModel(text: "3f23f32")
-			)
+			navigationConfiguration: .init(titleViewModel: MyFibHeader.ViewModel())
 		)
 	}
 	
@@ -69,6 +67,9 @@ class ViewController: FibViewController {
 	override var body: SectionProtocol? {
 		SectionStack {
 			ViewModelSection {
+				MyTextField.ViewModel()
+			}
+			ViewModelSection {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "\(i) first cell", needShakeAnimation: isDragInProcess)
 						.id("\(i) first cell")
@@ -76,25 +77,37 @@ class ViewController: FibViewController {
 						.expanded(i == 2)
 				}
 			}
+			.tapHandler({[weak self] _ in
+				guard let self = self else { return }
+				self.arr2.append(arr2.count)
+				let nav = UINavigationController(rootViewController: ViewController())
+				present(nav, animated: true)
+			})
 			.didReorderItems(context: .init(
 				didBeginReorderSession: {[weak self] in
 					self?.isDragInProcess = true
 				},
 				didEndReorderSession: {[weak self] oldIndex, newIndex in
 					guard let self = self else { return }
+					
 					let item = arr2.remove(at: oldIndex)
 					arr2.insert(item, at: newIndex)
 					reload()
 				}
 			))
-			.header(MyFibHeader.ViewModel(flag: true, headerStrategy: .init(controller: self, titleString: "@#R#@@#F@#")))
 			.isSticky(true)
-			.layout(XBaselineCenteringFlowLayout(spacing: 8))
+			.centeringFlowLayout()
 		}
 		.id(UUID().uuidString)
 	}
 	
-	
+	override var footer: FibCell.ViewModel? {
+		.init(provider: ViewModelSection({
+			MyFibView.ViewModel(text: "32r23f")
+		}))
+		.borderStyle(.none)
+		.needRound(false)
+	}
 	
 	func addDebugButton() {
 		self.navigationItem.rightBarButtonItem = .init(title: "DBG", style: .plain, target: self, action: #selector(showDebugScreen))
@@ -104,12 +117,16 @@ class ViewController: FibViewController {
 		isForceActive.toggle()
 	}
 	
+	var canc: Set<AnyCancellable> = []
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		rootView.applyAppearance()
 		addDebugButton()
+		rootView.rootFormView.keyboardDismissMode = .onDrag
 		view.addGestureRecognizer(cancelDragTapRecognizer)
 		cancelDragTapRecognizer.delegate = self
+		rootView.rootFormView.alwaysBounceVertical = true
 	}
 	
 	var timer: AnyCancellable?
@@ -123,9 +140,9 @@ class ViewController: FibViewController {
 		super.viewWillAppear(animated)
 		let appearance = UINavigationBarAppearance()
 		appearance.configureWithTransparentBackground()
-		addRefreshAction {
-			print("32f23f23")
-		}
+//		addRefreshAction {
+//			print("32f23f23")
+//		}
 //		appearance.backgroundColor = UIColor.clear
 //		appearance.backgroundEffect = nil
 		appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
@@ -283,6 +300,34 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 		}
 		
 		
+	}
+}
+
+class MyTextField: FibCoreView {
+	
+	let textField = UITextField()
+	
+	override func configureUI() {
+		super.configureUI()
+		addSubview(textField)
+		backgroundColor = .lightGray
+		textField.borderStyle = .roundedRect
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		textField.frame = bounds.inset(by: .init(top: 4, left: 8, bottom: 4, right: 8))
+	}
+	
+	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		return .init(width: targetSize.width, height: 60)
+	}
+	
+	final class ViewModel: FibCoreViewModel {
+		
+		override func viewClass() -> ViewModelConfigurable.Type {
+			MyTextField.self
+		}
 	}
 }
 

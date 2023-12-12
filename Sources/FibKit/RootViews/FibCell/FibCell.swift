@@ -102,26 +102,26 @@ public final class FibCell: RoundedCell, StickyHeaderView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
-		if borderStyle == .none {
+		switch borderStyle {
+		case .shadow:
+			contentView.layer.borderWidth = 0
+		case .border:
 			self.layer.clearShadow()
+			contentView.layer.borderColor = contentViewBorderColor?.cgColor
+			contentView.layer.borderWidth = 1
+		case .none:
+			contentView.layer.borderWidth = 0
+			self.layer.clearShadow()
+		}
+		if needRound {
 			layer.cornerRadius = 12
 			contentView.layer.cornerRadius = 12
 			formView.layer.cornerRadius = 12
-		} else if needRound {
-            if borderStyle == .border {
-                self.layer.clearShadow()
-				contentView.layer.borderColor = contentViewBorderColor?.cgColor
-                contentView.layer.borderWidth = 1
-            }
-            layer.cornerRadius = 12
-            contentView.layer.cornerRadius = 12
-            formView.layer.cornerRadius = 12
-        } else {
-            self.layer.clearShadow()
-            layer.cornerRadius = 0
-            contentView.layer.cornerRadius = 0
-            formView.layer.cornerRadius = 0
-        }
+		} else {
+			layer.cornerRadius = 0
+			contentView.layer.cornerRadius = 0
+			formView.layer.cornerRadius = 0
+		}
     }
     
     public func sizeChanged(size: CGSize, initialHeight: CGFloat, maxHeight: CGFloat?, minHeight: CGFloat?) {

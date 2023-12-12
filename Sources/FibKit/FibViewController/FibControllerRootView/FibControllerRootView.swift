@@ -9,6 +9,7 @@
 
 import UIKit
 import VisualEffectView
+import Combine
 
 open class FibControllerRootView: UIView {
 		
@@ -45,6 +46,10 @@ open class FibControllerRootView: UIView {
 		controller?.configuration?.viewConfiguration.backgroundViewInsets ?? defaultConfiguration.backgroundViewInsets
 	}
 	
+	var needFooterKeyboardSticks: Bool {
+		controller?.configuration?.viewConfiguration.needFooterKeyboardSticks ?? defaultConfiguration.needFooterKeyboardSticks
+	}
+	
 	var topInsetStrategy: TopInsetStrategy {
 		controller?.configuration?.viewConfiguration.topInsetStrategy ?? defaultConfiguration.topInsetStrategy ?? .safeArea
 	}
@@ -76,6 +81,8 @@ open class FibControllerRootView: UIView {
 	private weak var largeViewRef: ViewModelConfigurable?
 	private let rootHeaderBackground = RootGridViewBackground()
 	private var rootHeaderBackgroundEffectView: UIView?
+	private var isKeyboardAppeared: Bool = false
+	private var keyboardHeight: CGFloat = 0
 	private var _rootHeaderBackgroundViewRef: UIView?
 	private let headerViewSource = FibGridViewSource()
 	private let headerSizeSource = FibGridSizeSource()
@@ -97,6 +104,8 @@ open class FibControllerRootView: UIView {
 		control.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
 		return control
 	}()
+	
+	var cancellables: Set<AnyCancellable> = []
 	
 	public let headerObserver = HeaderObserver()
 	
@@ -130,6 +139,11 @@ open class FibControllerRootView: UIView {
 		configureHeaderBackground()
 		rootFormView.containedRootView = self
 		applyAppearance()
+		NotificationCenter.default.publisher(for: UIApplication.keyboardWillChangeFrameNotification)
+			.sink {[weak self] notification in
+				self?.keyboardChangeFrame(notification)
+			}
+			.store(in: &cancellables)
 	}
 	
 	func configureHeaderBackground() {
@@ -167,6 +181,27 @@ open class FibControllerRootView: UIView {
 			return shutterBackground
 		case .rounded:
 			return roundedShutterBackground
+		}
+	}
+	
+	private func keyboardChangeFrame(_ notification: Notification) {
+		guard let userInfo: NSDictionary = notification.userInfo as NSDictionary?,
+			  let keyboardAnimationCurve = (userInfo.object(forKey: UIResponder.keyboardAnimationCurveUserInfoKey) as? NSValue) as? Int,
+			  let keyboardAnimationDuration = (userInfo.object(forKey: UIResponder.keyboardAnimationDurationUserInfoKey) as? NSValue) as? Double,
+			  let keyboardIsLocal = (userInfo.object(forKey: UIResponder.keyboardIsLocalUserInfoKey) as? NSValue) as? Bool,
+			  let keyboardFrameBegin = (userInfo.object(forKey: UIResponder.keyboardFrameBeginUserInfoKey) as? NSValue)?.cgRectValue,
+			  let keyboardFrameEnd = (userInfo.object(forKey: UIResponder.keyboardFrameEndUserInfoKey) as? NSValue)?.cgRectValue,
+			  let keyboardFrame = window?.convert(keyboardFrameEnd, to: self)
+		else {
+			return
+		}
+		let isHiding = !(convert(bounds, to: window).maxY.rounded() > keyboardFrameEnd.minY)
+		isKeyboardAppeared = !isHiding
+		keyboardHeight = isKeyboardAppeared ? keyboardFrame.height : 0
+		if needFooterKeyboardSticks {
+			UIView.animate(withDuration: keyboardAnimationDuration, delay: 0, options: [.allowUserInteraction]) {
+				self.updateFooterFrame(sync: true)
+			} completion: { _ in }
 		}
 	}
 	
@@ -389,19 +424,31 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	func updateFooterFrame() {
-		let backgroundHeight = footerHeight + safeAreaInsets.bottom
+	func updateFooterFrame(sync: Bool = false) {
 		UIView.performWithoutAnimation {
 			rootFooterBackground.frame.size.width = bounds.width
 			footer.frame.size.width = bounds.width
 		}
-		delay {[weak self] in
-			guard let self = self else { return }
-			rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
-			rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-			rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
-			footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
+		if sync {
+			_updateFooterFrame()
+		} else {
+			delay {[weak self] in
+				guard let self = self else { return }
+				_updateFooterFrame()
+			}
 		}
+		
+	}
+	
+	func _updateFooterFrame() {
+		var backgroundHeight = footerHeight + safeAreaInsets.bottom
+		if needFooterKeyboardSticks && isKeyboardAppeared {
+			backgroundHeight = footerHeight + keyboardHeight
+		}
+		rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
+		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+		rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
+		footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
 	}
 	
 	func getHeaderAdditionalNavigationMargin() -> CGFloat {
