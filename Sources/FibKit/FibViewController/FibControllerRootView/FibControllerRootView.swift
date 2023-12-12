@@ -445,10 +445,12 @@ open class FibControllerRootView: UIView {
 		if needFooterKeyboardSticks && isKeyboardAppeared {
 			backgroundHeight = footerHeight + keyboardHeight
 		}
-		rootFooterBackground.frame = .init(x: 0, y: bounds.height - backgroundHeight, width: bounds.width, height: backgroundHeight)
+		rootFooterBackground.frame.origin = .init(x: 0, y: bounds.height - backgroundHeight)
+		rootFooterBackground.frame.size.height = backgroundHeight
 		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
 		rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
-		footer.frame = .init(origin: .zero, size: .init(width: bounds.width, height: footerHeight))
+		footer.frame.origin = .zero
+		footer.frame.size.height = footerHeight
 	}
 	
 	func getHeaderAdditionalNavigationMargin() -> CGFloat {
