@@ -27,6 +27,7 @@ open class FibCoreView: UIView,
     public var haveSwipeAction: Bool { swipeCoordinator.haveSwipeAction }
     public var isSwipeOpen: Bool { swipeCoordinator.isSwipeOpen }
     public var isHighlighted: Bool = false
+	public var needAlphaChangeOnDrag: Bool = true
     
     open var tooltipView: UIView {
         contentView
@@ -142,6 +143,10 @@ open class FibCoreView: UIView,
         default: break
         }
     }
+	
+	open func onDragBegin() {}
+	
+	open func onDragEnd() {}
     
     // MARK: - Public
     
@@ -270,6 +275,7 @@ open class FibCoreView: UIView,
 		} else {
 			contentView.addGestureRecognizer(analyticsGesture)
 		}
+		self.needAlphaChangeOnDrag = data.needAlphaChangeOnDrag
         setHighlighted(highlighted: false)
         if let menu = data.contextMenu {
             contentView.addContextMenu(menu)

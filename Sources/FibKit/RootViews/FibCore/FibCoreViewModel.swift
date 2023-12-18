@@ -28,6 +28,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 	private(set) public var canBeReordered: Bool = true
     private(set) public var contextMenu: FibContextMenu?
     private(set) public var tooltip: Tooltip?
+	private(set) public var needAlphaChangeOnDrag: Bool = true
     public private(set) var separator: ViewModelWithViewClass?
     public private(set) var dragItemsProvider: (() -> [UIDragItem])?
     public private(set) var onTap: ((UIView) -> Void)?
@@ -112,6 +113,11 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         self.allowedStretchDirections = allowedStretchDirections
         return self
     }
+	
+	public func needAlphaChangeOnDrag(_ bool: Bool) -> Self {
+		self.needAlphaChangeOnDrag = bool
+		return self
+	}
     
 	public func rightSwipeViews(mainSwipeView: FibSwipeViewModel,
                                 secondSwipeView: FibSwipeViewModel? = nil,

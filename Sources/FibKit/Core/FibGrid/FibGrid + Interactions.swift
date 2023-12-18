@@ -132,7 +132,13 @@ extension FibGrid {
 				draggedCellOldFrame = cell.frame
 				draggedCellInitialFrame = draggedCellOldFrame
 				bringSubviewToFront(cell)
-				cell.alpha = 0.7
+				if let cell = cell as? (DragControlledView & UIView) {
+					if cell.needAlphaChangeOnDrag {
+						cell.alpha = 0.7
+					}
+				} else {
+					cell.alpha = 0.7
+				}
 				self.oldDataArray = (cell.fb_provider as? FibGridProvider)?.dataSource.data ?? []
 				UIView.animate(withDuration: 0.2) {
 					cell.center = gesture.location(in: self)
@@ -155,7 +161,7 @@ extension FibGrid {
 									   identifier: identifier)
 				identifierCache[index] = identifier
 				isInProcessDragging = true
-				
+				(cell as? DragControlledView)?.onDragBegin()
 			}
 		} else {
 			guard let draggedCell = draggedCell?.cell,
@@ -209,7 +215,14 @@ extension FibGrid {
 			guard let self = self else { return }
 			(self.draggedCell?.cell.fb_provider as? FibGridProvider)?.dataSource.data = self.oldDataArray
 			closure?()
-			self.draggedCell?.cell.alpha = 1
+			if let cell = self.draggedCell?.cell as? (DragControlledView & UIView) {
+				if cell.needAlphaChangeOnDrag {
+					cell.alpha = 1
+				}
+			} else {
+				self.draggedCell?.cell.alpha = 1
+			}
+			(self.draggedCell?.cell as? DragControlledView)?.onDragEnd()
 			self.feedback.impactOccurred()
 			self.draggedCell?.cell.removeFromSuperview()
 			self.draggedCell = nil

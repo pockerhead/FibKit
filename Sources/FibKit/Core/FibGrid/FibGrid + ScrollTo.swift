@@ -41,13 +41,17 @@ extension FibGrid {
 			guard let section = provider as? ViewModelSection else { continue }
 			for (index, viewModel) in section.data.enumerated() {
 				if predicate(viewModel) {
-					indexPath = .init(item: index * 2, section: sectionIndex)
+					var index = index
+					if section.separatorViewModel != nil {
+						index = index * 2
+					}
+					indexPath = .init(item: index, section: sectionIndex)
 					break
 				}
 			}
 			if indexPath != nil { break }
 		}
-		guard let indexPath = indexPath else { return }
+		guard let indexPath else { return }
 		try scroll(to: indexPath, animated: animated)
 	}
 	

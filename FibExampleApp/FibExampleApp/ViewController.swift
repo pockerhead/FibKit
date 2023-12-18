@@ -31,7 +31,7 @@ class ViewController: FibViewController {
 	lazy var cancelDragTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(cancelDrag(sender:)))
 	
 	@Reloadable
-	var arr2 = (0...0).map({ $0 })
+	var arr2 = (0...50).map({ $0 })
 	
 	@Reloadable
 	var isForceActive = false
@@ -67,7 +67,17 @@ class ViewController: FibViewController {
 	override var body: SectionProtocol? {
 		SectionStack {
 			ViewModelSection {
-				MyTextField.ViewModel()
+				arr2.map { i in
+					MyFibSquareView.ViewModel(text: "cell #\(i)")
+						.id("\(i)")
+				}
+			}
+			ViewModelSection {
+				MyFibSquareView.ViewModel(text: "DONE")
+					.interactive(true)
+					.onTap {[weak self] _ in
+						try? self?.rootView.rootFormView.scrollToFirst(where: { $0?.id == "43" })
+					}
 			}
 			ViewModelSection {
 				arr2.map { i in

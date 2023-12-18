@@ -167,4 +167,8 @@ public protocol HighlightableView: ViewModelConfigurable {
 public protocol DragControlledView {
 	
 	var canBeReordered: Bool { get }
+	var needAlphaChangeOnDrag: Bool { get }
+	
+	func onDragBegin()
+	func onDragEnd()
 }
