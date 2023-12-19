@@ -284,9 +284,9 @@ open class FibCoreView: UIView,
             if tooltip.needShow {
 				switch tooltip.tooltipType {
 					case .text(text: let text):
-						ToolTipService.shared.showToolTip(for: self.tooltipView, text: text)
+					ToolTipService.shared.showToolTip(for: self.tooltipView, text: text, completion: tooltip.completion)
 					case .custom(view: let view, marker: let marker):
-						ToolTipService.shared.showToolTip(for: self.tooltipView, tooltipViewModel: view, markerView: marker)
+					ToolTipService.shared.showToolTip(for: self.tooltipView, tooltipViewModel: view, markerView: marker, completion: tooltip.completion)
 				}
             } else {
 //                ToolTipService.shared.hideTooltip(animated: true)

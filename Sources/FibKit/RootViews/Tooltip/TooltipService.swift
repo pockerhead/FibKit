@@ -42,6 +42,7 @@ open class ToolTipService {
 	private final class ToolTipWindow: UIWindow {
 		
 		var isAnimatingHide = false
+		var completion: (() -> Void)?
 		
 		var _rootViewController: TooltipViewController? {
 			rootViewController as? TooltipViewController
@@ -55,6 +56,7 @@ open class ToolTipService {
 		}
 		
 		func hideSelf(animated: Bool) {
+			completion?()
 			if !animated {
 				isHidden = true
 				resignKey()
@@ -93,11 +95,11 @@ open class ToolTipService {
 		self.toolTipWindow.hideSelf(animated: animated)
 	}
 	
-	public func showToolTip(for view: UIView, text: String) {
-		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel())
+	public func showToolTip(for view: UIView, text: String, completion: (() -> Void)? = nil) {
+		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel(), completion: completion)
 	}
 	
-	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?) {
+	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?, completion: (() -> Void)? = nil) {
 		let markerView: TooltipMarkerViewModel = markerView ?? TriangleView.ViewModel()
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		guard let marker = markerView.getView() as? FibCoreView else { return }
@@ -108,6 +110,7 @@ open class ToolTipService {
 			let viewFrame = view.superview?.convert(view.frame, to: nil) ?? .init(center: self.toolTipWindow.frame.center, size: CGSize(width: 10, height: 10))
 			toolTipWindow.addSubview(marker)
 			toolTipWindow.addSubview(toolTipLabel)
+			toolTipWindow.completion = completion
 			let screenWidth = UIScreen.main.bounds.width - 48
 			let screenHeight = UIScreen.main.bounds.height
 			var width =  toolTipLabel.sizeWith(.init(width: screenWidth, height: screenHeight), data: tooltipViewModel, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel)?.width ?? 0

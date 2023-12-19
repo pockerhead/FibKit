@@ -49,15 +49,18 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		}
         var needShow: Bool
 		var tooltipType: TooltipType
+		var completion: (() -> Void)?
 
-		public init(needShow: Bool, tooltipType: TooltipType) {
+		public init(needShow: Bool, tooltipType: TooltipType, completion: (() -> Void)? = nil) {
 			self.needShow = needShow
 			self.tooltipType = tooltipType
+			self.completion = completion
 		}
 		
-		public init(needShow: Bool, text: String) {
+		public init(needShow: Bool, text: String, completion: (() -> Void)? = nil) {
 			self.needShow = needShow
 			self.tooltipType = .text(text: text)
+			self.completion = completion
 		}
     }
 
