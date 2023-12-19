@@ -123,18 +123,13 @@ open class ToolTipService {
 			marker.frame.size = marker.sizeWith(.init(width: screenWidth, height: screenHeight), data: markerView, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel) ?? CGSize(width: 10, height: 10)
 			let triangleX = viewFrame.center.x - 5
 			
-			if viewFrame.minY > screenHeight / 2 {
-				toolTipLabel.frame.origin.y = viewFrame.minY - (height + marker.frame.height - 4)
-				markerView.orientation = .down
-				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.maxY)
-			} else if viewFrame.maxY < screenHeight / 2 {
+			toolTipLabel.frame.origin.y = viewFrame.minY - (height + marker.frame.height - 4)
+			markerView.orientation = .down
+			marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.maxY)
+			if toolTipLabel.frame.origin.y < toolTipWindow.safeAreaInsets.top {
 				toolTipLabel.frame.origin.y = viewFrame.maxY + 4
 				markerView.orientation = .up
 				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
-			} else {
-				toolTipLabel.frame.origin.y = viewFrame.maxY + 4
-				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
-				markerView.orientation = .up
 			}
 			marker.configure(with: markerView)
 			let idealX = viewFrame.maxX - toolTipLabel.bounds.width + 12
