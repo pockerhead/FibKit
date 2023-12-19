@@ -815,6 +815,7 @@ open class FibControllerRootView: UIView {
 		setNeedsLayout()
 		DispatchQueue.main.async {
 			self.setNeedsLayout()
+			self.controller?.navigationController?.navigationBar.setNeedsLayout()
 			self.activeSearchBar.backgroundColor = .clear
 			self.activeSearchBar.backgroundImage = UIImage()
 			self.updateFormViewInsets(animated: false)
