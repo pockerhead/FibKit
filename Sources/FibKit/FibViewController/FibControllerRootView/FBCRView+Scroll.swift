@@ -13,9 +13,9 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		proxyDelegate?.scrollViewDidScroll?(scrollView)
 		configureShutterViewFrame()
 		if rootFormView.scrollDirection == .vertical {
-			scrollView.contentOffset.x = scrollView.adjustedContentInset.left
+			scrollView.contentOffset.x = -scrollView.adjustedContentInset.left
 		} else if rootFormView.scrollDirection == .horizontal {
-			scrollView.contentOffset.y = scrollView.adjustedContentInset.top
+			scrollView.contentOffset.y = -scrollView.adjustedContentInset.top
 		}
 		var navigationHeaderShift: CGFloat = 0
 		if !isSearching, navigationConfiguration != nil {
