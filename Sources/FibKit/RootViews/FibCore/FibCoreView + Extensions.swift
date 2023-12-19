@@ -20,9 +20,16 @@ extension PopoverServiceInstance {
 	}
 	
 	public struct Action {
+		
+		public struct Appearance {
+			public var textColor: UIColor = .darkText
+		}
+		
+		public static var defaultAppearance = Appearance()
+		
 		public var title: String
 		public var image: UIImage?
-		public var textColor: UIColor = .darkText
+		public var textColor: UIColor = defaultAppearance.textColor
 		public var isImageOnLeft = false
 		public var topSpacer: TopSpacer?
 		public var needHideAfterAction: Bool
@@ -30,7 +37,7 @@ extension PopoverServiceInstance {
 		
 		public init(title: String, 
 					image: UIImage? = nil,
-					textColor: UIColor = .darkText,
+					textColor: UIColor = defaultAppearance.textColor,
 					isImageOnLeft: Bool = false,
 					topSpacer: PopoverServiceInstance.TopSpacer? = nil,
 					needHideAfterAction: Bool = true,
