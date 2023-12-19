@@ -72,7 +72,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 	/// Own window for alertService
-	lazy var window: UIWindow = {
+	public private(set) lazy var window: UIWindow = {
 		let w = proxyWindow
 		dragGest.delegate = self
 		w.addGestureRecognizer(dragGest)
