@@ -126,9 +126,22 @@ extension FibGrid {
 			becomeFirstResponder()
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				guard cell.point(inside: gesture.location(in: cell), with: nil),
-					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true,
-					  ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
+					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true else { continue }
 				feedback.impactOccurred()
+				let identifier = flattenedProvider.identifier(at: index)
+				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
+				let interProviderIndex = interIndexPath?.1 ?? index
+				let context = LongGestureContext(view: cell,
+												 collectionView: self,
+												 locationInCollection: gesture.location(in: self),
+												 previousLocationInCollection: previousLocation,
+												 index: interProviderIndex)
+				flattenedProvider.didBeginLongTapWithProvider(context: context)
+				dragProvider = (cell.fb_provider as? ItemProvider)
+				dragProvider?.didBeginLongTapWithProvider(context: context)
+				guard ((cell as? DragControlledView)?.canBeReordered ?? true) else {
+					continue
+				}
 				draggedCellOldFrame = cell.frame
 				draggedCellInitialFrame = draggedCellOldFrame
 				bringSubviewToFront(cell)
@@ -143,19 +156,8 @@ extension FibGrid {
 				UIView.animate(withDuration: 0.2) {
 					cell.center = gesture.location(in: self)
 				}
-				let identifier = flattenedProvider.identifier(at: index)
-				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
-				let interProviderIndex = interIndexPath?.1 ?? index
 				self.draggedCellInitialIndex = interProviderIndex
 				self.draggedSectionIndex = (interIndexPath?.0 ?? 1) - 1
-				let context = LongGestureContext(view: cell,
-												 collectionView: self,
-												 locationInCollection: gesture.location(in: self),
-												 previousLocationInCollection: previousLocation,
-												 index: interProviderIndex)
-				flattenedProvider.didBeginLongTapWithProvider(context: context)
-				dragProvider = (cell.fb_provider as? ItemProvider)
-				dragProvider?.didBeginLongTapWithProvider(context: context)
 				draggedCell = CellPath(cell: cell,
 									   index: interProviderIndex,
 									   identifier: identifier)
