@@ -87,7 +87,7 @@ open class FibControllerRootView: UIView {
 	private let headerViewSource = FibGridViewSource()
 	private let headerSizeSource = FibGridSizeSource()
 	public let shutterView = ShutterView()
-	
+	private let gridMaskLayer = CALayer()
 	public private(set) var isSearching = false
 	private lazy var activeSearchBar = UISearchBar()
 	private lazy var inactiveSearchBar = UISearchBar()
@@ -164,7 +164,8 @@ open class FibControllerRootView: UIView {
 			guard let self = self else { return }
 			self.controller?.viewDidReloadCollection(with: self.fullContentHeight())
 		}
-		rootGridViewBackground.layer.masksToBounds = true
+		gridMaskLayer.backgroundColor = UIColor.black.cgColor
+		rootGridViewBackground.layer.mask = gridMaskLayer
 	}
 	
 	func assignRefreshControlIfNeeded() {
@@ -248,6 +249,7 @@ open class FibControllerRootView: UIView {
 	override open func layoutSubviews() {
 		super.layoutSubviews()
 		UIView.performWithoutAnimation {
+			rootGridViewBackground.frame = bounds
 			configureShutterViewFrame()
 		}
 		reloadNavigation()
@@ -283,8 +285,8 @@ open class FibControllerRootView: UIView {
 		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
 		// #crutch need maskTop + 0.01, because full view mask and blur
 		// background is not friends at all
-		rootGridViewBackground.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
-								   size: .init(width: bounds.width, height: bounds.height))
+		gridMaskLayer.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
+									size: .init(width: bounds.width, height: bounds.height))
 	}
 	
 	private func createNavItemViewIfNeeded(titleViewModel: ViewModelWithViewClass?,forceSet: Bool = false) {
