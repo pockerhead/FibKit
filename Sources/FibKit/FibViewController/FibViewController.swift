@@ -140,20 +140,7 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         feedback.selectionChanged()
     }
 	
-	private var reloadTask: DispatchWorkItem?
-	
-	private func updateReloadTask(completion: (() -> Void)? = nil, animated: Bool = true) {
-		reloadTask?.cancel()
-		reloadTask = nil
-		let blockTask = DispatchWorkItem.init(block: {[weak self] in
-			guard let self = self else { return }
-			self.immediateReload(completion: completion, animated: animated)
-		})
-		self.reloadTask = blockTask
-		delay(cyclesCount: 2) {[weak blockTask] in
-			blockTask?.perform()
-		}
-	}
+	private lazy var reloadDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
 	
 	private func immediateReload(completion: (() -> Void)? = nil, animated: Bool = true) {
 		reloadFooter(animated: animated)
@@ -162,7 +149,9 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 	}
 
     open func reload(completion: (() -> Void)? = nil, animated: Bool = true) {
-        updateReloadTask(completion: completion, animated: animated)
+		reloadDebouncer.runDebouncedTask {[weak self] in
+			self?.immediateReload(completion: completion, animated: animated)
+		}
     }
 
     open func reloadFooter(animated: Bool = true) {

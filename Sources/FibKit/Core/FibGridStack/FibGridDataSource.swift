@@ -13,21 +13,15 @@ public typealias FormViewIdentifierMapperFn = (Int, ViewModelWithViewClass?) -> 
 
 open class FibGridDataSource: CollectionReloadable {
     
-    private var task: DispatchWorkItem?
+	private var reloadDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
 
     public var data: [ViewModelWithViewClass?] {
-        didSet {
-            task?.cancel()
-            task = nil
-            let blockTask = DispatchWorkItem.init(block: {[weak self] in
-                guard let self = self else { return }
-                self.setNeedsReload()
-            })
-            self.task = blockTask
-            DispatchQueue.main.async {[weak blockTask] in
-                blockTask?.perform()
-            }
-        }
+		didSet {
+			reloadDebouncer.runDebouncedTask {[weak self] in
+				guard let self = self else { return }
+				self.setNeedsReload()
+			}
+		}
     }
 
     public var identifierMapper: FormViewIdentifierMapperFn {

@@ -37,7 +37,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 	
 	private weak var _collectionView: FibGrid?
     private var _canReorderItems: Bool = false
-    private var reloadTask: DispatchWorkItem?
+	private var reloadDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
     public var isAsync = true
     
     open var sections: [Provider] {
@@ -51,19 +51,12 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
         }
     }
     
-    func updateSetNeedsReloadTask() {
-        reloadTask?.cancel()
-        reloadTask = nil
-        let blockTask = DispatchWorkItem.init(block: {[weak self] in
-            guard let self = self else { return }
-            self._canReorderItems = self.sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
-            self.setNeedsReload()
-        })
-        self.reloadTask = blockTask
-        delay(cyclesCount: 2) {[weak blockTask] in
-			guard let bt = blockTask, bt.isCancelled == false else { return }
-            blockTask?.perform()
-        }
+	func updateSetNeedsReloadTask() {
+		reloadDebouncer.runDebouncedTask {[weak self] in
+			guard let self = self else { return }
+			self._canReorderItems = self.sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
+			self.setNeedsReload()
+		}
     }
 
     open var animator: Animator? {

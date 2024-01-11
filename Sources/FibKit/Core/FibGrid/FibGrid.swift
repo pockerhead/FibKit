@@ -66,7 +66,7 @@ final public class FibGrid: UIScrollView {
 	public var animated: Bool = true
 	public var isEmbedCollection = false
 	var oldDataArray: [ViewModelWithViewClass?] = []
-	var reloadTask: DispatchWorkItem?
+	var reloadDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
 	public var isAsync = true
 	/// cached structs that contains cached sizes of cells, needs for optimisation
 	public var provider: Provider? {
@@ -188,17 +188,8 @@ final public class FibGrid: UIScrollView {
 	}
 	
 	private func updateLayoutSubviewsTask() {
-		reloadTask?.cancel()
-		reloadTask = nil
-		let blockTask = DispatchWorkItem.init(block: {[weak self] in
-			guard let self = self else { return }
-			self._reloadOrInvalidateLayout()
-		})
-		self.reloadTask = blockTask
-		delay(cyclesCount: 4) { [weak blockTask] in
-			if let blockTask = blockTask {
-				blockTask.perform()
-			}
+		reloadDebouncer.runDebouncedTask {[weak self] in
+			self?._reloadOrInvalidateLayout()
 		}
 	}
 	

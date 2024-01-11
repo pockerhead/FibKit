@@ -246,12 +246,9 @@ open class FibControllerRootView: UIView {
 		}
 	}
 	
-	override open func layoutSubviews() {
-		super.layoutSubviews()
-		UIView.performWithoutAnimation {
-			rootGridViewBackground.frame = bounds
-			configureShutterViewFrame()
-		}
+	private let layoutDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
+	
+	func _layoutSubviews(){
 		reloadNavigation()
 		configureBackgroundView()
 		configureHeaderEffectsBackgroundView()
@@ -281,12 +278,23 @@ open class FibControllerRootView: UIView {
 				}
 			}
 		}
+	}
+	
+	override open func layoutSubviews() {
+		super.layoutSubviews()
+		UIView.performWithoutAnimation {
+			rootGridViewBackground.frame = bounds
+			configureShutterViewFrame()
+		}
 		layoutFibGrid(animated: false)
 		let gridMaskTop = shutterType == .default ? 0 : topInsetStrategy.getTopInset(for: self)
 		// #crutch need maskTop + 0.01, because full view mask and blur
 		// background is not friends at all
 		gridMaskLayer.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
 									size: .init(width: bounds.width, height: bounds.height))
+		layoutDebouncer.runDebouncedTask {[weak self] in
+			self?._layoutSubviews()
+		}
 	}
 	
 	private func createNavItemViewIfNeeded(titleViewModel: ViewModelWithViewClass?,forceSet: Bool = false) {
