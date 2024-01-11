@@ -182,13 +182,13 @@ extension FibGrid {
 		}
 		let isUp = targetPoint.y < contentOffset.y
 		let boundsHeight = (frame.size.height)
-		let isTargetLargerThanBounds = abs(targetPoint.y - contentOffset.y) > boundsHeight
+		let isTargetLargerThanBounds = abs(targetPoint.y - contentOffset.y) > (boundsHeight * 3)
 		if animated {
 			if isTargetLargerThanBounds {
 				if isUp {
-					contentOffset.y = targetPoint.y + (boundsHeight / 2.3)
+					contentOffset.y = targetPoint.y + (boundsHeight * 3)
 				} else {
-					contentOffset.y = targetPoint.y - (boundsHeight / 2.3)
+					contentOffset.y = targetPoint.y - (boundsHeight * 3)
 				}
 			}
 			if let customScroll = customScroll {
