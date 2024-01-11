@@ -132,13 +132,13 @@ extension UIScrollView {
 		}
 		let isUp = target.y < contentOffset.y
 		let boundsHeight = (frame.size.height)
-		let isTargetLargerThanBounds = abs(target.y - contentOffset.y) > boundsHeight
+		let isTargetLargerThanBounds = abs(target.y - contentOffset.y) > (boundsHeight * 3)
 		if animated {
 			if isTargetLargerThanBounds {
 				if isUp {
-					contentOffset.y = target.y + (boundsHeight / 2.3)
+					contentOffset.y = target.y + (boundsHeight * 3)
 				} else {
-					contentOffset.y = target.y - (boundsHeight / 2.3)
+					contentOffset.y = target.y - (boundsHeight * 3)
 				}
 			}
 		}
