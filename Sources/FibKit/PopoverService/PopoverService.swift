@@ -133,12 +133,63 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var needBlurBackground = true
 	public private(set) var needHideAfterAction = true
 	private var onHideAction: (() -> Void)? = nil
+	private var leftXOffset: CGFloat = 0
+	private var rightXOffset: CGFloat = 0
+	
+	public struct Context {
+		
+		var view: UIView?
+		var needBlurBackground: Bool = true
+		var gesture: UIGestureRecognizer?
+		var viewToMenuSpacing: CGFloat = 16
+		var menuWidth: CGFloat? = nil
+		var needHideAfterAction: Bool = true
+		var leftXOffset: CGFloat = 0
+		var rightXOffset: CGFloat = 0
+		var onHideAction: (() -> Void)? = nil
+		
+		public init(
+			view: UIView? = nil,
+			needBlurBackground: Bool = true,
+			gesture: UIGestureRecognizer? = nil,
+			viewToMenuSpacing: CGFloat = 16,
+			menuWidth: CGFloat? = nil,
+			needHideAfterAction: Bool = true,
+			leftXOffset: CGFloat = 0,
+			rightXOffset: CGFloat = 0,
+			onHideAction: (() -> Void)? = nil
+		) {
+			self.view = view
+			self.needBlurBackground = needBlurBackground
+			self.gesture = gesture
+			self.viewToMenuSpacing = viewToMenuSpacing
+			self.menuWidth = menuWidth
+			self.needHideAfterAction = needHideAfterAction
+			self.leftXOffset = leftXOffset
+			self.rightXOffset = rightXOffset
+			self.onHideAction = onHideAction
+		}
+	}
+	
+	public func showContextMenuWith(_ context: Context = Context(), _ menu: ContextMenu) {
+		showContextMenu(menu,
+						view: context.view,
+						needBlurBackground: context.needBlurBackground,
+						gesture: context.gesture,
+						viewToMenuSpacing: context.viewToMenuSpacing,
+						menuWidth: context.menuWidth,
+						needHideAfterAction: context.needHideAfterAction,
+						leftXOffset: context.leftXOffset,
+						rightXOffset: context.rightXOffset,
+						onHideAction: context.onHideAction)
+	}
 
 	/// Shows conext menu for choosed view
 	/// - Parameters:
 	///   - menu: see FibCell.ViewModel
 	///   - view: captured view
 	///   - controller: viewController that contains captured view
+	@available(*, deprecated, renamed: "showContextMenuWith", message: "Use function with context")
 	public func showContextMenu(_ menu: ContextMenu,
 								view: UIView?,
 								needBlurBackground: Bool = true,
@@ -146,8 +197,15 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								viewToMenuSpacing: CGFloat = 16,
 								menuWidth: CGFloat? = nil,
 								needHideAfterAction: Bool = true,
+								leftXOffset: CGFloat = 0,
+								rightXOffset: CGFloat = 0,
 								onHideAction: (() -> Void)? = nil) {
-		guard var viewRect = view?.superview?.convert(view?.frame ?? .zero, to: nil) else { return }
+		self.leftXOffset = leftXOffset
+		self.rightXOffset = rightXOffset
+		var newRect = view?.frame ?? .zero
+		newRect.origin.x -= leftXOffset + rightXOffset
+		newRect.size.width += self.leftXOffset + self.rightXOffset
+		guard var viewRect = view?.superview?.convert(newRect, to: nil) else { return }
 		let oldRect = viewRect
 		if viewRect.minY < window.safeAreaInsets.top {
 			viewRect.origin.y = window.safeAreaInsets.top
@@ -189,7 +247,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 			configureOverlayView(needBlur: needBlurBackground)
 			prepareScrollView()
-			configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
+			if self.leftXOffset != 0 || self.rightXOffset != 0 {
+				configureOutOfBoundsSnapshot(with: view, viewRect: viewRect, leftXSpacing: self.leftXOffset, rightXSpacing: self.rightXOffset)
+			} else {
+				configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
+			}
 			configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
 			prepareWindow()
 			
@@ -313,7 +375,28 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		contextViewSnapshot!.frame = oldRect
 		contextViewSnapshot?.layer.applySketchShadow()
 	}
-	
+
+	private func configureOutOfBoundsSnapshot(with view: UIView?,
+											  viewRect: CGRect,
+											  leftXSpacing: CGFloat,
+											  rightXSpacing: CGFloat) {
+		var newRect: CGRect = .init(x: -leftXSpacing,
+									y: 0,
+									width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
+									height: view?.frame.size.height ?? 0)
+		contextViewSnapshot = view?.resizableSnapshotView(from: newRect,
+														  afterScreenUpdates: true,
+														  withCapInsets: .zero)
+		contextView?.alpha = 0
+		view?.applyIdentityRecursive()
+		contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
+		scrollView.addSubview(contextViewSnapshot!)
+		newRect.origin.x = viewRect.origin.x
+		newRect.origin.y = viewRect.origin.y
+		contextViewSnapshot!.frame = newRect
+		contextViewSnapshot?.layer.applySketchShadow()
+	}
+
 	var canc: AnyCancellable?
 
 	private func configureContextMenu(with size: CGSize, viewRect: CGRect, formViewHeight: CGFloat) {
@@ -353,7 +436,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		guard let contextSnapshot = self.contextViewSnapshot else { return }
 		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
 		var insetTop: CGFloat = 0
-		let contextSnapshotX = viewRect.minX.clamp(8, window.bounds.width - 8 - viewRect.width)
+		let contextMinX = viewRect.minX - self.leftXOffset + self.rightXOffset
+		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - viewRect.width)
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
 									  size: viewRect.size)
 		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
@@ -447,6 +531,13 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
 					self.scrollView.contentInset.top = -window.safeAreaInsets.top
 					self.contextViewSnapshot?.frame = viewRect
+					if rightXOffset != 0 {
+						self.contextViewSnapshot?.frame.size.width += rightXOffset
+					}
+					if leftXOffset != 0 {
+						self.contextViewSnapshot?.frame.size.width += leftXOffset
+						self.contextViewSnapshot?.frame.origin.x -= leftXOffset
+					}
 					self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
 				}
 			}
