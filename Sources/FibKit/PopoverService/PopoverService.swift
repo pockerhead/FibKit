@@ -133,14 +133,63 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var needBlurBackground = true
 	public private(set) var needHideAfterAction = true
 	private var onHideAction: (() -> Void)? = nil
-	private var leftXSpacing: CGFloat = 0
-	private var rightXSpacing: CGFloat = 0
+	private var leftXOffset: CGFloat = 0
+	private var rightXOffset: CGFloat = 0
+	
+	public struct Context {
+		
+		var view: UIView?
+		var needBlurBackground: Bool = true
+		var gesture: UIGestureRecognizer?
+		var viewToMenuSpacing: CGFloat = 16
+		var menuWidth: CGFloat? = nil
+		var needHideAfterAction: Bool = true
+		var leftXOffset: CGFloat = 0
+		var rightXOffset: CGFloat = 0
+		var onHideAction: (() -> Void)? = nil
+		
+		public init(
+			view: UIView? = nil,
+			needBlurBackground: Bool = true,
+			gesture: UIGestureRecognizer? = nil,
+			viewToMenuSpacing: CGFloat = 16,
+			menuWidth: CGFloat? = nil,
+			needHideAfterAction: Bool = true,
+			leftXOffset: CGFloat = 0,
+			rightXOffset: CGFloat = 0,
+			onHideAction: (() -> Void)? = nil
+		) {
+			self.view = view
+			self.needBlurBackground = needBlurBackground
+			self.gesture = gesture
+			self.viewToMenuSpacing = viewToMenuSpacing
+			self.menuWidth = menuWidth
+			self.needHideAfterAction = needHideAfterAction
+			self.leftXOffset = leftXOffset
+			self.rightXOffset = rightXOffset
+			self.onHideAction = onHideAction
+		}
+	}
+	
+	public func showContextMenuWith(_ context: Context = Context(), _ menu: ContextMenu) {
+		showContextMenu(menu,
+						view: context.view,
+						needBlurBackground: context.needBlurBackground,
+						gesture: context.gesture,
+						viewToMenuSpacing: context.viewToMenuSpacing,
+						menuWidth: context.menuWidth,
+						needHideAfterAction: context.needHideAfterAction,
+						leftXOffset: context.leftXOffset,
+						rightXOffset: context.rightXOffset,
+						onHideAction: context.onHideAction)
+	}
 
 	/// Shows conext menu for choosed view
 	/// - Parameters:
 	///   - menu: see FibCell.ViewModel
 	///   - view: captured view
 	///   - controller: viewController that contains captured view
+	@available(*, deprecated, renamed: "showContextMenuWith", message: "Use function with context")
 	public func showContextMenu(_ menu: ContextMenu,
 								view: UIView?,
 								needBlurBackground: Bool = true,
@@ -148,14 +197,14 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								viewToMenuSpacing: CGFloat = 16,
 								menuWidth: CGFloat? = nil,
 								needHideAfterAction: Bool = true,
-								leftXSpacing: CGFloat = 0,
-								rightXSpacing: CGFloat = 0,
+								leftXOffset: CGFloat = 0,
+								rightXOffset: CGFloat = 0,
 								onHideAction: (() -> Void)? = nil) {
-		self.leftXSpacing = leftXSpacing
-		self.rightXSpacing = rightXSpacing
+		self.leftXOffset = leftXOffset
+		self.rightXOffset = rightXOffset
 		var newRect = view?.frame ?? .zero
-		newRect.origin.x -= leftXSpacing + rightXSpacing
-		newRect.size.width += self.leftXSpacing + self.rightXSpacing
+		newRect.origin.x -= leftXOffset + rightXOffset
+		newRect.size.width += self.leftXOffset + self.rightXOffset
 		guard var viewRect = view?.superview?.convert(newRect, to: nil) else { return }
 		let oldRect = viewRect
 		if viewRect.minY < window.safeAreaInsets.top {
@@ -198,8 +247,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 			configureOverlayView(needBlur: needBlurBackground)
 			prepareScrollView()
-			if self.leftXSpacing != 0 || self.rightXSpacing != 0 {
-				configureOutOfBoundsSnapshot(with: view, viewRect: viewRect, leftXSpacing: self.leftXSpacing, rightXSpacing: self.rightXSpacing)
+			if self.leftXOffset != 0 || self.rightXOffset != 0 {
+				configureOutOfBoundsSnapshot(with: view, viewRect: viewRect, leftXSpacing: self.leftXOffset, rightXSpacing: self.rightXOffset)
 			} else {
 				configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
 			}
@@ -387,7 +436,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		guard let contextSnapshot = self.contextViewSnapshot else { return }
 		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
 		var insetTop: CGFloat = 0
-		let contextMinX = viewRect.minX - self.leftXSpacing + self.rightXSpacing
+		let contextMinX = viewRect.minX - self.leftXOffset + self.rightXOffset
 		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - viewRect.width)
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
 									  size: viewRect.size)
@@ -482,12 +531,12 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
 					self.scrollView.contentInset.top = -window.safeAreaInsets.top
 					self.contextViewSnapshot?.frame = viewRect
-					if rightXSpacing != 0 {
-						self.contextViewSnapshot?.frame.size.width += rightXSpacing
+					if rightXOffset != 0 {
+						self.contextViewSnapshot?.frame.size.width += rightXOffset
 					}
-					if leftXSpacing != 0 {
-						self.contextViewSnapshot?.frame.size.width += leftXSpacing
-						self.contextViewSnapshot?.frame.origin.x -= leftXSpacing
+					if leftXOffset != 0 {
+						self.contextViewSnapshot?.frame.size.width += leftXOffset
+						self.contextViewSnapshot?.frame.origin.x -= leftXOffset
 					}
 					self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
 				}
