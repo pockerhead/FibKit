@@ -76,6 +76,7 @@ internal extension UIView {
 	
 	func applyIdentityRecursive() {
 		transform = .identity
+		layer.transform = CATransform3DIdentity
 		subviews.forEach { $0.applyIdentityRecursive() }
 	}
 }
