@@ -248,14 +248,18 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 			configureOverlayView(needBlur: needBlurBackground)
 			prepareScrollView()
-			let snapshotFuture: Future<Void, Never>
+			let snapshotFuture: Future<CGRect?, Never>
 			if self.leftXOffset != 0 || self.rightXOffset != 0 {
 				snapshotFuture = configureOutOfBoundsSnapshot(with: view, viewRect: viewRect, leftXSpacing: self.leftXOffset, rightXSpacing: self.rightXOffset)
 			} else {
 				snapshotFuture = configureSnapshot(with: view, viewRect: viewRect, oldRect: oldRect)
 			}
-			snapshotCancellable = snapshotFuture.sink {[weak self] _ in
+			snapshotCancellable = snapshotFuture.sink {[weak self] rect in
 				guard let self = self else { return }
+				if let rect {
+					viewRect = rect
+					contextViewRectInWindow = rect
+				}
 				configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
 				prepareWindow()
 				
@@ -372,18 +376,23 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.overlayView.alpha = 0
 	}
 
-	private func configureSnapshot(with view: UIView?, viewRect: CGRect, oldRect: CGRect) -> Future<Void, Never> {
-		Future<Void, Never> { promise in
+	private func configureSnapshot(with view: UIView?, viewRect: CGRect, oldRect: CGRect) -> Future<CGRect?, Never> {
+		Future<CGRect?, Never> { promise in
 			view?.applyIdentityRecursive()
+			let newRect = view?.frame ?? .zero
+			guard let latestRect = view?.superview?.convert(newRect, to: nil) else {
+				promise(.success(nil))
+				return
+			}
 			delay(cyclesCount: 3) {[weak self] in
 				guard let self = self else { return }
 				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 				contextView?.alpha = 0
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
-				contextViewSnapshot!.frame = oldRect
+				contextViewSnapshot!.frame = viewRect
 				contextViewSnapshot?.layer.applySketchShadow()
-				promise(.success(()))
+				promise(.success(latestRect))
 			}
 		}
 	}
@@ -391,26 +400,34 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private func configureOutOfBoundsSnapshot(with view: UIView?,
 											  viewRect: CGRect,
 											  leftXSpacing: CGFloat,
-											  rightXSpacing: CGFloat) -> Future<Void, Never> {
-		Future<Void, Never> { promise in
-			var newRect: CGRect = .init(x: -leftXSpacing,
-										y: 0,
-										width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
-										height: view?.frame.size.height ?? 0)
+											  rightXSpacing: CGFloat) -> Future<CGRect?, Never> {
+		Future<CGRect?, Never> { promise in
 			view?.applyIdentityRecursive()
 			delay(cyclesCount: 3) {[weak self] in
 				guard let self = self else { return }
+				var newRect: CGRect = .init(x: -leftXSpacing,
+											y: 0,
+											width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
+											height: view?.frame.size.height ?? 0)
 				contextViewSnapshot = view?.resizableSnapshotView(from: newRect,
 																  afterScreenUpdates: true,
 																  withCapInsets: .zero)
 				contextView?.alpha = 0
+				var rect = view?.frame ?? .zero
+				rect.origin.x -= leftXOffset + rightXOffset
+				rect.size.width += self.leftXOffset + self.rightXOffset
+				guard var viewRect = view?.superview?.convert(rect, to: nil) else {
+					promise(.success(nil))
+					return
+				}
+				let oldRect = viewRect
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
 				newRect.origin.x = viewRect.origin.x
 				newRect.origin.y = viewRect.origin.y
 				contextViewSnapshot!.frame = newRect
 				contextViewSnapshot?.layer.applySketchShadow()
-				promise(.success(()))
+				promise(.success(oldRect))
 			}
 		}
 		
@@ -456,9 +473,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
 		var insetTop: CGFloat = 0
 		let contextMinX = viewRect.minX - self.leftXOffset + self.rightXOffset
-		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - viewRect.width)
+		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - (contextView?.frame.width ?? viewRect.width))
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
-									  size: viewRect.size)
+									  size: contextView?.frame.size ?? viewRect.size)
 		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
 			insetTop = max(0, viewRect.minY)
 		} else {
@@ -529,36 +546,26 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		feedBack.impactOccurred()
 		self.contextView?.isHidden = false
 		self.contextView?.alpha = 0
-		delay(0.2) {
-			withFibSpringAnimation(duration: 0.2) {
-				self.contextViewSnapshot?.alpha = 0
-			}
+		withFibSpringAnimation(duration: 0.2, delay: 0.2) {
+			self.contextViewSnapshot?.alpha = 0
 		}
-		withFibSpringAnimation(duration: 0.1) {[weak self] in
+		withFibSpringAnimation(duration: 0.1, delay: 0.2) {[weak self] in
 			guard let self = self else { return }
-			// TODO: @ab есть баги
-			//            if let currentAppWindow = self.currentAppWindow {
-			//                currentAppWindow?.transform = .identity
-			//            }
-		} completion: {[weak self] _ in
-			withFibSpringAnimation(duration: 0.1) {[weak self] in
-				guard let self = self else { return }
-				self.contextView?.alpha = 1
-			}
-			withFibSpringAnimation(duration: 0.3) {[weak self] in
-				guard let self = self else { return }
-				if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
-					self.scrollView.contentInset.top = -window.safeAreaInsets.top
-					self.contextViewSnapshot?.frame = viewRect
-					if rightXOffset != 0 {
-						self.contextViewSnapshot?.frame.size.width += rightXOffset
-					}
-					if leftXOffset != 0 {
-						self.contextViewSnapshot?.frame.size.width += leftXOffset
-						self.contextViewSnapshot?.frame.origin.x -= leftXOffset
-					}
-					self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
+			self.contextView?.alpha = 1
+		}
+		withFibSpringAnimation(duration: 0.3) {[weak self] in
+			guard let self = self else { return }
+			if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
+				self.scrollView.contentInset.top = -window.safeAreaInsets.top
+				self.contextViewSnapshot?.frame = viewRect
+				if rightXOffset != 0 {
+					self.contextViewSnapshot?.frame.size.width += rightXOffset
 				}
+				if leftXOffset != 0 {
+					self.contextViewSnapshot?.frame.size.width += leftXOffset
+					self.contextViewSnapshot?.frame.origin.x -= leftXOffset
+				}
+				self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
 			}
 		}
 		withFibSpringAnimation(duration: 0.4) {[weak self] in

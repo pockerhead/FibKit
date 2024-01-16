@@ -128,7 +128,7 @@ public class AnimatedReloadAnimator: Animator {
 		if view.alpha != 1 || view.transform != .identity || view.transform != initialTransform {
 			UIView.animate(withDuration: animationContext.updateDuration, delay: 0, usingSpringWithDamping: animationContext.updateDamping, initialSpringVelocity: 0, options: [], animations: {
 				view.transform = initialTransform
-				view.alpha = 1
+//				view.alpha = 1
 			}, completion: nil)
 		}
 	}

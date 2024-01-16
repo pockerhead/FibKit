@@ -70,6 +70,11 @@ class ViewController: FibViewController {
 				arr2.map { i in
 					MyFibSquareView.ViewModel(text: "cell #\(i)")
 						.id("\(i)")
+						.interactive(true)
+						.fibContextMenu(.init(provider: ViewModelSection({
+							MyFibSquareView.ViewModel(text: "cell #\(i)")
+							MyFibSquareView.ViewModel(text: "cell #\(i)")
+						})))
 				}
 			}
 			ViewModelSection {
@@ -93,18 +98,18 @@ class ViewController: FibViewController {
 				let nav = UINavigationController(rootViewController: ViewController())
 				present(nav, animated: true)
 			})
-			.didReorderItems(context: .init(
-				didBeginReorderSession: {[weak self] in
-					self?.isDragInProcess = true
-				},
-				didEndReorderSession: {[weak self] oldIndex, newIndex in
-					guard let self = self else { return }
-					
-					let item = arr2.remove(at: oldIndex)
-					arr2.insert(item, at: newIndex)
-					reload()
-				}
-			))
+//			.didReorderItems(context: .init(
+//				didBeginReorderSession: {[weak self] in
+//					self?.isDragInProcess = true
+//				},
+//				didEndReorderSession: {[weak self] oldIndex, newIndex in
+//					guard let self = self else { return }
+//					
+//					let item = arr2.remove(at: oldIndex)
+//					arr2.insert(item, at: newIndex)
+//					reload()
+//				}
+//			))
 			.isSticky(true)
 			.centeringFlowLayout()
 		}
@@ -410,6 +415,16 @@ class MyFibView2: UIView, ViewModelConfigurable, FibViewHeader {
 }
 
 class MyFibSquareView: FibCoreView {
+	
+	override var alpha: CGFloat {
+		didSet {
+			if label.text?.contains("#6") == true {
+				print(alpha)
+				print("2f32f")
+			}
+			
+		}
+	}
 	
 	var label: UILabel = .init()
 	private var shakeAnimator: UIViewPropertyAnimator = .init()
