@@ -367,9 +367,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	}
 
 	private func configureSnapshot(with view: UIView?, viewRect: CGRect, oldRect: CGRect) {
-		contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 		contextView?.alpha = 0
 		view?.applyIdentityRecursive()
+		contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 		contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 		scrollView.addSubview(contextViewSnapshot!)
 		contextViewSnapshot!.frame = oldRect
@@ -384,11 +384,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									y: 0,
 									width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
 									height: view?.frame.size.height ?? 0)
+		contextView?.alpha = 0
+		view?.applyIdentityRecursive()
 		contextViewSnapshot = view?.resizableSnapshotView(from: newRect,
 														  afterScreenUpdates: true,
 														  withCapInsets: .zero)
-		contextView?.alpha = 0
-		view?.applyIdentityRecursive()
 		contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 		scrollView.addSubview(contextViewSnapshot!)
 		newRect.origin.x = viewRect.origin.x
