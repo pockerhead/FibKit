@@ -505,7 +505,7 @@ open class FibControllerRootView: UIView {
 				minShift = self.searchBarHeight
 			}
 		}
-		if navigationConfiguration.largeTitleViewModel == nil || navigationConfiguration.searchContext == nil {
+		if navigationConfiguration.largeTitleViewModel == nil && navigationConfiguration.searchContext == nil {
 			return max(getHeaderAdditionalNavigationMargin(), minShift)
 		}
 		let result = max(getHeaderAdditionalNavigationMargin() - scrollViewShift, minShift)
