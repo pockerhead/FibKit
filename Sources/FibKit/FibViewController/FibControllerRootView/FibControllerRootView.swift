@@ -497,7 +497,13 @@ open class FibControllerRootView: UIView {
 		}
 		var minShift: CGFloat = 0
 		if navigationConfiguration.searchContext?.hideWhenScrolling == false {
-			minShift = self.searchBarHeight
+			if
+				let force = navigationConfiguration.searchContext?.isForceActive,
+				force {
+				minShift = 0
+			} else {
+				minShift = self.searchBarHeight
+			}
 		}
 		let result = max(getHeaderAdditionalNavigationMargin() - scrollViewShift, minShift)
 		return result
