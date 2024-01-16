@@ -208,11 +208,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		newRect.size.width += self.leftXOffset + self.rightXOffset
 		guard var viewRect = view?.superview?.convert(newRect, to: nil) else { return }
 		let oldRect = viewRect
-		if viewRect.minY < window.safeAreaInsets.top {
-			viewRect.origin.y = window.safeAreaInsets.top
-		} else if viewRect.maxY > window.frame.height - window.safeAreaInsets.bottom {
-			viewRect.origin.y = window.frame.height - window.safeAreaInsets.bottom - viewRect.height
-		}
 		self.menuWidth = menuWidth
 		self.needBlurBackground = needBlurBackground
 		contextView = view
@@ -379,13 +374,13 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private func configureSnapshot(with view: UIView?, viewRect: CGRect, oldRect: CGRect) -> Future<CGRect?, Never> {
 		Future<CGRect?, Never> { promise in
 			view?.applyIdentityRecursive()
-			let newRect = view?.frame ?? .zero
-			guard let latestRect = view?.superview?.convert(newRect, to: nil) else {
-				promise(.success(nil))
-				return
-			}
 			delay(cyclesCount: 3) {[weak self] in
 				guard let self = self else { return }
+				let newRect = view?.frame ?? .zero
+				guard let latestRect = view?.superview?.convert(newRect, to: nil) else {
+					promise(.success(nil))
+					return
+				}
 				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 				contextView?.alpha = 0
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
@@ -416,18 +411,17 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				var rect = view?.frame ?? .zero
 				rect.origin.x -= leftXOffset + rightXOffset
 				rect.size.width += self.leftXOffset + self.rightXOffset
-				guard var viewRect = view?.superview?.convert(rect, to: nil) else {
+				guard let latestRect = view?.superview?.convert(rect, to: nil) else {
 					promise(.success(nil))
 					return
 				}
-				let oldRect = viewRect
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
 				newRect.origin.x = viewRect.origin.x
 				newRect.origin.y = viewRect.origin.y
 				contextViewSnapshot!.frame = newRect
 				contextViewSnapshot?.layer.applySketchShadow()
-				promise(.success(oldRect))
+				promise(.success(latestRect))
 			}
 		}
 		
@@ -478,6 +472,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									  size: contextView?.frame.size ?? viewRect.size)
 		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
 			insetTop = max(0, viewRect.minY)
+			if viewRect.minY < window.safeAreaInsets.top {
+				insetTop = window.safeAreaInsets.top
+			}
 		} else {
 			if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
 				insetTop = scrollView.frame.height - allHeight - 32
@@ -505,6 +502,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					scrollView.contentInset.top += 32 + window.safeAreaInsets.top
 					scrollView.contentInset.bottom += 32
 				}
+				
 				delay {[weak self] in
 					guard let self = self else { return }
 					scrollView.setContentOffset(.init(x: 0, y: scrollView.offsetFrame.maxY), animated: true)
