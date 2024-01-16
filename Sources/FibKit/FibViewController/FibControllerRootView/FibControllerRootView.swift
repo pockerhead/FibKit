@@ -476,8 +476,12 @@ open class FibControllerRootView: UIView {
 				direction: .vertical).height
 			searchBarHeight = 12
 		}
-		if let context = navigationConfiguration.searchContext, (context.isForceActive ?? true) == true {
-			searchBarHeight = self.searchBarHeight
+		if let context = navigationConfiguration.searchContext {
+			if let force = context.isForceActive, force {
+				searchBarHeight = 0
+			} else {
+				searchBarHeight = self.searchBarHeight
+			}
 		}
 		return largeTitleViewModelHeight + searchBarHeight
 	}

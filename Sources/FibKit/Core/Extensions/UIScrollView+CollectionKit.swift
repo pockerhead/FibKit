@@ -103,9 +103,12 @@ extension UIScrollView {
 		return absoluteFrameLessInset.size
 	}
 	public var offsetFrame: CGRect {
-		return CGRect(x: -adjustedContentInset.left, y: -adjustedContentInset.top,
-					  width: max(0, contentSize.width - bounds.width + adjustedContentInset.right + adjustedContentInset.left),
-					  height: max(0, contentSize.height - bounds.height + adjustedContentInset.bottom + adjustedContentInset.top))
+		return CGRect(
+			x: -adjustedContentInset.left,
+			y: -adjustedContentInset.top,
+			width: max(0, contentSize.width - bounds.width + adjustedContentInset.right + adjustedContentInset.left),
+			height: max(0, contentSize.height - bounds.height + adjustedContentInset.bottom + adjustedContentInset.top)
+		)
 	}
 	public func absoluteLocation(for point: CGPoint) -> CGPoint {
 		return point - contentOffset
