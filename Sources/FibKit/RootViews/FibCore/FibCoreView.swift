@@ -18,6 +18,26 @@ open class FibCoreView: UIView,
                         UIGestureRecognizerDelegate,
                         HighlightableView,
 						DragControlledView {
+	
+	public struct Appearance {
+		public init(
+			coloredBackgroundDefaultColor: UIColor = .darkText
+		) {
+			self.coloredBackgroundDefaultColor = coloredBackgroundDefaultColor
+		}
+		
+		public var coloredBackgroundDefaultColor: UIColor
+	}
+
+	public static var defaultAppearance = Appearance()
+	
+	public var appearance: Appearance? {
+		nil
+	}
+	
+	private var coloredBackgroundDefaultColor: UIColor {
+		appearance?.coloredBackgroundDefaultColor ?? FibCoreView.defaultAppearance.coloredBackgroundDefaultColor
+	}
     
     // MARK: - Variables
     
@@ -452,7 +472,7 @@ extension FibCoreView {
         if highlighted {
             _contentViewBackgroundColor = contentView.backgroundColor
             UIView.animate(withDuration: squeezeDownDuration) {
-                self.contentView.backgroundColor = color ?? self.contentView.backgroundColor?.fade(toColor: .darkText, withPercentage: 0.05)
+				self.contentView.backgroundColor = color ?? self.contentView.backgroundColor?.fade(toColor: self.coloredBackgroundDefaultColor, withPercentage: 0.05)
             }
         } else {
             UIView.animate(withDuration: squeezeUpDuration) {
