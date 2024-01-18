@@ -249,12 +249,7 @@ open class FibControllerRootView: UIView {
 	private let layoutDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
 	
 	func _layoutSubviews(){
-		reloadNavigation()
-		configureBackgroundView()
 		configureHeaderEffectsBackgroundView()
-		calculateHeaderFrame()
-		updateHeaderFrame()
-		updateFooterFrame()
 		if needsConfigureFooter {
 			needsConfigureFooter = false
 			DispatchQueue.main.async {[weak self] in
@@ -292,6 +287,11 @@ open class FibControllerRootView: UIView {
 		// background is not friends at all
 		gridMaskLayer.frame = .init(origin: .init(x: 0, y: gridMaskTop + 0.01),
 									size: .init(width: bounds.width, height: bounds.height))
+		reloadNavigation()
+		configureBackgroundView()
+		calculateHeaderFrame()
+		updateHeaderFrame()
+		updateFooterFrame()
 		layoutDebouncer.runDebouncedTask {[weak self] in
 			self?._layoutSubviews()
 		}
