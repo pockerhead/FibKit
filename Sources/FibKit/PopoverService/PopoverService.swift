@@ -453,8 +453,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.window.layoutIfNeeded()
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
-		let contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
-		
+		var contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+
 		self.contextMenu.transform = .identity
 		self.contextMenu.alpha = 1
 		
@@ -494,6 +494,14 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 		scrollView.contentInset.top = insetTop - window.safeAreaInsets.top
 		
+		if rightXOffset != 0 && contextMenuX != contextSnapshotX {
+			contextMenuX += (contextSnapshotX + contextSnapshotSize.width - 2 * rightXOffset) - (contextMenuX + size.width)
+		}
+
+		if leftXOffset != 0 && contextMenuX == 16 {
+			contextMenuX -= contextMenuX - contextSnapshotX - leftXOffset
+		}
+
 		delay {
 			let finalMenuFrame = CGRect(x: contextMenuX,
 										y: contextSnapshot.frame.maxY + viewToMenuSpacing,
