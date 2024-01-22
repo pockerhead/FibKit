@@ -495,7 +495,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		scrollView.contentInset.top = insetTop - window.safeAreaInsets.top
 		
 		if rightXOffset != 0 && contextMenuX != contextSnapshotX {
-			contextMenuX += (contextSnapshotX + contextSnapshotSize.width - 2 * rightXOffset) - (contextMenuX + size.width)
+			contextMenuX += (contextSnapshotX + contextSnapshotSize.width - rightXOffset) - (contextMenuX + size.width)
 		}
 
 		if leftXOffset != 0 && contextMenuX == 16 {
