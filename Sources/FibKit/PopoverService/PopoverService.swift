@@ -204,7 +204,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
 		var newRect = view?.frame ?? .zero
-		newRect.origin.x -= leftXOffset + rightXOffset
+		newRect.origin.x -= leftXOffset
 		newRect.size.width += self.leftXOffset + self.rightXOffset
 		guard var viewRect = view?.superview?.convert(newRect, to: nil) else { return }
 		let oldRect = viewRect
@@ -409,7 +409,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 																  withCapInsets: .zero)
 				contextView?.alpha = 0
 				var rect = view?.frame ?? .zero
-				rect.origin.x -= leftXOffset + rightXOffset
+				rect.origin.x -= leftXOffset
 				rect.size.width += self.leftXOffset + self.rightXOffset
 				guard let latestRect = view?.superview?.convert(rect, to: nil) else {
 					promise(.success(nil))
