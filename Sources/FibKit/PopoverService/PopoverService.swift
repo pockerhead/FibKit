@@ -466,7 +466,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		guard let contextSnapshot = self.contextViewSnapshot else { return }
 		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
 		var insetTop: CGFloat = 0
-		let contextMinX = viewRect.minX - self.leftXOffset + self.rightXOffset
+		let contextMinX = viewRect.minX - self.leftXOffset
 		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - (contextView?.frame.width ?? viewRect.width))
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
 									  size: contextView?.frame.size ?? viewRect.size)
