@@ -135,6 +135,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var onHideAction: (() -> Void)? = nil
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
+	private var menuXOffset: CGFloat = 0
 	private var snapshotCancellable: AnyCancellable?
 	
 	public struct Context {
@@ -147,6 +148,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var needHideAfterAction: Bool = true
 		var leftXOffset: CGFloat = 0
 		var rightXOffset: CGFloat = 0
+		var menuXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
 		
 		public init(
@@ -158,6 +160,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			needHideAfterAction: Bool = true,
 			leftXOffset: CGFloat = 0,
 			rightXOffset: CGFloat = 0,
+			menuXOffset: CGFloat = 0,
 			onHideAction: (() -> Void)? = nil
 		) {
 			self.view = view
@@ -168,6 +171,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.needHideAfterAction = needHideAfterAction
 			self.leftXOffset = leftXOffset
 			self.rightXOffset = rightXOffset
+			self.menuXOffset = menuXOffset
 			self.onHideAction = onHideAction
 		}
 	}
@@ -182,6 +186,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						needHideAfterAction: context.needHideAfterAction,
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
+						menuXOffset: context.menuXOffset,
 						onHideAction: context.onHideAction)
 	}
 
@@ -200,9 +205,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								needHideAfterAction: Bool = true,
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
+								menuXOffset: CGFloat = 0,
 								onHideAction: (() -> Void)? = nil) {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
+		self.menuXOffset = menuXOffset
 		var newRect = view?.frame ?? .zero
 		newRect.origin.x -= leftXOffset
 		newRect.size.width += self.leftXOffset + self.rightXOffset
@@ -453,8 +460,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.window.layoutIfNeeded()
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
-		let contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
-		
+		var contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+
 		self.contextMenu.transform = .identity
 		self.contextMenu.alpha = 1
 		
@@ -466,10 +473,17 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		guard let contextSnapshot = self.contextViewSnapshot else { return }
 		scrollView.contentSize = .init(width: window.bounds.width, height: allHeight)
 		var insetTop: CGFloat = 0
-		let contextMinX = viewRect.minX - self.leftXOffset + self.rightXOffset
+		let contextMinX = viewRect.minX - self.leftXOffset
 		let contextSnapshotX = contextMinX.clamp(8, window.bounds.width - 8 - (contextView?.frame.width ?? viewRect.width))
+		var contextSnapshotSize: CGSize = .init()
+		if let contextView = contextView {
+			contextSnapshotSize.width = contextView.frame.size.width + leftXOffset + rightXOffset
+			contextSnapshotSize.height = contextView.frame.size.height
+		} else {
+			contextSnapshotSize = viewRect.size
+		}
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
-									  size: contextView?.frame.size ?? viewRect.size)
+									  size: contextSnapshotSize)
 		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
 			insetTop = max(0, viewRect.minY)
 			if viewRect.minY < window.safeAreaInsets.top {
@@ -487,6 +501,16 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 		scrollView.contentInset.top = insetTop - window.safeAreaInsets.top
 		
+		if rightXOffset != 0 && contextMenuX != contextSnapshotX {
+			contextMenuX += (contextSnapshotX + contextSnapshotSize.width - rightXOffset) - (contextMenuX + size.width)
+		}
+
+		if leftXOffset != 0 && contextMenuX == 16 {
+			contextMenuX -= contextMenuX - contextSnapshotX - leftXOffset
+		}
+
+		contextMenuX += menuXOffset
+
 		delay {
 			let finalMenuFrame = CGRect(x: contextMenuX,
 										y: contextSnapshot.frame.maxY + viewToMenuSpacing,
