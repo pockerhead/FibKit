@@ -55,32 +55,14 @@ open class FibGridDataSource: CollectionReloadable {
 }
 
 public final class FibGridForEachDataSource<T>: FibGridDataSource {
-    
-    private var task: DispatchWorkItem?
-
-    private var needDidSet = false
     private var dataMapper: ((T) -> ViewModelWithViewClass?)
     private var _data: [T]
-    public override var data: [ViewModelWithViewClass?] {
-        didSet {
-            guard needDidSet else { return }
-            task?.cancel()
-            task = nil
-            let blockTask = DispatchWorkItem.init(block: {[weak self] in
-                guard let self = self else { return }
-                self.setNeedsReload()
-            })
-            self.task = blockTask
-            DispatchQueue.main.async {
-                blockTask.perform()
-            }
-        }
-    }
 
     public init(data: [T], mapper: @escaping ((T) -> ViewModelWithViewClass?), identifierMapper: @escaping FormViewIdentifierMapperFn = { index, data in "\(data?.id ?? String(index))" }) {
         self.dataMapper = mapper
         self._data = data
         super.init()
+		self.data = .init(repeating: nil, count: data.count)
     }
 
     public override var numberOfItems: Int {
@@ -88,8 +70,11 @@ public final class FibGridForEachDataSource<T>: FibGridDataSource {
     }
 
     public override func identifier(at: Int) -> String {
-        if let data = _data[safe: at] {
+		if let cached = data[safe: at], cached != nil {
+			return identifierMapper(at, cached)
+		} else if let data = _data[safe: at] {
             let vm = dataMapper(data)
+			self.data[at] = vm
             return identifierMapper(at, vm)
         } else {
             return ""
@@ -97,8 +82,11 @@ public final class FibGridForEachDataSource<T>: FibGridDataSource {
     }
 
     public override func data(at: Int) -> ViewModelWithViewClass? {
-        if let data = _data[safe: at] {
+		if let cached = data[safe: at], cached != nil {
+			return cached
+		} else if let data = _data[safe: at] {
             let vm = dataMapper(data)
+			self.data[at] = vm
             return vm
         } else {
             return nil

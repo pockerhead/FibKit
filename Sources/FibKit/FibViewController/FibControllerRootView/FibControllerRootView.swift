@@ -726,14 +726,10 @@ open class FibControllerRootView: UIView {
 		if animated {
 			UIView.animate(withDuration: 0.3) {[weak self] in
 				guard let self = self else { return }
-				self.rootFormView.contentInset.top = self.headerHeight
-				setNeedsLayout()
-				self.layoutIfNeeded()
+				updateFormViewInsets(animated: true, isChangedHeaderHeight: true)
 			}
 		} else {
-			rootFormView.contentInset.top = self.headerHeight
-			setNeedsLayout()
-			layoutIfNeeded()
+			updateFormViewInsets(animated: false)
 		}
 	}
 	
