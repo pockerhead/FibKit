@@ -135,6 +135,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var onHideAction: (() -> Void)? = nil
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
+	private var menuXOffset: CGFloat = 0
 	private var snapshotCancellable: AnyCancellable?
 	
 	public struct Context {
@@ -147,6 +148,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var needHideAfterAction: Bool = true
 		var leftXOffset: CGFloat = 0
 		var rightXOffset: CGFloat = 0
+		var menuXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
 		
 		public init(
@@ -158,6 +160,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			needHideAfterAction: Bool = true,
 			leftXOffset: CGFloat = 0,
 			rightXOffset: CGFloat = 0,
+			menuXOffset: CGFloat = 0,
 			onHideAction: (() -> Void)? = nil
 		) {
 			self.view = view
@@ -168,6 +171,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.needHideAfterAction = needHideAfterAction
 			self.leftXOffset = leftXOffset
 			self.rightXOffset = rightXOffset
+			self.menuXOffset = menuXOffset
 			self.onHideAction = onHideAction
 		}
 	}
@@ -182,6 +186,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						needHideAfterAction: context.needHideAfterAction,
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
+						menuXOffset: context.menuXOffset,
 						onHideAction: context.onHideAction)
 	}
 
@@ -200,9 +205,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								needHideAfterAction: Bool = true,
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
+								menuXOffset: CGFloat = 0,
 								onHideAction: (() -> Void)? = nil) {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
+		self.menuXOffset = menuXOffset
 		var newRect = view?.frame ?? .zero
 		newRect.origin.x -= leftXOffset
 		newRect.size.width += self.leftXOffset + self.rightXOffset
@@ -501,6 +508,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		if leftXOffset != 0 && contextMenuX == 16 {
 			contextMenuX -= contextMenuX - contextSnapshotX - leftXOffset
 		}
+
+		contextMenuX += menuXOffset
 
 		delay {
 			let finalMenuFrame = CGRect(x: contextMenuX,
