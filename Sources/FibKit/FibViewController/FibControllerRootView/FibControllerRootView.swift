@@ -66,7 +66,7 @@ open class FibControllerRootView: UIView {
 	private let rootGridViewBackground = RootGridViewBackground()
 	private var _backgroundViewRef: UIView?
 	
-	public let footer = FibCell()
+	public let footerView = FibCell()
 	private let _sizeWithFooter = FibCell()
 	private var _footerViewModel: ViewModelWithViewClass?
 	private let rootFooterBackground = RootGridViewBackground()
@@ -75,7 +75,7 @@ open class FibControllerRootView: UIView {
 	
 	public private(set) var footerHeight: CGFloat = 0
 	
-	public var header: FibViewHeader?
+	public var headerView: FibViewHeader?
 	private let rootNavigationHeaderBackground = RootGridViewBackground()
 	private let rootNavigationHeaderMask = UIView().backgroundColor(.black)
 	private weak var largeViewRef: ViewModelConfigurable?
@@ -112,6 +112,12 @@ open class FibControllerRootView: UIView {
 	var scrollView: UIScrollView? {
 		rootFormView
 	}
+	
+	// MARK: - BODY HEADER FOOTER
+	
+	open var body: SectionProtocol? { nil }
+	open var header: FibViewHeaderViewModel? { nil }
+	open var footer: FibCell.ViewModel? { nil }
 	
 	// MARK: Initialization
 	
@@ -254,10 +260,10 @@ open class FibControllerRootView: UIView {
 			needsConfigureFooter = false
 			DispatchQueue.main.async {[weak self] in
 				guard let self = self else { return }
-				if let footer = footer as? ViewModelConfigururableFromSizeWith {
+				if let footer = footerView as? ViewModelConfigururableFromSizeWith {
 					footer.configure(with: _footerViewModel, isFromSizeWith: false)
 				} else {
-					footer.configure(with: _footerViewModel)
+					footerView.configure(with: _footerViewModel)
 				}
 			}
 			applyAppearance()
@@ -266,10 +272,10 @@ open class FibControllerRootView: UIView {
 			needsConfigureHeader = false
 			DispatchQueue.main.async {[weak self] in
 				guard let self = self else { return }
-				if let header = header as? ViewModelConfigururableFromSizeWith {
+				if let header = headerView as? ViewModelConfigururableFromSizeWith {
 					header.configure(with: _headerViewModel, isFromSizeWith: false)
 				} else {
-					header?.configure(with: _headerViewModel)
+					headerView?.configure(with: _headerViewModel)
 				}
 			}
 		}
@@ -316,7 +322,7 @@ open class FibControllerRootView: UIView {
 	public func reloadNavigation() {
 		var needUpdateContentInsets = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
-		if let header = header {
+		if let header = headerView {
 			rootHeaderBackground.insertSubview(rootNavigationHeaderBackground, belowSubview: header)
 		} else {
 			rootHeaderBackground.bringSubviewToFront(rootNavigationHeaderBackground)
@@ -437,7 +443,7 @@ open class FibControllerRootView: UIView {
 	func updateFooterFrame(sync: Bool = false) {
 		UIView.performWithoutAnimation {
 			rootFooterBackground.frame.size.width = bounds.width
-			footer.frame.size.width = bounds.width
+			footerView.frame.size.width = bounds.width
 		}
 		if sync {
 			_updateFooterFrame()
@@ -458,9 +464,9 @@ open class FibControllerRootView: UIView {
 		rootFooterBackground.frame.origin = .init(x: 0, y: bounds.height - backgroundHeight)
 		rootFooterBackground.frame.size.height = backgroundHeight
 		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
-		rootFooterBackground.layer.cornerRadius = footer.formView.layer.cornerRadius
-		footer.frame.origin = .zero
-		footer.frame.size.height = footerHeight
+		rootFooterBackground.layer.cornerRadius = footerView.formView.layer.cornerRadius
+		footerView.frame.origin = .zero
+		footerView.frame.size.height = footerHeight
 	}
 	
 	func getHeaderAdditionalNavigationMargin() -> CGFloat {
@@ -523,7 +529,7 @@ open class FibControllerRootView: UIView {
 											   width: bounds.width,
 											   height: headerTopMargin + headerHeight)
 			_rootHeaderBackgroundViewRef?.frame = rootHeaderBackground.bounds
-			header?.frame = .init(x: 0,
+			headerView?.frame = .init(x: 0,
 								  y: headerTopMargin,
 								  width: bounds.width,
 								  height: headerHeight)
@@ -581,7 +587,7 @@ open class FibControllerRootView: UIView {
 		backgroundColor = viewBackgroundColor
 		rootFormView.backgroundColor = .clear
 		shutterView.backgroundColor = getShutterColor()
-		rootFooterBackground.backgroundColor = footer.formView.backgroundColor
+		rootFooterBackground.backgroundColor = footerView.formView.backgroundColor
 		scrollViewDidScroll(rootFormView)
 		rootHeaderBackground.backgroundColor = headerBackgroundViewColor
 	}
@@ -601,9 +607,9 @@ open class FibControllerRootView: UIView {
 		addSubview(rootFooterBackground)
 		rootFooterBackground.clipsToBounds = false
 		rootFooterBackground.layer.masksToBounds = false
-		rootFooterBackground.addSubview(footer)
-		footer.alpha = 1
-		footer.needRound = false
+		rootFooterBackground.addSubview(footerView)
+		footerView.alpha = 1
+		footerView.needRound = false
 	}
 	
 	// MARK: Controller's output
@@ -616,13 +622,13 @@ open class FibControllerRootView: UIView {
 			return
 		}
 		let viewClass = headerViewModel?.viewClass() ?? dummyHeaderClass
-		let selfHeaderClassName = self.header?.className ?? "selfHeader"
+		let selfHeaderClassName = self.headerView?.className ?? "selfHeader"
 		let viewModelHeaderClassName = headerViewModel?.viewClass().className ?? dummyHeaderClass?.className ?? "viewModelHeader"
 		let headersHasEqualClasses = (selfHeaderClassName == viewModelHeaderClassName)
 		let needConfigureExistedHeader =
 		(_headerViewModel != nil && type(of: headerViewModel) == type(of: _headerViewModel!))
 		|| headersHasEqualClasses
-		if !needConfigureExistedHeader && header != nil {
+		if !needConfigureExistedHeader && headerView != nil {
 			deleteHeader(animated: false)
 			display(headerViewModel, dummyHeaderClass: dummyHeaderClass, animated: true)
 			return
@@ -637,7 +643,7 @@ open class FibControllerRootView: UIView {
 	
 	// swiftlint:disable function_body_length
 	func configureExistedHeader(headerViewModel: FibViewHeaderViewModel?, animated: Bool) {
-		guard let header = self.header else { return }
+		guard let header = self.headerView else { return }
 		guard (headerViewModel?.preventFromReload ?? false) == false else { return }
 		if headerViewModel?.atTop == true {
 			bringSubviewToFront(rootHeaderBackground)
@@ -670,7 +676,7 @@ open class FibControllerRootView: UIView {
 			  let header = (viewClass.fromDequeuer() as? FibViewHeader)
 				?? viewClass.init() as? FibViewHeader else { return }
 		header.alpha = 1
-		self.header = header
+		self.headerView = header
 		rootHeaderBackground.addSubview(header)
 		rootHeaderBackground.bringSubviewToFront(header)
 	}
@@ -720,8 +726,8 @@ open class FibControllerRootView: UIView {
 		guard _headerViewModel != nil else { return }
 		self.headerHeight = 0.01
 		_headerInitialHeight = 0
-		header?.removeFromSuperview()
-		header = nil
+		headerView?.removeFromSuperview()
+		headerView = nil
 		_headerViewModel = nil
 		if animated {
 			UIView.animate(withDuration: 0.3) {[weak self] in

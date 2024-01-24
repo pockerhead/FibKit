@@ -49,10 +49,10 @@ extension FibControllerRootView: UIScrollViewDelegate {
 			return
 		}
 		self.headerHeight = size.clamp(minHeight, maxHeight)
-		header?.layoutIfNeeded()
+		headerView?.layoutIfNeeded()
 		updateHeaderFrame()
-		header?.sizeChanged(
-			size: CGSize(width: header?.frame.width ?? 0,
+		headerView?.sizeChanged(
+			size: CGSize(width: headerView?.frame.width ?? 0,
 						 height: size.clamp(minHeight, maxHeight)),
 			initialHeight: headerInitialHeight,
 			maxHeight: maxHeight,

@@ -56,7 +56,7 @@ open class FibViewController: UIViewController {
 
     open var reloadSectionsCompletion: (() -> Void)?
 	
-	open var body: SectionProtocol? { storedBody }
+	open var body: SectionProtocol? { rootView.body ?? storedBody }
 	open var storedBody: SectionProtocol? = nil {
 		didSet {
 			reload(animated: false)
@@ -77,7 +77,7 @@ open class FibViewController: UIViewController {
 
     /// Point to override
     open var footer: FibCell.ViewModel? {
-        storedFooter
+		rootView.footer ?? storedFooter
     }
 
     open var storedHeader: FibViewHeaderViewModel? = nil {
@@ -88,7 +88,7 @@ open class FibViewController: UIViewController {
 
     /// Point to override
     open var header: FibViewHeaderViewModel? {
-        storedHeader
+		rootView.header ?? storedHeader
     }
 
     /// Displayed when header == nil
