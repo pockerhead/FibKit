@@ -37,7 +37,7 @@ public class CollectionReuseViewManager: NSObject {
         let identifier = NSStringFromClass(type)
         guard generateAdditionalViewsForReuse && reusableViews[identifier]?.isEmpty == nil else {return}
         for _ in 0..<numberOfAdditinalViewsForReuse {
-            queue(view: dequeue(viewClass: type.className, { FibGridViewSource.shared.getView(at: .max, with: nil, defaultClassName: (type as? ViewModelConfigurable.Type) ?? SpacerCell.self) }() ))
+            queue(view: dequeue(viewClass: type.className, { FibGridViewSource.shared.getView(at: .max, with: nil, defaultClassName: (type as? ViewModelConfigurable.Type) ?? SpacerCell.self) } ))
         }
     }
 
@@ -94,7 +94,7 @@ public class CollectionReuseViewManager: NSObject {
 
 extension CollectionReuseViewManager {
 
-    public func dequeue(viewClass: String, _ defaultView: @autoclosure () -> UIView) -> UIView {
+    public func dequeue(viewClass: String, _ defaultView: () -> UIView) -> UIView {
         let identifier = viewClass
         let view: UIView
         if let queuedView = reusableViews[identifier]?.popLast() {

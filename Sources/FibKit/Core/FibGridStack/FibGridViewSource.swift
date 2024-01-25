@@ -117,7 +117,7 @@ open class FibGridViewSource {
     /// Should return a new view for the given data and index
     public func view(data: ViewModelWithViewClass?,
                      index: Int) -> ViewModelConfigurable {
-        let defaultView = { self.getView(at: index, with: data) }()
+        let defaultView = { self.getView(at: index, with: data) }
         let view = reuseManager.dequeue(viewClass: NSStringFromClass(data?.viewClass() ?? nilDataDummyViewClass ?? UIView.self), defaultView) as! ViewModelConfigurable
         let configuredDataOrNil: ViewModelWithViewClass? = data?.showDummyView == true ? nil : data
         view.fb_isHeader = false
