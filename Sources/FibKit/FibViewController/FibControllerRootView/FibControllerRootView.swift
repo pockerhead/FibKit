@@ -311,6 +311,8 @@ open class FibControllerRootView: UIView {
 		if let existed = navItemTitleView as? ViewModelConfigurable,
 		   type(of: existed) == titleViewModel.viewClass() {
 			existed.configure(with: titleViewModel)
+			controller?.calculateTitleViewSize(titleView: existed,
+											   vm: titleViewModel)
 		} else {
 			navItemTitleView = titleViewModel.getView()
 			if forceSet {

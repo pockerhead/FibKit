@@ -56,6 +56,13 @@ public extension UIViewController {
 			fadeTextAnimation.type = .fade
 			navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
 		}
+		calculateTitleViewSize(titleView: titleView, vm: vm)
+		navigationItem.titleView = titleView
+		navigationItem.title = nil
+		navigationController?.navigationBar.setNeedsLayout()
+	}
+	
+	func calculateTitleViewSize(titleView: UIView?, vm: ViewModelWithViewClass?) {
 		if let titleView = titleView as? ViewModelConfigurable,
 			let vm,
 			let size = titleView.sizeWith(.init(width: CGFloat.greatestFiniteMagnitude, height: 44), data: vm, horizontal: .fittingSizeLevel, vertical: .required) {
@@ -63,9 +70,6 @@ public extension UIViewController {
 		} else {
 			titleView?.frame.size = .init(width: titleView?.intrinsicContentSize.width ?? .greatestFiniteMagnitude, height: 44)
 		}
-		navigationItem.titleView = titleView
-		navigationItem.title = nil
-		navigationController?.navigationBar.setNeedsLayout()
 	}
 }
 
