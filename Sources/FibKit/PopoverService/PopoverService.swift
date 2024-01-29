@@ -197,7 +197,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
 						menuXOffset: context.menuXOffset,
-						menuAlignment: context.menuAlignment
+						menuAlignment: context.menuAlignment,
 						onHideAction: context.onHideAction
 		)
 	}
