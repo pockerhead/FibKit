@@ -129,6 +129,15 @@ layout: \(layout.description)
 		return self
 	}
 	
+	/// BackgroundView  model for whole FormSection, if set, background  will show behind cells
+	/// - Parameter background: background viewModel
+	/// - Returns: self
+	public func background(_ background: ViewModelWithViewClass?, offsets: UIEdgeInsets = .zero) -> Self {
+		backgroundViewModel = background
+		backgroundViewOffsets = offsets
+		return self
+	}
+	
 	/// header of Section, ViewModelWithViewClass model, that binded to its view
 	/// - Parameter header: ViewModelWithViewClass optional
 	/// - Returns: self

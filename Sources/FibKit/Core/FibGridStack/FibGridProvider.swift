@@ -53,6 +53,8 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     var didReorderItemsClosure: ((Int, Int) -> Void)?
 	var reorderContext: ReorderContext?
     var separatorViewModel: ViewModelWithViewClass?
+	var backgroundViewModel: ViewModelWithViewClass?
+	var backgroundViewOffsets: UIEdgeInsets = .zero
     public typealias TapHandler = (TapContext) -> Void
     
     /// DTO struct that represents tap on Section view
@@ -138,13 +140,25 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     }
 
     public var numberOfItems: Int {
+		var numberOfItems = dataSource.numberOfItems
         if separatorViewModel != nil {
-            return dataSource.numberOfItems * 2
+			numberOfItems = dataSource.numberOfItems * 2
         }
-        return dataSource.numberOfItems
+		if backgroundViewModel != nil {
+			numberOfItems += 1
+		}
+        return numberOfItems
     }
     public func view(at: Int) -> UIView {
 		var view: UIView
+		var at = at
+		if let backgroundViewModel {
+			if at == 0 {
+				return viewSource.view(data: backgroundViewModel, index: at)
+			} else {
+				at = at - 1
+			}
+		}
         if separatorViewModel != nil {
             if at % 2 != 0 {
 				if !needLastSeparator, at == numberOfItems - 1 {
@@ -165,6 +179,14 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     }
     public func update(view: UIView, at: Int) {
 		view.fb_provider = self
+		var at = at
+		if let backgroundViewModel {
+			if at == 0 {
+				viewSource.update(view: view as! ViewModelConfigurable, data: backgroundViewModel, index: at)
+			} else {
+				at = at - 1
+			}
+		}
         if separatorViewModel != nil {
             if at % 2 != 0 {
                 if let cellSeparator = dataSource.data(at: at / 2)?.separator {
@@ -180,6 +202,14 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         viewSource.update(view: view as! ViewModelConfigurable, data: dataSource.data(at: at), index: at)
     }
     public func identifier(at: Int) -> String {
+		var at = at
+		if let backgroundViewModel {
+			if at == 0 {
+				return "_FVP.BackgroundView.\(backgroundViewModel.viewClass().className)"
+			} else {
+				at = at - 1
+			}
+		}
         if separatorViewModel != nil {
             if at % 2 != 0 {
                 return "_FVP.Separator_at_\(at)"
@@ -201,6 +231,14 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         return animator
     }
     public func didTap(view: UIView, at: Int) {
+		var at = at
+		if let backgroundViewModel {
+			if at == 0 {
+				return
+			} else {
+				at = at - 1
+			}
+		}
         if let tapHandler = tapHandler {
             if separatorViewModel != nil {
                 if at % 2 == 0 {
@@ -213,6 +251,44 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
             tapHandler(context)
         }
     }
+	
+	public func frame(at: Int) -> CGRect {
+		var at = at
+		if backgroundViewModel != nil {
+			if at == 0 {
+				var backgroundRect = CGRect(origin: .zero, size: contentSize)
+				if let layout = layout as? InsetLayout {
+					backgroundRect = CGRect(
+						origin: layout.rootLayout.frame(at: 0).origin
+							.translate(layout.insets.left, dy: layout.insets.top),
+						size: layout.rootLayout.contentSize)
+					backgroundRect = backgroundRect
+						.inset(by: -backgroundViewOffsets)
+				} else {
+					backgroundRect.origin = layout.frame(at: 0).origin
+				}
+				return backgroundRect
+			} else {
+				at = at - 1
+			}
+		}
+		return internalLayout.frame(at: at)
+	}
+	
+	public func visibleIndexes(visibleFrame: CGRect, visibleFrameLessInset: CGRect) -> [Int] {
+		if let backgroundViewModel {
+			var indexes = internalLayout.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
+			if indexes.isEmpty {
+				return indexes
+			} else {
+				indexes[0] = 0
+				indexes.append(indexes.last! + 1)
+				return indexes
+			}
+		} else {
+			return internalLayout.visibleIndexes(visibleFrame: visibleFrame, visibleFrameLessInset: visibleFrameLessInset)
+		}
+	}
 	
 	public func didBeginLongTapWithProvider(context: LongGestureContext) {
 		reorderContext?.didBeginReorderSession?()

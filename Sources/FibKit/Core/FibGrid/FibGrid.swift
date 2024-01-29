@@ -292,7 +292,7 @@ final public class FibGrid: UIScrollView {
 		isReloading = true
 		let size = self.innerSize
 		let needTestAsyncFibGrid = true
-		if needTestAsyncFibGrid == false,self.isAsync {
+		if needTestAsyncFibGrid == false, self.isAsync {
 			collectionViewLayoutQueue.async {
 				self.flattenedProvider.layout(collectionSize: size)
 				delay {

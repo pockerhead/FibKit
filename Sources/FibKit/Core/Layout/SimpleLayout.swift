@@ -68,13 +68,15 @@ open class SimpleLayout: Layout {
 
   }
 
-  public final override func layout(context: LayoutContext) {
-    frames = simpleLayout(context: context)
-    _contentSize = frames.reduce(CGRect.zero) { old, item in
-      old.union(item)
-    }.size
-    doneLayout()
-  }
+	public final override func layout(context: LayoutContext) {
+		frames = simpleLayout(context: context)
+		if let first = frames.first {
+			_contentSize = frames.reduce(first) { old, item in
+				old.union(item)
+			}.size
+		}
+		doneLayout()
+	}
 
   public final override var contentSize: CGSize {
     return _contentSize
