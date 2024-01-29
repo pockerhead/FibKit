@@ -132,7 +132,7 @@ layout: \(layout.description)
 	/// BackgroundView  model for whole FormSection, if set, background  will show behind cells
 	/// - Parameter background: background viewModel
 	/// - Returns: self
-	public func background(_ background: ViewModelWithViewClass?, offsets: UIEdgeInsets = .zero) -> Self {
+	public func background(_ background: FibSectionBackgroundView.ViewModel?, offsets: UIEdgeInsets = .zero) -> Self {
 		backgroundViewModel = background
 		backgroundViewOffsets = offsets
 		return self

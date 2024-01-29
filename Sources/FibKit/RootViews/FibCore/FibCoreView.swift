@@ -241,6 +241,7 @@ open class FibCoreView: UIView,
     
     open override func layoutSubviews() {
         super.layoutSubviews()
+		maskIfNeeded()
         backgroundColor = .clear
         contentView.frame.origin.y = 0
         contentView.frame.size = bounds.size
@@ -252,6 +253,24 @@ open class FibCoreView: UIView,
             swipeCoordinator.animateSwipe(isOpen: false, swipeWidth: nil)
         }
     }
+	
+	weak var fb_maskView: FibSectionBackgroundView?
+	
+	func setMaskView(_ view: FibSectionBackgroundView?) {
+		fb_maskView = view
+	}
+	
+	func maskIfNeeded() {
+		guard let relativeMaskFrame = fb_maskView?.maskBackgroundView.superview?.convert(fb_maskView?.maskBackgroundView.frame ?? .zero, to: self) else {
+			return
+		}
+		let maskLayer = CALayer()
+		maskLayer.frame = relativeMaskFrame
+		maskLayer.cornerRadius = fb_maskView?.maskBackgroundView.layer.cornerRadius ?? 0
+		maskLayer.backgroundColor = .init(red: 0, green: 1, blue: 0, alpha: 1)
+		layer.mask = maskLayer
+		layer.masksToBounds = true
+	}
     
     open func configureAppearance() {
         // point to override
@@ -489,5 +508,126 @@ extension FibCoreView {
 			return true
 		}
 		return false
+	}
+}
+
+final public class FibSectionBackgroundView: FibCoreView {
+	
+	var rootBackgroundView = UIView()
+	var maskBackgroundView = UIView()
+	
+	final public class ViewModel: FibCoreViewModel {
+		public init(
+			backgroundColor: UIColor = .clear,
+			insets: UIEdgeInsets = .zero,
+			cornerRadius: CGFloat = .zero,
+			needInnerCornersMask: Bool = false,
+			shadowColor: UIColor = .clear,
+			shadowOpacity: CGFloat = .zero,
+			shadowRadius: CGFloat = .zero,
+			shadowOffset: CGSize = .zero,
+			borderColor: UIColor = .clear,
+			borderWidth: CGFloat = .zero
+		) {
+			self.backgroundColor = backgroundColor
+			self.insets = insets
+			self.cornerRadius = cornerRadius
+			self.needInnerCornersMask = needInnerCornersMask
+			self.shadowColor = shadowColor
+			self.shadowOpacity = shadowOpacity
+			self.shadowRadius = shadowRadius
+			self.shadowOffset = shadowOffset
+			self.borderColor = borderColor
+			self.borderWidth = borderWidth
+		}
+		
+		public var backgroundColor: UIColor = .clear
+		public var insets: UIEdgeInsets = .zero
+		public var cornerRadius: CGFloat = .zero
+		public var needInnerCornersMask: Bool = false
+		public var shadowColor: UIColor = .clear
+		public var shadowOpacity: CGFloat = .zero
+		public var shadowRadius: CGFloat = .zero
+		public var shadowOffset: CGSize = .zero
+		public var borderColor: UIColor = .clear
+		public var borderWidth: CGFloat = .zero
+		
+		override public  func viewClass() -> ViewModelConfigurable.Type {
+			FibSectionBackgroundView.self
+		}
+		
+		public func backgroundColor(_ backgroundColor: UIColor) -> Self {
+			self.backgroundColor = backgroundColor
+			return self
+		}
+		public func insets(_ insets: UIEdgeInsets) -> Self {
+			self.insets = insets
+			return self
+		}
+		public func cornerRadius(_ cornerRadius: CGFloat) -> Self {
+			self.cornerRadius = cornerRadius
+			return self
+		}
+		public func needInnerCornersMask(_ needInnerCornersMask: Bool) -> Self {
+			self.needInnerCornersMask = needInnerCornersMask
+			return self
+		}
+		public func shadowColor(_ shadowColor: UIColor) -> Self {
+			self.shadowColor = shadowColor
+			return self
+		}
+		public func shadowOpacity(_ shadowOpacity: CGFloat) -> Self {
+			self.shadowOpacity = shadowOpacity
+			return self
+		}
+		public func shadowRadius(_ shadowRadius: CGFloat) -> Self {
+			self.shadowRadius = shadowRadius
+			return self
+		}
+		public func shadowOffset(_ shadowOffset: CGSize) -> Self {
+			self.shadowOffset = shadowOffset
+			return self
+		}
+		public func borderColor(_ borderColor: UIColor) -> Self {
+			self.borderColor = borderColor
+			return self
+		}
+		public func borderWidth(_ borderWidth: CGFloat) -> Self {
+			self.borderWidth = borderWidth
+			return self
+		}
+	}
+	
+	public override func configureUI() {
+		super.configureUI()
+		contentView.zStackAddSubviews {
+			rootBackgroundView
+			maskBackgroundView
+		}
+	}
+	
+	override public func layoutSubviews() {
+		super.layoutSubviews()
+		
+		rootBackgroundView.frame = bounds
+		guard let data = data as? ViewModel else { return }
+		maskBackgroundView.frame = bounds.inset(by: data.insets)
+		rootBackgroundView.layer.shadowOffset = data.shadowOffset
+		rootBackgroundView.layer.shadowOpacity = Float(data.shadowOpacity)
+		rootBackgroundView.layer.shadowRadius = data.shadowRadius
+		rootBackgroundView.layer.borderWidth = data.borderWidth
+		
+		rootBackgroundView.layer.shadowColor = data.shadowColor.cgColor
+		rootBackgroundView.layer.borderColor = data.borderColor.cgColor
+		rootBackgroundView.backgroundColor = data.backgroundColor
+		rootBackgroundView.layer.cornerRadius = data.cornerRadius
+		if data.needInnerCornersMask {
+			let minimalInset = min(
+				data.insets.top, min(
+					data.insets.left, min(
+						data.insets.right,
+						data.insets.bottom)))
+			maskBackgroundView.layer.cornerRadius = data.cornerRadius - minimalInset
+		}
 	}
 }

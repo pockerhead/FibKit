@@ -53,7 +53,8 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
     var didReorderItemsClosure: ((Int, Int) -> Void)?
 	var reorderContext: ReorderContext?
     var separatorViewModel: ViewModelWithViewClass?
-	var backgroundViewModel: ViewModelWithViewClass?
+	var backgroundViewModel: FibSectionBackgroundView.ViewModel?
+	weak var backgroundViewRef: FibSectionBackgroundView?
 	var backgroundViewOffsets: UIEdgeInsets = .zero
     public typealias TapHandler = (TapContext) -> Void
     
@@ -154,7 +155,9 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		var at = at
 		if let backgroundViewModel {
 			if at == 0 {
-				return viewSource.view(data: backgroundViewModel, index: at)
+				let view = viewSource.view(data: backgroundViewModel, index: at)
+				backgroundViewRef = view as? FibSectionBackgroundView
+				return view
 			} else {
 				at = at - 1
 			}
@@ -174,15 +177,18 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		} else {
 			view = viewSource.view(data: dataSource.data(at: at), index: at)
 		}
+		(view as? FibCoreView)?.setMaskView(backgroundViewRef)
 		view.fb_provider = self
 		return view
     }
+	
     public func update(view: UIView, at: Int) {
 		view.fb_provider = self
 		var at = at
 		if let backgroundViewModel {
 			if at == 0 {
 				viewSource.update(view: view as! ViewModelConfigurable, data: backgroundViewModel, index: at)
+				return
 			} else {
 				at = at - 1
 			}
