@@ -136,10 +136,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
 	private var menuXOffset: CGFloat = 0
-	private var menuAlignment: Alignment = .common
+	private var menuAlignment: MenuAlignment = .common
 	private var snapshotCancellable: AnyCancellable?
 
-	public enum Alignment {
+	public enum MenuAlignment {
 		case left
 		case right
 		case common
@@ -157,7 +157,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var rightXOffset: CGFloat = 0
 		var menuXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
-		var menuAlignment: Alignment = .common
+		var menuAlignment: MenuAlignment = .common
 
 		public init(
 			view: UIView? = nil,
@@ -170,7 +170,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			rightXOffset: CGFloat = 0,
 			menuXOffset: CGFloat = 0,
 			onHideAction: (() -> Void)? = nil,
-			menuAlignment: Alignment = .common
+			menuAlignment: MenuAlignment = .common
 		) {
 			self.view = view
 			self.needBlurBackground = needBlurBackground
@@ -218,7 +218,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
 								menuXOffset: CGFloat = 0,
-								menuAlignment: Alignment = .common,
+								menuAlignment: MenuAlignment = .common,
 								onHideAction: (() -> Void)? = nil) {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
