@@ -136,8 +136,15 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
 	private var menuXOffset: CGFloat = 0
+	private var menuAlignment: Alignment = .common
 	private var snapshotCancellable: AnyCancellable?
-	
+
+	public enum Alignment {
+		case left
+		case right
+		case common
+	}
+
 	public struct Context {
 		
 		var view: UIView?
@@ -150,7 +157,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var rightXOffset: CGFloat = 0
 		var menuXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
-		
+		var menuAlignment: Alignment = .common
+
 		public init(
 			view: UIView? = nil,
 			needBlurBackground: Bool = true,
@@ -162,6 +170,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			rightXOffset: CGFloat = 0,
 			menuXOffset: CGFloat = 0,
 			onHideAction: (() -> Void)? = nil
+			menuAlignment: Alignment = .common
 		) {
 			self.view = view
 			self.needBlurBackground = needBlurBackground
@@ -173,6 +182,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.rightXOffset = rightXOffset
 			self.menuXOffset = menuXOffset
 			self.onHideAction = onHideAction
+			self.menuAlignment = menuAlignment
 		}
 	}
 	
@@ -187,7 +197,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
 						menuXOffset: context.menuXOffset,
-						onHideAction: context.onHideAction)
+						menuAlignment: context.menuAlignment
+						onHideAction: context.onHideAction
+		)
 	}
 
 	/// Shows conext menu for choosed view
@@ -206,10 +218,12 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
 								menuXOffset: CGFloat = 0,
+								menuAlignment: Alignment = .common,
 								onHideAction: (() -> Void)? = nil) {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
 		self.menuXOffset = menuXOffset
+		self.menuAlignment = menuAlignment
 		var newRect = view?.frame ?? .zero
 		newRect.origin.x -= leftXOffset
 		newRect.size.width += self.leftXOffset + self.rightXOffset
@@ -460,7 +474,18 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.window.layoutIfNeeded()
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
-		var contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+		var contextMenuX: CGFloat
+		switch menuAlignment {
+		case .left:
+			contextMenuX = viewRect.minX.clamp(minimumX, viewRect.minX)
+		case .right:
+			contextMenuX = viewRect.maxX - size.width
+			if contextMenuX > maximumX {
+				contextMenuX = maximumX
+			}
+		case .common:
+			contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+		}
 
 		self.contextMenu.transform = .identity
 		self.contextMenu.alpha = 1
