@@ -169,7 +169,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			leftXOffset: CGFloat = 0,
 			rightXOffset: CGFloat = 0,
 			menuXOffset: CGFloat = 0,
-			onHideAction: (() -> Void)? = nil
+			onHideAction: (() -> Void)? = nil,
 			menuAlignment: Alignment = .common
 		) {
 			self.view = view
