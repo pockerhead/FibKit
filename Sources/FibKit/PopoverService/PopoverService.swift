@@ -135,9 +135,16 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var onHideAction: (() -> Void)? = nil
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
-	private var menuXOffset: CGFloat = 0
+	private var menuAlignment: MenuAlignment = .common
+	private var shadowDescriptor: ShadowDescriptor? = nil
 	private var snapshotCancellable: AnyCancellable?
-	
+
+	public enum MenuAlignment {
+		case left
+		case right
+		case common
+	}
+
 	public struct Context {
 		
 		var view: UIView?
@@ -148,9 +155,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var needHideAfterAction: Bool = true
 		var leftXOffset: CGFloat = 0
 		var rightXOffset: CGFloat = 0
-		var menuXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
-		
+		var menuAlignment: MenuAlignment = .common
+		var shadowDescriptor: ShadowDescriptor? = nil
+
 		public init(
 			view: UIView? = nil,
 			needBlurBackground: Bool = true,
@@ -160,8 +168,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			needHideAfterAction: Bool = true,
 			leftXOffset: CGFloat = 0,
 			rightXOffset: CGFloat = 0,
-			menuXOffset: CGFloat = 0,
-			onHideAction: (() -> Void)? = nil
+			onHideAction: (() -> Void)? = nil,
+			menuAlignment: MenuAlignment = .common,
+			shadowDescriptor: ShadowDescriptor? = nil
 		) {
 			self.view = view
 			self.needBlurBackground = needBlurBackground
@@ -171,8 +180,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.needHideAfterAction = needHideAfterAction
 			self.leftXOffset = leftXOffset
 			self.rightXOffset = rightXOffset
-			self.menuXOffset = menuXOffset
 			self.onHideAction = onHideAction
+			self.menuAlignment = menuAlignment
+			self.shadowDescriptor = shadowDescriptor
 		}
 	}
 	
@@ -186,8 +196,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						needHideAfterAction: context.needHideAfterAction,
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
-						menuXOffset: context.menuXOffset,
-						onHideAction: context.onHideAction)
+						menuAlignment: context.menuAlignment,
+						shadowDescriptor: context.shadowDescriptor,
+						onHideAction: context.onHideAction
+		)
 	}
 
 	/// Shows conext menu for choosed view
@@ -205,11 +217,13 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								needHideAfterAction: Bool = true,
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
-								menuXOffset: CGFloat = 0,
+								menuAlignment: MenuAlignment = .common,
+								shadowDescriptor: ShadowDescriptor? = nil,
 								onHideAction: (() -> Void)? = nil) {
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
-		self.menuXOffset = menuXOffset
+		self.menuAlignment = menuAlignment
+		self.shadowDescriptor = shadowDescriptor
 		var newRect = view?.frame ?? .zero
 		newRect.origin.x -= leftXOffset
 		newRect.size.width += self.leftXOffset + self.rightXOffset
@@ -262,7 +276,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					viewRect = rect
 					contextViewRectInWindow = rect
 				}
-				configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
+				configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight, shadowDescritor: self.shadowDescriptor)
 				prepareWindow()
 				
 				let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
@@ -307,7 +321,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var contextMenuY: CGFloat = viewRect.maxY + viewToMenuSpacing
 		contextMenuY = max(contextMenuY, window.safeAreaInsets.top + 32)
 		let oldOrigin = contextMenu.frame.origin
-		configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight)
+		configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight, shadowDescritor: shadowDescriptor)
 		contextMenu.transform = .identity
 		contextMenu.alpha = 1
 		contextMenu.frame.origin = oldOrigin
@@ -393,7 +407,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
 				contextViewSnapshot!.frame = viewRect
-				contextViewSnapshot?.layer.applySketchShadow()
+				if let shadowDescriptor = self.shadowDescriptor {
+					contextViewSnapshot?.layer.applyShadow(with: shadowDescriptor)
+				} else {
+					contextViewSnapshot?.layer.applySketchShadow()
+				}
 				promise(.success(latestRect))
 			}
 		}
@@ -427,7 +445,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				newRect.origin.x = viewRect.origin.x
 				newRect.origin.y = viewRect.origin.y
 				contextViewSnapshot!.frame = newRect
-				contextViewSnapshot?.layer.applySketchShadow()
+				if let shadowDescriptor = self.shadowDescriptor {
+					contextViewSnapshot?.layer.applyShadow(with: shadowDescriptor)
+				} else {
+					contextViewSnapshot?.layer.applySketchShadow()
+				}
 				promise(.success(latestRect))
 			}
 		}
@@ -436,7 +458,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 	var canc: AnyCancellable?
 
-	private func configureContextMenu(with size: CGSize, viewRect: CGRect, formViewHeight: CGFloat) {
+	private func configureContextMenu(with size: CGSize, 
+									  viewRect: CGRect,
+									  formViewHeight: CGFloat,
+									  shadowDescritor: ShadowDescriptor?) {
 		if contextMenu.superview == nil {
 			scrollView.addSubview(contextMenu)
 		}
@@ -447,6 +472,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.contextMenu.transform = .init(scaleX: 0.01, y: 0.01)
 		self.contextMenu.frame.origin = viewRect.center
 		self.contextMenu.alpha = 0.01
+
+		if let shadowDescritor = shadowDescritor {
+			self.contextMenu.layer.applyShadow(with: shadowDescritor)
+		}
 	}
 
 	private func applyContextViewRect(contextMenuY: CGFloat,
@@ -460,7 +489,18 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.window.layoutIfNeeded()
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
-		var contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+		var contextMenuX: CGFloat
+		switch menuAlignment {
+		case .left:
+			contextMenuX = viewRect.minX.clamp(minimumX, viewRect.minX)
+		case .right:
+			contextMenuX = viewRect.maxX - size.width
+			if contextMenuX > maximumX {
+				contextMenuX = maximumX
+			}
+		case .common:
+			contextMenuX = viewRect.minX.clamp(minimumX, maximumX)
+		}
 
 		self.contextMenu.transform = .identity
 		self.contextMenu.alpha = 1
@@ -508,8 +548,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		if leftXOffset != 0 && contextMenuX == 16 {
 			contextMenuX -= contextMenuX - contextSnapshotX - leftXOffset
 		}
-
-		contextMenuX += menuXOffset
 
 		delay {
 			let finalMenuFrame = CGRect(x: contextMenuX,
