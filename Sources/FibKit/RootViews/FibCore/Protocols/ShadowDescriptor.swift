@@ -6,7 +6,7 @@
 //
 
 public struct ShadowDescriptor {
-	init(style: UIUserInterfaceStyle = UIScreen.main.traitCollection.userInterfaceStyle, color: UIColor = withStyle(light: .black, dark: .clear), alpha: Float = 0.12, x: CGFloat = 0, y: CGFloat = 2, blur: CGFloat = 4, spread: CGFloat = 0, useShadowPath: Bool = false) {
+	public init(style: UIUserInterfaceStyle = UIScreen.main.traitCollection.userInterfaceStyle, color: UIColor = withStyle(light: .black, dark: .clear), alpha: Float = 0.12, x: CGFloat = 0, y: CGFloat = 2, blur: CGFloat = 4, spread: CGFloat = 0, useShadowPath: Bool = false) {
 		self.style = style
 		self.color = color
 		self.alpha = alpha
