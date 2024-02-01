@@ -146,6 +146,7 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 		reloadFooter(animated: animated)
 		reloadHeader(animated: animated)
 		reloadSections(completion: completion, animated: animated)
+		rootView.setNeedsLayout()
 	}
 
     open func reload(completion: (() -> Void)? = nil, animated: Bool = true) {
