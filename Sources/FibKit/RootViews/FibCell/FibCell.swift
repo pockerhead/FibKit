@@ -47,6 +47,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
 
     // MARK: Properties
     public let formView = FibGrid()
+	private let topShadowStick = UIView().with(.white, at: \.backgroundColor)
 
     var _needUserInteraction: Bool = false
     override public var needUserInteraction: Bool { _needUserInteraction }
@@ -84,6 +85,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
     // MARK: UI Configuration
 
     private func configureUI() {
+		contentView.addSubview(topShadowStick)
         contentView.addSubview(formView)
         contentView.layer.cornerRadius = 12
         contentView.clipsToBounds = true
@@ -94,6 +96,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
         formView.layer.masksToBounds = true
         contentView.addSubview(blurView)
         contentView.sendSubviewToBack(blurView)
+		contentView.sendSubviewToBack(topShadowStick)
         blurView.fillSuperview()
         blurView.layer.masksToBounds = true
         blurView.clipsToBounds = true
@@ -103,13 +106,27 @@ public final class FibCell: RoundedCell, StickyHeaderView {
     public override func layoutSubviews() {
         super.layoutSubviews()
 		switch borderStyle {
+		case .topShadow:
+			contentView.layer.borderWidth = 0
+			topShadowStick.frame = .init(origin: .init(x: -30, y: 0), size: .init(width: bounds.width + 60, height: 30))
+			if needRound {
+				topShadowStick.frame.origin.y = 12
+			}
+			RoundedCell.defaultRoundedCellAppearance.shadowClosure?(topShadowStick)
+			topShadowStick.layer.shadowOffset = .init(width: 0, height: -3)
+			topShadowStick.layer.masksToBounds = false
+			topShadowStick.clipsToBounds = false
+			topShadowStick.isHidden = false
 		case .shadow:
+			topShadowStick.isHidden = true
 			contentView.layer.borderWidth = 0
 		case .border:
+			topShadowStick.isHidden = true
 			self.layer.clearShadow()
 			contentView.layer.borderColor = contentViewBorderColor?.cgColor
 			contentView.layer.borderWidth = 1
 		case .none:
+			topShadowStick.isHidden = true
 			contentView.layer.borderWidth = 0
 			self.layer.clearShadow()
 		}
@@ -146,6 +163,7 @@ extension FibCell: FibViewHeader {
         
         public enum BorderStyle {
             case shadow
+			case topShadow
             case border
 			case none
         }
@@ -328,6 +346,7 @@ extension FibCell: FibViewHeader {
 			self.layer.clearShadow()
 			shadowClosure = { _ in }
 		}
+		setNeedsLayout()
     }
 
     public func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {

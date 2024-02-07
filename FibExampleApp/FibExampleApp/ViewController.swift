@@ -120,8 +120,10 @@ class ViewController: FibViewController {
 		.init(provider: ViewModelSection({
 			MyFibView.ViewModel(text: "32r23f")
 		}))
-		.borderStyle(.none)
+		.borderStyle(.topShadow)
+		.backgroundColor(.white)
 		.needRound(false)
+		.disableMaskToBounds(true)
 	}
 	
 	func addDebugButton() {

@@ -265,8 +265,8 @@ open class FibControllerRootView: UIView {
 				} else {
 					footerView.configure(with: _footerViewModel)
 				}
+				applyAppearance()
 			}
-			applyAppearance()
 		}
 		if needsConfigureHeader {
 			needsConfigureHeader = false

@@ -43,7 +43,7 @@ open class RoundedCell: SqueezeCell {
 
 	open override func layoutSubviews() {
 		super.layoutSubviews()
-		RoundedCell.defaultRoundedCellAppearance.shadowClosure?(self) ?? shadowClosure?(self)
+		shadowClosure?(self) ?? RoundedCell.defaultRoundedCellAppearance.shadowClosure?(self)
 	}
 }
 
