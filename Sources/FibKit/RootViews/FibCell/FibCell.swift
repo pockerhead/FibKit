@@ -322,6 +322,12 @@ extension FibCell: FibViewHeader {
 		applyAppearance()
 		contentView.layer.masksToBounds = !data.disableMaskToBounds
 		formView.layer.masksToBounds = !data.disableMaskToBounds
+		if data.borderStyle == .shadow {
+			shadowClosure = nil
+		} else {
+			self.layer.clearShadow()
+			shadowClosure = { _ in }
+		}
     }
 
     public func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
