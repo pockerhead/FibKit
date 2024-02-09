@@ -24,6 +24,8 @@ public class FibFlowStackView: FibCoreView {
 		grid.hideScrollIndicators()
 		contentView.clipsToBounds = true
 		contentView.layer.masksToBounds = true
+		clipsToBounds = true
+		layer.masksToBounds = true
 	}
 	
 	public override func layoutSubviews() {
@@ -31,6 +33,7 @@ public class FibFlowStackView: FibCoreView {
 		grid.frame = bounds
 		guard let data = data as? ViewModel else { return }
 		_ = contentView.cornerRadius(data.cornerRadius)
+		_ = self.cornerRadius(data.cornerRadius)
 	}
 	
 	// MARK: - Appearance
@@ -88,6 +91,8 @@ public class FibFlowStackView: FibCoreView {
 			}
 		}
 		grid.isUserInteractionEnabled = !data.interactive
+		_ = contentView.cornerRadius(data.cornerRadius)
+		_ = self.cornerRadius(data.cornerRadius)
 	}
 	
 	// MARK: - Private
