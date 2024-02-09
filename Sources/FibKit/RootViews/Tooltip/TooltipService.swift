@@ -50,8 +50,14 @@ open class ToolTipService {
 		}
 		
 		override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+			guard needHideOnTap else {
+				delay {
+					self.hideSelf(animated: true)
+				}
+				return super.hitTest(point, with: event)
+			}
 			let view = super.hitTest(point, with: event)
-			if needHideOnTap, (view === rootViewController?.view || view === self) {
+			if (view === rootViewController?.view || view === self) {
 				delay {
 					self.hideSelf(animated: true)
 				}
