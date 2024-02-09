@@ -41,7 +41,7 @@ Sections: [
 	public var isGuardAppend: Bool = false
 	
 	public convenience init(
-		forceReassignLayout: Bool = false,
+		forceReassignLayout: Bool = true,
 		@SectionProtocolBuilder _ data: () -> [SectionProtocol],
 		line: Int = #line,
 		file: String = #file,

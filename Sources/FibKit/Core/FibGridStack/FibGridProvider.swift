@@ -102,7 +102,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
                 animator: Animator? = AnimatedReloadAnimator(),
                 tapHandler: TapHandler? = nil,
                 separatorViewModel: ViewModelWithViewClass? = nil,
-                forceReassignLayout: Bool = false) {
+                forceReassignLayout: Bool = true) {
         self.dataSource = dataSource
         self.viewSource = viewSource
         self.separatorViewModel = separatorViewModel

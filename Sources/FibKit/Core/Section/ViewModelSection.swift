@@ -79,7 +79,7 @@ layout: \(layout.description)
 				spacing: CGFloat = 0,
 				pageDirection: AnimatedReloadAnimator.PageDirection? = nil,
 				scrollDirection: UICollectionView.ScrollDirection = .vertical,
-				forceReassignLayout: Bool = false) {
+				forceReassignLayout: Bool = true) {
 		
 		var layout: Layout
 		if scrollDirection == .vertical {
@@ -320,7 +320,7 @@ layout: \(layout.description)
 	/// Main init of FormSection
 	/// - Parameters:
 	///   - data: ViewModelBuilder closure to provide models in section
-	public convenience init(forceReassignLayout: Bool = false,
+	public convenience init(forceReassignLayout: Bool = true,
 							@ViewModelBuilder _ data: () -> [ViewModelWithViewClass?],
 							line: Int = #line,
 							file: String = #file) {
@@ -330,7 +330,7 @@ layout: \(layout.description)
 	/// Conveniense init with GridSection as BuildBlock parameter
 	/// - Parameters:
 	///   - data: ViewModelBuilder closure to provide models in section (with GridSection as parameter)
-	public convenience init(forceReassignLayout: Bool = false,
+	public convenience init(forceReassignLayout: Bool = true,
 							@ViewModelBuilder _ data: (ViewModelSection) -> [ViewModelWithViewClass?],
 							line: Int = #line,
 							file: String = #file) {
@@ -405,7 +405,7 @@ func deepId(_ object: Any) -> String {
 
 final public class ForEachSection<T>: ViewModelSection {
 	
-	public init(forceReassignLayout: Bool = false,
+	public init(forceReassignLayout: Bool = true,
 				data: [T],
 				_ dataMapper: @escaping ((T) -> ViewModelWithViewClass?),
 				line: Int = #line,
