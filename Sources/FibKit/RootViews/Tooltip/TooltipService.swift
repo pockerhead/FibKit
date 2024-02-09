@@ -136,7 +136,7 @@ open class ToolTipService {
 		UIView.performWithoutAnimation {
 			self.toolTipWindow.needHideOnTap = needHideOnTap
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
-			self.toolTipWindow.alpha = 0
+			self.toolTipWindow.alpha = 0.01
 			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
 			let viewFrame = view.superview?.convert(view.frame, to: nil) ?? .init(center: self.toolTipWindow.frame.center, size: CGSize(width: 10, height: 10))
 			toolTipWindow.addSubview(marker)
