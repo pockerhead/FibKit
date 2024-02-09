@@ -39,6 +39,13 @@ open class ToolTipService {
 			super.init(coder: coder)
 		}
 		
+		override func viewDidLoad() {
+			super.viewDidLoad()
+			let gr = UITapGestureRecognizer(target: self, action: #selector(onTap))
+			gr.delegate = self
+			view.addGestureRecognizer(gr)
+		}
+		
 		@objc func onTap() {
 			delay {
 				ToolTipService.shared.hideTooltip()
