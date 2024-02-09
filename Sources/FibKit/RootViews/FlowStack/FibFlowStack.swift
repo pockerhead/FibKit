@@ -136,6 +136,6 @@ public class FibFlowStack: FibCoreViewModel {
 	}
 	
 	public override func viewClass() -> ViewModelConfigurable.Type {
-		FibHStackView.self
+		FibFlowStackView.self
 	}
 }
