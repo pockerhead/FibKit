@@ -41,6 +41,7 @@ open class ToolTipService {
 	
 	private final class ToolTipWindow: UIWindow {
 		
+		var needHideOnTap = true
 		var isAnimatingHide = false
 		var completion: (() -> Void)?
 		
@@ -49,10 +50,15 @@ open class ToolTipService {
 		}
 		
 		override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-			delay {
-				self.hideSelf(animated: true)
+			let view = super.hitTest(point, with: event)
+			if !needHideOnTap, view !== self {
+				return view
+			} else {
+				delay {
+					self.hideSelf(animated: true)
+				}
+				return view
 			}
-			return super.hitTest(point, with: event)
 		}
 		
 		func hideSelf(animated: Bool) {
@@ -95,15 +101,16 @@ open class ToolTipService {
 		self.toolTipWindow.hideSelf(animated: animated)
 	}
 	
-	public func showToolTip(for view: UIView, text: String, completion: (() -> Void)? = nil) {
-		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel(), completion: completion)
+	public func showToolTip(for view: UIView, text: String, completion: (() -> Void)? = nil, needHideOnTap: Bool = true) {
+		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel(), completion: completion, needHideOnTap: needHideOnTap)
 	}
 	
-	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?, completion: (() -> Void)? = nil) {
+	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?, completion: (() -> Void)? = nil, needHideOnTap: Bool = true) {
 		let markerView: TooltipMarkerViewModel = markerView ?? TriangleView.ViewModel()
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		guard let marker = markerView.getView() as? FibCoreView else { return }
 		UIView.performWithoutAnimation {
+			self.toolTipWindow.needHideOnTap = needHideOnTap
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0
 			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
