@@ -50,7 +50,7 @@ open class ToolTipService {
 		}
 		
 		override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-			guard needHideOnTap else {
+			guard !needHideOnTap else {
 				delay {
 					self.hideSelf(animated: true)
 				}
