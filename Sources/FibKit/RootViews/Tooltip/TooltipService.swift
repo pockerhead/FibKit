@@ -142,10 +142,10 @@ open class ToolTipService {
 			self.toolTipWindow._rootViewController?.needHideOnTap = needHideOnTap
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0.01
-			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
+			toolTipWindow._rootViewController?.view.subviews.forEach { $0.removeFromSuperview() }
 			let viewFrame = view.superview?.convert(view.frame, to: nil) ?? .init(center: self.toolTipWindow.frame.center, size: CGSize(width: 10, height: 10))
-			toolTipWindow.addSubview(marker)
-			toolTipWindow.addSubview(toolTipLabel)
+			toolTipWindow._rootViewController?.view.addSubview(marker)
+			toolTipWindow._rootViewController?.view.addSubview(toolTipLabel)
 			toolTipWindow.completion = completion
 			let screenWidth = UIScreen.main.bounds.width - 48
 			let screenHeight = UIScreen.main.bounds.height
