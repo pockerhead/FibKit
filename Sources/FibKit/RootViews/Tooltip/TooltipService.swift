@@ -52,7 +52,7 @@ open class ToolTipService {
 			delay {
 				self.hideSelf(animated: true)
 			}
-			return nil
+			return super.hitTest(point, with: event)
 		}
 		
 		func hideSelf(animated: Bool) {
