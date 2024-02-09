@@ -105,11 +105,31 @@ open class ToolTipService {
 		self.toolTipWindow.hideSelf(animated: animated)
 	}
 	
-	public func showToolTip(for view: UIView, text: String, completion: (() -> Void)? = nil, needHideOnTap: Bool = true) {
-		showToolTip(for: view, tooltipViewModel: TooltipLabel.ViewModel(text: text), markerView: TriangleView.ViewModel(), completion: completion, needHideOnTap: needHideOnTap)
+	public func showToolTip(
+		for view: UIView,
+		text: String,
+		needHideOnTap: Bool = true,
+		animationDuration: TimeInterval = 0.6,
+		completion: (() -> Void)? = nil
+	) {
+		showToolTip(
+			for: view,
+			tooltipViewModel: TooltipLabel.ViewModel(text: text),
+			markerView: TriangleView.ViewModel(),
+			needHideOnTap: needHideOnTap,
+			animationDuration: animationDuration,
+			completion: completion
+		)
 	}
 	
-	public func showToolTip(for view: UIView, tooltipViewModel: FibCoreViewModel, markerView: TooltipMarkerViewModel?, completion: (() -> Void)? = nil, needHideOnTap: Bool = true) {
+	public func showToolTip(
+		for view: UIView,
+		tooltipViewModel: FibCoreViewModel,
+		markerView: TooltipMarkerViewModel?,
+		needHideOnTap: Bool = true,
+		animationDuration: TimeInterval = 0.6,
+		completion: (() -> Void)? = nil
+	) {
 		let markerView: TooltipMarkerViewModel = markerView ?? TriangleView.ViewModel()
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		guard let marker = markerView.getView() as? FibCoreView else { return }
@@ -151,7 +171,7 @@ open class ToolTipService {
 			toolTipWindow.windowScene = currentScene
 			toolTipWindow.isAnimatingHide = false
 			delay {
-				withFibSpringAnimation {
+				withFibSpringAnimation(duration: animationDuration) {
 					self.toolTipWindow.alpha = 1
 				}
 			}
