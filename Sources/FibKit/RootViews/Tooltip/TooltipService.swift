@@ -168,7 +168,7 @@ open class ToolTipService {
 				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
 			}
 			marker.configure(with: markerView)
-			let idealX = viewFrame.maxX - toolTipLabel.bounds.width + 12
+			let idealX = viewFrame.center.x - toolTipLabel.bounds.width / 2
 			toolTipLabel.frame.origin.x = idealX.clamp(16, UIScreen.main.bounds.width - toolTipLabel.bounds.width - 16)
 			marker.frame.origin.x = triangleX.clamp(toolTipLabel.frame.origin.x + 4, toolTipLabel.frame.maxX - 14)
 			
