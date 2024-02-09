@@ -19,7 +19,7 @@ open class ToolTipService {
 		}
 	}
 	
-	private final class TooltipViewController: UIViewController {
+	private final class TooltipViewController: UIViewController, UIGestureRecognizerDelegate {
 		override var preferredStatusBarStyle: UIStatusBarStyle {
 			_preferredStatusBarStyle
 		}
@@ -28,6 +28,7 @@ open class ToolTipService {
 				setNeedsStatusBarAppearanceUpdate()
 			}
 		}
+		var needHideOnTap = true
 		
 		init(_preferredStatusBarStyle: UIStatusBarStyle) {
 			self._preferredStatusBarStyle = _preferredStatusBarStyle
@@ -37,32 +38,29 @@ open class ToolTipService {
 		required init?(coder: NSCoder) {
 			super.init(coder: coder)
 		}
+		
+		@objc func onTap() {
+			delay {
+				ToolTipService.shared.hideTooltip()
+			}
+		}
+		
+		func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+			if needHideOnTap {
+				return true
+			} else {
+				return false
+			}
+		}
 	}
 	
 	private final class ToolTipWindow: UIWindow {
 		
-		var needHideOnTap = true
 		var isAnimatingHide = false
 		var completion: (() -> Void)?
 		
 		var _rootViewController: TooltipViewController? {
 			rootViewController as? TooltipViewController
-		}
-		
-		override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-			guard !needHideOnTap else {
-				delay {
-					self.hideSelf(animated: true)
-				}
-				return super.hitTest(point, with: event)
-			}
-			let view = super.hitTest(point, with: event)
-			if (view === rootViewController?.view || view === self) {
-				delay {
-					self.hideSelf(animated: true)
-				}
-			}
-			return view
 		}
 		
 		func hideSelf(animated: Bool) {
@@ -134,7 +132,7 @@ open class ToolTipService {
 		guard let toolTipLabel = tooltipViewModel.getView() else { return }
 		guard let marker = markerView.getView() as? FibCoreView else { return }
 		UIView.performWithoutAnimation {
-			self.toolTipWindow.needHideOnTap = needHideOnTap
+			self.toolTipWindow._rootViewController?.needHideOnTap = needHideOnTap
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0.01
 			toolTipWindow.subviews.forEach { $0.removeFromSuperview() }
