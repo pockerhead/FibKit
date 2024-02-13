@@ -235,7 +235,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		contextViewRectInWindow = viewRect
 		self.viewToMenuSpacing = viewToMenuSpacing
 		contextMenu.contentView.layer.masksToBounds = true
-		currentAppWindow??.endEditing(true)
+//		currentAppWindow??.endEditing(true)
 		self.onHideAction = onHideAction
 		self.needHideAfterAction = needHideAfterAction
 		// @ab: TODO - исправить баги
