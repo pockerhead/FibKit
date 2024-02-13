@@ -66,9 +66,20 @@ class ViewController: FibViewController {
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			ViewModelSection {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "cell #\(i)")
+			SectionStack {
+				ForEachSection(data: arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
+						.id("\(i)")
+						.interactive(true)
+						.fibContextMenu(
+							.init(provider: ViewModelSection({
+								MyFibSquareView.ViewModel(text: "cell #\(i)")
+								MyFibSquareView.ViewModel(text: "cell #\(i)")
+							})),
+							isSecure: true
+						)
+				}
+				.header(MyFibView.ViewModel(text: "SectionHeader1"))
+				ForEachSection(data: arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
 						.id("\(i)")
 						.interactive(true)
 						.fibContextMenu(.init(provider: ViewModelSection({
@@ -76,42 +87,9 @@ class ViewController: FibViewController {
 							MyFibSquareView.ViewModel(text: "cell #\(i)")
 						})))
 				}
+				.header(MyFibView.ViewModel(text: "SectionHeader2"))
 			}
-			ViewModelSection {
-				MyFibSquareView.ViewModel(text: "DONE")
-					.interactive(true)
-					.onTap {[weak self] _ in
-						try? self?.rootView.rootFormView.scrollToFirst(where: { $0?.id == "43" })
-					}
-			}
-			ViewModelSection {
-				arr2.map { i in
-					MyFibSquareView.ViewModel(text: "\(i) first cell", needShakeAnimation: isDragInProcess)
-						.id("\(i) first cell")
-						.canBeReordered(i > 3)
-						.expanded(i == 2)
-				}
-			}
-			.tapHandler({[weak self] _ in
-				guard let self = self else { return }
-				self.arr2.append(arr2.count)
-				let nav = UINavigationController(rootViewController: ViewController())
-				present(nav, animated: true)
-			})
-//			.didReorderItems(context: .init(
-//				didBeginReorderSession: {[weak self] in
-//					self?.isDragInProcess = true
-//				},
-//				didEndReorderSession: {[weak self] oldIndex, newIndex in
-//					guard let self = self else { return }
-//					
-//					let item = arr2.remove(at: oldIndex)
-//					arr2.insert(item, at: newIndex)
-//					reload()
-//				}
-//			))
-			.isSticky(true)
-			.centeringFlowLayout()
+			.header(MyFibView.ViewModel(text: "SectionStackHeader"))
 		}
 		.id(UUID().uuidString)
 	}
@@ -140,6 +118,7 @@ class ViewController: FibViewController {
 		super.viewDidLoad()
 		rootView.applyAppearance()
 		addDebugButton()
+		setLayerDisableScreenshots(view.layer, true)
 		rootView.rootFormView.keyboardDismissMode = .onDrag
 		view.addGestureRecognizer(cancelDragTapRecognizer)
 		cancelDragTapRecognizer.delegate = self
@@ -291,7 +270,7 @@ class MyFibView: UIView, ViewModelConfigurable, FibViewHeader {
 		guard let data = data as? ViewModel else { return .zero }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)
-		return .init(width: size.width, height: size.height + 90)
+		return .init(width: targetSize.width, height: 50)
 	}
 	
 	func configure(with data: FibKit.ViewModelWithViewClass?) {

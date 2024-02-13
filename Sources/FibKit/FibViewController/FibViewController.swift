@@ -159,8 +159,12 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
         rootView.display(footer, animated: animated)
     }
 
-    public func showContextMenu(_ menu: ContextMenu, for view: UIView) {
-        PopoverService.showContextMenu(menu, view: view, gesture: nil)
+	public func showContextMenu(
+		_ menu: ContextMenu,
+		for view: UIView,
+		isSecure: Bool = false
+	) {
+        PopoverService.showContextMenu(menu, view: view, gesture: nil, isSecure: isSecure)
     }
 
     open func reloadHeader(animated: Bool = true) {

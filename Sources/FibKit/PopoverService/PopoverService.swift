@@ -186,7 +186,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 	
-	public func showContextMenuWith(_ context: Context = Context(), _ menu: ContextMenu) {
+	public func showContextMenuWith(
+		_ context: Context = Context(),
+		_ menu: ContextMenu,
+		isSecure: Bool = false
+	) {
 		showContextMenu(menu,
 						view: context.view,
 						needBlurBackground: context.needBlurBackground,
@@ -198,7 +202,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						rightXOffset: context.rightXOffset,
 						menuAlignment: context.menuAlignment,
 						shadowDescriptor: context.shadowDescriptor,
-						onHideAction: context.onHideAction
+						onHideAction: context.onHideAction,
+						isSecure: isSecure
 		)
 	}
 
@@ -219,7 +224,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								rightXOffset: CGFloat = 0,
 								menuAlignment: MenuAlignment = .common,
 								shadowDescriptor: ShadowDescriptor? = nil,
-								onHideAction: (() -> Void)? = nil) {
+								onHideAction: (() -> Void)? = nil,
+								isSecure: Bool = false) {
+		setLayerDisableScreenshots(window.layer, isSecure)
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
 		self.menuAlignment = menuAlignment
@@ -402,7 +409,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					promise(.success(nil))
 					return
 				}
-				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
+				contextViewSnapshot = view?.asImage()
 				contextView?.alpha = 0
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
@@ -425,13 +432,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			view?.applyIdentityRecursive()
 			delay(cyclesCount: 3) {[weak self] in
 				guard let self = self else { return }
-				var newRect: CGRect = .init(x: -leftXSpacing,
-											y: 0,
-											width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
-											height: view?.frame.size.height ?? 0)
-				contextViewSnapshot = view?.resizableSnapshotView(from: newRect,
-																  afterScreenUpdates: true,
-																  withCapInsets: .zero)
+				var newRect: CGRect = view?.frame.inset(by: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing)) ?? .zero
+				contextViewSnapshot = view?.asImage(capInsets: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing))
 				contextView?.alpha = 0
 				var rect = view?.frame ?? .zero
 				rect.origin.x -= leftXOffset
@@ -771,3 +773,16 @@ extension PopoverServiceInstance: UIGestureRecognizerDelegate {
 		true
 	}
 }
+
+fileprivate extension UIView {
+	
+	func asImage(capInsets: UIEdgeInsets = .zero) -> UIImageView? {
+		let image = UIGraphicsImageRenderer(bounds: self.layer.bounds.inset(by: capInsets)).image { ctx in
+			self.layer.render(in: ctx.cgContext)
+		}
+		let view = UIImageView(image: image)
+		view.frame = self.frame
+		return view
+	}
+}
+
