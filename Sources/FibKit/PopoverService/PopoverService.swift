@@ -235,7 +235,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		contextViewRectInWindow = viewRect
 		self.viewToMenuSpacing = viewToMenuSpacing
 		contextMenu.contentView.layer.masksToBounds = true
-//		currentAppWindow??.endEditing(true)
+		currentAppWindow??.endEditing(true)
 		self.onHideAction = onHideAction
 		self.needHideAfterAction = needHideAfterAction
 		// @ab: TODO - исправить баги
@@ -402,7 +402,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					promise(.success(nil))
 					return
 				}
-				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
+//				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
 				contextView?.alpha = 0
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
