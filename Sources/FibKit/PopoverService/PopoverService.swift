@@ -202,7 +202,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						rightXOffset: context.rightXOffset,
 						menuAlignment: context.menuAlignment,
 						shadowDescriptor: context.shadowDescriptor,
-						onHideAction: context.onHideAction
+						onHideAction: context.onHideAction,
+						isSecure: isSecure
 		)
 	}
 
@@ -435,9 +436,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 											y: 0,
 											width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
 											height: view?.frame.size.height ?? 0)
-				contextViewSnapshot = view?.resizableSnapshotView(from: newRect,
-																  afterScreenUpdates: true,
-																  withCapInsets: .zero)
+				view?.frame = newRect
+				contextViewSnapshot = view?.asImage()
 				contextView?.alpha = 0
 				var rect = view?.frame ?? .zero
 				rect.origin.x -= leftXOffset
