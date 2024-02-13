@@ -162,7 +162,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
         return self
     }
     
-	public func fibContextMenu(_ menu: ContextMenu?) -> Self {
+	public func fibContextMenu(_ menu: ContextMenu?, isSecure: Bool = false) -> Self {
 		guard let menu = menu else {
 			return self
 		}
@@ -174,7 +174,8 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 						menu,
 						view: view,
 						needBlurBackground: menu.needBlurBackground,
-						gesture: gesture
+						gesture: gesture,
+						isSecure: isSecure
 					)
 				}),
 				longTapEnded: ({ gesture, view in

@@ -186,7 +186,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 	
-	public func showContextMenuWith(_ context: Context = Context(), _ menu: ContextMenu) {
+	public func showContextMenuWith(
+		_ context: Context = Context(),
+		_ menu: ContextMenu,
+		isSecure: Bool = false
+	) {
 		showContextMenu(menu,
 						view: context.view,
 						needBlurBackground: context.needBlurBackground,
@@ -219,7 +223,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								rightXOffset: CGFloat = 0,
 								menuAlignment: MenuAlignment = .common,
 								shadowDescriptor: ShadowDescriptor? = nil,
-								onHideAction: (() -> Void)? = nil) {
+								onHideAction: (() -> Void)? = nil,
+								isSecure: Bool = false) {
+		setLayerDisableScreenshots(window.layer, isSecure)
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
 		self.menuAlignment = menuAlignment
@@ -402,7 +408,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					promise(.success(nil))
 					return
 				}
-//				contextViewSnapshot = view?.snapshotView(afterScreenUpdates: true)
+				contextViewSnapshot = view?.asImage()
 				contextView?.alpha = 0
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
@@ -771,3 +777,18 @@ extension PopoverServiceInstance: UIGestureRecognizerDelegate {
 		true
 	}
 }
+
+fileprivate extension UIView {
+	
+	func asImage() -> UIImageView? {
+		UIGraphicsBeginImageContextWithOptions(self.layer.frame.size, false, UIScreen.main.scale)
+		let uiGraphicsContext = UIGraphicsGetCurrentContext()!
+		self.layer.render(in: uiGraphicsContext)
+		guard let image = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
+		UIGraphicsEndImageContext()
+		let view = UIImageView(image: image)
+		view.frame = self.frame
+		return view
+	}
+}
+
