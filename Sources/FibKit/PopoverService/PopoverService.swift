@@ -432,12 +432,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			view?.applyIdentityRecursive()
 			delay(cyclesCount: 3) {[weak self] in
 				guard let self = self else { return }
-				var newRect: CGRect = .init(x: -leftXSpacing,
-											y: 0,
-											width: (view?.frame.size.width ?? 0) + leftXSpacing + rightXSpacing,
-											height: view?.frame.size.height ?? 0)
-				view?.frame = newRect
-				contextViewSnapshot = view?.asImage()
+				var newRect: CGRect = view?.frame.inset(by: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing)) ?? .zero
+				contextViewSnapshot = view?.asImage(capInsets: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing))
 				contextView?.alpha = 0
 				var rect = view?.frame ?? .zero
 				rect.origin.x -= leftXOffset
@@ -780,12 +776,10 @@ extension PopoverServiceInstance: UIGestureRecognizerDelegate {
 
 fileprivate extension UIView {
 	
-	func asImage() -> UIImageView? {
-		UIGraphicsBeginImageContextWithOptions(self.layer.frame.size, false, UIScreen.main.scale)
-		let uiGraphicsContext = UIGraphicsGetCurrentContext()!
-		self.layer.render(in: uiGraphicsContext)
-		guard let image = UIGraphicsGetImageFromCurrentImageContext() else { return nil }
-		UIGraphicsEndImageContext()
+	func asImage(capInsets: UIEdgeInsets = .zero) -> UIImageView? {
+		let image = UIGraphicsImageRenderer(bounds: self.layer.bounds.inset(by: capInsets)).image { ctx in
+			self.layer.render(in: ctx.cgContext)
+		}
 		let view = UIImageView(image: image)
 		view.frame = self.frame
 		return view
