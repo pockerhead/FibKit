@@ -79,7 +79,7 @@ open class FibControllerRootView: UIView {
 	private let rootNavigationHeaderBackground = RootGridViewBackground()
 	private let rootNavigationHeaderMask = UIView().backgroundColor(.black)
 	private weak var largeViewRef: ViewModelConfigurable?
-	public let rootHeaderBackground = RootGridViewBackground()
+	private let rootHeaderBackground = RootGridViewBackground()
 	private var rootHeaderBackgroundEffectView: UIView?
 	private var isKeyboardAppeared: Bool = false
 	private var keyboardHeight: CGFloat = 0
@@ -104,6 +104,10 @@ open class FibControllerRootView: UIView {
 		control.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
 		return control
 	}()
+	
+	public var headerFrame: CGRect {
+		rootHeaderBackground.frame
+	}
 	
 	var cancellables: Set<AnyCancellable> = []
 	
