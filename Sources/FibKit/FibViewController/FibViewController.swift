@@ -9,7 +9,7 @@ import Combine
 import UIKit
 import VisualEffectView
 
-open class FibViewController: UIViewController {
+open class FibViewController: UIViewController, Reloader {
 
     // MARK: Properties
 	
@@ -148,6 +148,10 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 		reloadSections(completion: completion, animated: animated)
 		rootView.setNeedsLayout()
 	}
+	
+	public func reload() {
+		self.reload(completion: nil, animated: true)
+	}
 
     open func reload(completion: (() -> Void)? = nil, animated: Bool = true) {
 		reloadDebouncer.runDebouncedTask {[weak self] in
@@ -205,8 +209,8 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 		while mir != nil {
 			mir?.children.forEach({ child in
 				if !(child.value is Any.Type),
-				   let val = child.value as? HaveControllerProp {
-					val.controller = self
+				   let val = child.value as? HaveReloaderProp {
+					val.reloader = self
 				}
 			})
 			mir = mir?.superclassMirror

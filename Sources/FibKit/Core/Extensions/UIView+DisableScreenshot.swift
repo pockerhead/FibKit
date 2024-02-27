@@ -30,18 +30,16 @@ private let secureView: UIView? = {
 }()
 
 public func setLayerDisableScreenshots(_ layer: CALayer, _ disableScreenshots: Bool) {
-	if #available(iOS 16, *) {
-		guard let secureView = secureView else { return }
-		
-		let previousLayer: CALayer = secureView.layer
-		secureView.setValue(layer, forKey: "layer")
-		if disableScreenshots {
-			textField.isSecureTextEntry = false
-			textField.isSecureTextEntry = true
-		} else {
-			textField.isSecureTextEntry = true
-			textField.isSecureTextEntry = false
-		}
-		secureView.setValue(previousLayer, forKey: "layer")
+	guard let secureView = secureView else { return }
+	
+	let previousLayer: CALayer = secureView.layer
+	secureView.setValue(layer, forKey: "layer")
+	if disableScreenshots {
+		textField.isSecureTextEntry = false
+		textField.isSecureTextEntry = true
+	} else {
+		textField.isSecureTextEntry = true
+		textField.isSecureTextEntry = false
 	}
+	secureView.setValue(previousLayer, forKey: "layer")
 }

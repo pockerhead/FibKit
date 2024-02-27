@@ -8,33 +8,37 @@
 import Foundation
 import Combine
 
-protocol HaveControllerProp: AnyObject {
-	var controller: FibViewController? { get set }
+protocol HaveReloaderProp: AnyObject {
+	var reloader: Reloader? { get set }
+}
+
+public protocol Reloader: AnyObject {
+	func reload()
 }
 
 @propertyWrapper
-public class Reloadable<Value>: HaveControllerProp {
+public class Reloadable<Value>: HaveReloaderProp {
 	
-	weak var controller: FibViewController?
+	weak var reloader: Reloader?
 	private var stored: Value
 	public var wrappedValue: Value {
 		get { stored }
 		set {
 			stored = newValue
-			guard let controller = controller else { return }
-			controller.reload()
+			guard let reloadable = reloader else { return }
+			reloadable.reload()
 		}
 	}
 	
-	public init(wrappedValue stored: Value) {
+	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
 		self.stored = stored
 	}
 }
 
 @propertyWrapper
-public class ReloadableObject<Value: ObservableObject>: HaveControllerProp {
+public class ReloadableObject<Value: ObservableObject>: HaveReloaderProp {
 	
-	weak var controller: FibViewController?
+	weak var reloader: Reloader?
 	private var stored: Value
 	private var cancellable: Set<AnyCancellable> = []
 	
@@ -42,35 +46,35 @@ public class ReloadableObject<Value: ObservableObject>: HaveControllerProp {
 		get { stored }
 		set {
 			stored = newValue
-			guard let controller = controller else { return }
-			controller.reload()
+			guard let reloadable = reloader else { return }
+			reloadable.reload()
 		}
 	}
 	
-	public init(wrappedValue stored: Value) {
+	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
 		self.stored = stored
 		stored.objectWillChange.sink { [weak self] _ in
-			self?.controller?.reload()
+			self?.reloader?.reload()
 		}.store(in: &cancellable)
 	}
 }
 
 @propertyWrapper
-public class LazyReloadable<Value: Equatable>: HaveControllerProp {
+public class LazyReloadable<Value: Equatable>: HaveReloaderProp {
 	
-	weak var controller: FibViewController?
+	weak var reloader: Reloader?
 	private var stored: Value
 	public var wrappedValue: Value {
 		get { stored }
 		set {
 			guard newValue != stored else { return }
 			stored = newValue
-			guard let controller = controller else { return }
-			controller.reload()
+			guard let reloadable = reloader else { return }
+			reloadable.reload()
 		}
 	}
 	
-	public init(wrappedValue stored: Value) {
+	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
 		self.stored = stored
 	}
 }
