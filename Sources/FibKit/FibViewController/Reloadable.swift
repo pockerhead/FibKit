@@ -9,36 +9,32 @@ import Foundation
 import Combine
 
 protocol HaveReloaderProp: AnyObject {
-	var reloader: Reloader? { get set }
-}
-
-public protocol Reloader: AnyObject {
-	func reload()
+	var reloader: (() -> Void)? { get set }
 }
 
 @propertyWrapper
 public class Reloadable<Value>: HaveReloaderProp {
 	
-	weak var reloader: Reloader?
+	var reloader: (() -> Void)?
 	private var stored: Value
 	public var wrappedValue: Value {
 		get { stored }
 		set {
 			stored = newValue
-			guard let reloadable = reloader else { return }
-			reloadable.reload()
+			reloader?()
 		}
 	}
 	
-	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
+	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {
 		self.stored = stored
+		self.reloader = reloader
 	}
 }
 
 @propertyWrapper
 public class ReloadableObject<Value: ObservableObject>: HaveReloaderProp {
 	
-	weak var reloader: Reloader?
+	var reloader: (() -> Void)?
 	private var stored: Value
 	private var cancellable: Set<AnyCancellable> = []
 	
@@ -46,15 +42,15 @@ public class ReloadableObject<Value: ObservableObject>: HaveReloaderProp {
 		get { stored }
 		set {
 			stored = newValue
-			guard let reloadable = reloader else { return }
-			reloadable.reload()
+			reloader?()
 		}
 	}
 	
-	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
+	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {
 		self.stored = stored
+		self.reloader = reloader
 		stored.objectWillChange.sink { [weak self] _ in
-			self?.reloader?.reload()
+			self?.reloader?()
 		}.store(in: &cancellable)
 	}
 }
@@ -62,19 +58,19 @@ public class ReloadableObject<Value: ObservableObject>: HaveReloaderProp {
 @propertyWrapper
 public class LazyReloadable<Value: Equatable>: HaveReloaderProp {
 	
-	weak var reloader: Reloader?
+	var reloader: (() -> Void)?
 	private var stored: Value
 	public var wrappedValue: Value {
 		get { stored }
 		set {
 			guard newValue != stored else { return }
 			stored = newValue
-			guard let reloadable = reloader else { return }
-			reloadable.reload()
+			reloader?()
 		}
 	}
 	
-	public init(reloadable: Reloader? = nil, wrappedValue stored: Value) {
+	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {
 		self.stored = stored
+		self.reloader = reloader
 	}
 }

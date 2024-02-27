@@ -210,7 +210,9 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
 			mir?.children.forEach({ child in
 				if !(child.value is Any.Type),
 				   let val = child.value as? HaveReloaderProp {
-					val.reloader = self
+					val.reloader = {[weak self] in
+						self?.reload()
+					}
 				}
 			})
 			mir = mir?.superclassMirror
