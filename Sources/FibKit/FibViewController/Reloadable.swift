@@ -25,6 +25,10 @@ public class Reloadable<Value>: HaveReloaderProp {
 		}
 	}
 	
+	public func setReloader(_ reloader: (() -> Void)?) {
+		self.reloader = reloader
+	}
+	
 	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {
 		self.stored = stored
 		self.reloader = reloader
@@ -44,6 +48,10 @@ public class ReloadableObject<Value: ObservableObject>: HaveReloaderProp {
 			stored = newValue
 			reloader?()
 		}
+	}
+	
+	public func setReloader(_ reloader: (() -> Void)?) {
+		self.reloader = reloader
 	}
 	
 	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {
@@ -67,6 +75,10 @@ public class LazyReloadable<Value: Equatable>: HaveReloaderProp {
 			stored = newValue
 			reloader?()
 		}
+	}
+	
+	public func setReloader(_ reloader: (() -> Void)?) {
+		self.reloader = reloader
 	}
 	
 	public init(wrappedValue stored: Value, reloader: (() -> Void)? = nil) {

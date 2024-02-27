@@ -9,7 +9,7 @@ import Combine
 import UIKit
 import VisualEffectView
 
-open class FibViewController: UIViewController, Reloader {
+open class FibViewController: UIViewController {
 
     // MARK: Properties
 	
