@@ -31,28 +31,34 @@ extension FibGrid {
 	}
 	
 	public func scrollToFirst(where predicate: ((ViewModelWithViewClass?) -> Bool), animated: Bool = true) throws {
-		let optProvider = self.provider as? SectionProvider
+		var optProvider = self.provider as? SectionProvider
 		guard let provider = optProvider else {
 			debugPrint("Incorrect provider \(String(describing: optProvider))")
 			throw(FibGridError.unableToScroll)
 		}
+		guard let indexPath = getIndexPath(for: provider, predicate: predicate) else { return }
+		try scroll(to: indexPath, animated: animated)
+	}
+	
+	private func getIndexPath(for provider: SectionProvider, predicate: ((ViewModelWithViewClass?) -> Bool)) -> IndexPath? {
 		var indexPath: IndexPath?
 		for (sectionIndex, provider) in provider.sections.enumerated() {
-			guard let section = provider as? ViewModelSection else { continue }
-			for (index, viewModel) in section.data.enumerated() {
-				if predicate(viewModel) {
-					var index = index
-					if section.separatorViewModel != nil {
-						index = index * 2
-					}
-					indexPath = .init(item: index, section: sectionIndex)
-					break
-				}
-			}
 			if indexPath != nil { break }
+			if let section = provider as? ViewModelSection {
+				for (index, viewModel) in section.dataSource.data.enumerated() {
+					if predicate(viewModel) {
+						var index = index
+						indexPath = .init(item: index, section: sectionIndex)
+						break
+					}
+				}
+			} else if let sectionProvider = provider as? SectionProvider {
+				indexPath = getIndexPath(for: sectionProvider, predicate: predicate)
+			} else {
+				continue
+			}
 		}
-		guard let indexPath else { return }
-		try scroll(to: indexPath, animated: animated)
+		return indexPath
 	}
 	
 	public func scroll(to section: ViewModelSection, animated: Bool) throws {
