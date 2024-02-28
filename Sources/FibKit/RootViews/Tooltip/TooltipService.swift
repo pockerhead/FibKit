@@ -65,6 +65,7 @@ open class ToolTipService {
 		
 		var isAnimatingHide = false
 		var completion: (() -> Void)?
+		var needHideOnTap: Bool = true
 		
 		var _rootViewController: TooltipViewController? {
 			rootViewController as? TooltipViewController
@@ -86,6 +87,17 @@ open class ToolTipService {
 				}
 			}
 			
+		}
+		
+		override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+			if self.needHideOnTap {
+				delay {
+					self.hideSelf(animated: true)
+				}
+				return nil
+			} else {
+				return super.hitTest(point, with: event)
+			}
 		}
 	}
 	
@@ -140,6 +152,7 @@ open class ToolTipService {
 		guard let marker = markerView.getView() as? FibCoreView else { return }
 		UIView.performWithoutAnimation {
 			self.toolTipWindow._rootViewController?.needHideOnTap = needHideOnTap
+			self.toolTipWindow.needHideOnTap = needHideOnTap
 			self.toolTipWindow._rootViewController?._preferredStatusBarStyle = currentAppWindow??.windowScene?.statusBarManager?.statusBarStyle ?? .default
 			self.toolTipWindow.alpha = 0.01
 			toolTipWindow._rootViewController?.view.subviews.forEach { $0.removeFromSuperview() }
