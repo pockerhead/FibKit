@@ -597,12 +597,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			hideContextMenu(nil)
 		}
 	}
-	
-	public func hideContextMenu() {
-		hideContextMenu(nil)
-	}
 
-	private func hideContextMenu(_ completion: (() -> Void)? = nil) {
+	public func hideContextMenu(_ completion: (() -> Void)? = nil) {
 		guard self.hidingInProcess == false else { return }
 		self.hidingInProcess = true
 		feedBack.impactOccurred()
