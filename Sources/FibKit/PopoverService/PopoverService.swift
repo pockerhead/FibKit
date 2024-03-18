@@ -592,9 +592,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			clickedView === contextViewSnapshot ||
 			clickedView == nil {
 			hideContextMenu(nil)
-		} else {
-			guard needHideAfterAction else { return }
-			hideContextMenu(nil)
 		}
 	}
 
