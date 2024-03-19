@@ -126,8 +126,9 @@ extension FibGrid {
 			becomeFirstResponder()
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				guard cell.point(inside: gesture.location(in: cell), with: nil),
-					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true else { continue }
-				feedback.impactOccurred()
+					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true,
+					  ((cell as? DragControlledView)?.canStartDragSession ?? true)
+				else { continue }
 				let identifier = flattenedProvider.identifier(at: index)
 				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
 				let interProviderIndex = interIndexPath?.1 ?? index
@@ -225,7 +226,6 @@ extension FibGrid {
 				self.draggedCell?.cell.alpha = 1
 			}
 			(self.draggedCell?.cell as? DragControlledView)?.onDragEnd()
-			self.feedback.impactOccurred()
 			self.draggedCell?.cell.removeFromSuperview()
 			self.draggedCell = nil
 			self.draggedCellOldFrame = nil

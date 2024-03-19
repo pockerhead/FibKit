@@ -52,6 +52,10 @@ open class FibCoreView: UIView,
     open var tooltipView: UIView {
         contentView
     }
+	
+	open var canStartDragSession: Bool {
+		data?.canStartDragSession ?? true
+	}
 
 	public internal(set) var canBeReordered: Bool = true
 	private var onAnalyticsTap: ((String) -> Void)?

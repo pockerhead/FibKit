@@ -26,6 +26,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
     private(set) public var onDissappearClosure: ((UIView) -> Void)?
     private(set) public var size: Size? = nil
 	private(set) public var canBeReordered: Bool = true
+	private(set) public var canStartDragSession: Bool = true
     private(set) public var contextMenu: FibContextMenu?
     private(set) public var tooltip: Tooltip?
 	private(set) public var needAlphaChangeOnDrag: Bool = true
@@ -294,6 +295,12 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 	@discardableResult
 	public func canBeReordered(_ can: Bool) -> Self {
 		self.canBeReordered = can
+		return self
+	}
+	
+	@discardableResult
+	public func canStartDragSession(_ can: Bool) -> Self {
+		self.canStartDragSession = can
 		return self
 	}
 	
