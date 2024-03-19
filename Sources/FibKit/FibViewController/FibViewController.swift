@@ -162,6 +162,10 @@ refreshing state, because one 'endRefreshing' - one feedback 'selectionChanged' 
     open func reloadFooter(animated: Bool = true) {
         rootView.display(footer, animated: animated)
     }
+	
+	public func setDragSessionPressDuration(_ duration: TimeInterval) {
+		rootView.rootFormView.longTapGestureRecognizer.minimumPressDuration = duration
+	}
 
 	public func showContextMenu(
 		_ menu: ContextMenu,
