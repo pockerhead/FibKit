@@ -138,6 +138,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var menuAlignment: MenuAlignment = .common
 	private var shadowDescriptor: ShadowDescriptor? = nil
 	private var snapshotCancellable: AnyCancellable?
+	private var context: Context = .init()
 
 	public enum MenuAlignment {
 		case left
@@ -154,6 +155,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var menuWidth: CGFloat? = nil
 		var needHideAfterAction: Bool = true
 		var leftXOffset: CGFloat = 0
+		var needHideSnapshot: Bool = false
 		var rightXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
 		var menuAlignment: MenuAlignment = .common
@@ -161,6 +163,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 		public init(
 			view: UIView? = nil,
+			needHideSnapshot: Bool = false,
 			needBlurBackground: Bool = true,
 			gesture: UIGestureRecognizer? = nil,
 			viewToMenuSpacing: CGFloat = 16,
@@ -173,6 +176,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			shadowDescriptor: ShadowDescriptor? = nil
 		) {
 			self.view = view
+			self.needHideSnapshot = needHideSnapshot
 			self.needBlurBackground = needBlurBackground
 			self.gesture = gesture
 			self.viewToMenuSpacing = viewToMenuSpacing
@@ -191,8 +195,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		_ menu: ContextMenu,
 		isSecure: Bool = false
 	) {
+		self.context = context
 		showContextMenu(menu,
 						view: context.view,
+						needHideSnapshot: context.needHideSnapshot,
 						needBlurBackground: context.needBlurBackground,
 						gesture: context.gesture,
 						viewToMenuSpacing: context.viewToMenuSpacing,
@@ -215,6 +221,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	@available(*, deprecated, renamed: "showContextMenuWith", message: "Use function with context")
 	public func showContextMenu(_ menu: ContextMenu,
 								view: UIView?,
+								needHideSnapshot: Bool = true,
 								needBlurBackground: Bool = true,
 								gesture: UIGestureRecognizer?,
 								viewToMenuSpacing: CGFloat = 16,
@@ -279,6 +286,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			}
 			snapshotCancellable = snapshotFuture.sink {[weak self] rect in
 				guard let self = self else { return }
+				self.contextViewSnapshot?.alpha = 0
 				if let rect {
 					viewRect = rect
 					contextViewRectInWindow = rect
@@ -410,7 +418,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					return
 				}
 				contextViewSnapshot = view?.asImage()
-				contextView?.alpha = 0
+				if context.needHideSnapshot == false {
+					contextView?.alpha = 0
+				}
 				contextViewSnapshot?.addGestureRecognizer(PreventTouchGR(target: self, action: nil))
 				scrollView.addSubview(contextViewSnapshot!)
 				contextViewSnapshot!.frame = viewRect
@@ -434,7 +444,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				guard let self = self else { return }
 				var newRect: CGRect = view?.frame.inset(by: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing)) ?? .zero
 				contextViewSnapshot = view?.asImage(capInsets: .init(top: 0, left: -leftXSpacing, bottom: 0, right: -rightXSpacing))
-				contextView?.alpha = 0
+				if !context.needHideSnapshot {
+					contextView?.alpha = 0
+				}
 				var rect = view?.frame ?? .zero
 				rect.origin.x -= leftXOffset
 				rect.size.width += self.leftXOffset + self.rightXOffset
@@ -600,7 +612,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		self.hidingInProcess = true
 		feedBack.impactOccurred()
 		self.contextView?.isHidden = false
-		self.contextView?.alpha = 0
+		if !context.needHideSnapshot {
+			self.contextView?.alpha = 0
+		}
 		withFibSpringAnimation(duration: 0.2, delay: 0.2) {
 			self.contextViewSnapshot?.alpha = 0
 		}
