@@ -135,14 +135,19 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private var onHideAction: (() -> Void)? = nil
 	private var leftXOffset: CGFloat = 0
 	private var rightXOffset: CGFloat = 0
-	private var menuAlignment: MenuAlignment = .common
+	private var menuAlignment: HorizontalMenuAlignment = .common
 	private var shadowDescriptor: ShadowDescriptor? = nil
 	private var snapshotCancellable: AnyCancellable?
 	private var context: Context = .init()
 
-	public enum MenuAlignment {
+	public enum HorizontalMenuAlignment {
 		case left
 		case right
+		case common
+	}
+	
+	public enum VerticalMenuAlignment {
+		case bottom
 		case common
 	}
 
@@ -158,7 +163,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var needHideSnapshot: Bool = false
 		var rightXOffset: CGFloat = 0
 		var onHideAction: (() -> Void)? = nil
-		var menuAlignment: MenuAlignment = .common
+		var horizontalMenuAlignment: HorizontalMenuAlignment = .common
+		var verticalMenuAlignment: VerticalMenuAlignment = .bottom
+
 		var shadowDescriptor: ShadowDescriptor? = nil
 
 		public init(
@@ -172,7 +179,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			leftXOffset: CGFloat = 0,
 			rightXOffset: CGFloat = 0,
 			onHideAction: (() -> Void)? = nil,
-			menuAlignment: MenuAlignment = .common,
+			menuAlignment: HorizontalMenuAlignment = .common,
+			verticalMenuAlignment: VerticalMenuAlignment = .bottom,
 			shadowDescriptor: ShadowDescriptor? = nil
 		) {
 			self.view = view
@@ -185,7 +193,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.leftXOffset = leftXOffset
 			self.rightXOffset = rightXOffset
 			self.onHideAction = onHideAction
-			self.menuAlignment = menuAlignment
+			self.horizontalMenuAlignment = menuAlignment
+			self.verticalMenuAlignment = verticalMenuAlignment
 			self.shadowDescriptor = shadowDescriptor
 		}
 	}
@@ -206,7 +215,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						needHideAfterAction: context.needHideAfterAction,
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
-						menuAlignment: context.menuAlignment,
+						menuAlignment: context.horizontalMenuAlignment,
+						verticalMenuAlignment: .bottom,
 						shadowDescriptor: context.shadowDescriptor,
 						onHideAction: context.onHideAction,
 						isSecure: isSecure
@@ -229,7 +239,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								needHideAfterAction: Bool = true,
 								leftXOffset: CGFloat = 0,
 								rightXOffset: CGFloat = 0,
-								menuAlignment: MenuAlignment = .common,
+								menuAlignment: HorizontalMenuAlignment = .common,
+								verticalMenuAlignment: VerticalMenuAlignment = .bottom,
 								shadowDescriptor: ShadowDescriptor? = nil,
 								onHideAction: (() -> Void)? = nil,
 								isSecure: Bool = false) {
@@ -501,6 +512,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									  viewToMenuSpacing: CGFloat,
 									  isUpdating: Bool = false) {
 		self.window.layoutIfNeeded()
+		let isMenuTopAligned = window.bounds.inset(by: window.safeAreaInsets).height - viewRect.maxY - 32 < formViewHeight
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
 		var contextMenuX: CGFloat
@@ -544,7 +556,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				insetTop = window.safeAreaInsets.top
 			}
 		} else {
-			if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
+			if isMenuTopAligned {
+				insetTop = viewRect.minY - formViewHeight - viewToMenuSpacing
+			} else if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
 				insetTop = scrollView.frame.height - allHeight - 32
 			}
 		}
@@ -563,9 +577,21 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			contextMenuX -= contextMenuX - contextSnapshotX - leftXOffset
 		}
 
-		delay {
+		delay {[weak self] in
+			guard let self = self else { return }
+			var finalMenuY = contextSnapshot.frame.maxY + viewToMenuSpacing
+			switch context.verticalMenuAlignment {
+			case .bottom:
+				break
+			case .common:
+				if isMenuTopAligned {
+					finalMenuY = 0
+				} else {
+					break
+				}
+			}
 			let finalMenuFrame = CGRect(x: contextMenuX,
-										y: contextSnapshot.frame.maxY + viewToMenuSpacing,
+										y: finalMenuY,
 										width: size.width,
 										height: formViewHeight)
 			withFibSpringAnimation(duration: 0.4) {[weak self] in
