@@ -512,7 +512,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									  viewToMenuSpacing: CGFloat,
 									  isUpdating: Bool = false) {
 		self.window.layoutIfNeeded()
-		let isMenuTopAligned = window.bounds.inset(by: window.safeAreaInsets).height - viewRect.maxY - 32 < formViewHeight
+		let isMenuTopAligned = window.bounds.inset(by: window.safeAreaInsets).height - viewRect.maxY - 64 < formViewHeight
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
 		var contextMenuX: CGFloat
@@ -550,15 +550,15 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 		contextSnapshot.frame = .init(origin: .init(x: contextSnapshotX, y: 0),
 									  size: contextSnapshotSize)
-		if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
+		if isMenuTopAligned {
+			insetTop = viewRect.minY - formViewHeight - viewToMenuSpacing
+		} else if !(viewRect.origin.y + allHeight > scrollView.frame.height) {
 			insetTop = max(0, viewRect.minY)
 			if viewRect.minY < window.safeAreaInsets.top {
 				insetTop = window.safeAreaInsets.top
 			}
 		} else {
-			if isMenuTopAligned {
-				insetTop = viewRect.minY - formViewHeight - viewToMenuSpacing
-			} else if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
+			if allHeight < (scrollView.frame.height - window.safeAreaInsets.bottom) {
 				insetTop = scrollView.frame.height - allHeight - 32
 			}
 		}
