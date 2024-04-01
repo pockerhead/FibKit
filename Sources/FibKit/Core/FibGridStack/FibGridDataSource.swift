@@ -15,14 +15,22 @@ open class FibGridDataSource: CollectionReloadable {
     
 	private var reloadDebouncer = TaskDebouncer(delayType: .cyclesCount(6))
 
+	var needReloadAfterDataChange = true
     public var data: [ViewModelWithViewClass?] {
 		didSet {
+			guard needReloadAfterDataChange else { return }
 			reloadDebouncer.runDebouncedTask {[weak self] in
 				guard let self = self else { return }
 				self.setNeedsReload()
 			}
 		}
     }
+	
+	public func mutateDataWithoutReload(_ closure: (FibGridDataSource) -> Void) {
+		needReloadAfterDataChange = false
+		closure(self)
+		needReloadAfterDataChange = true
+	}
 
     public var identifierMapper: FormViewIdentifierMapperFn {
         didSet {

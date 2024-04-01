@@ -325,8 +325,10 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		let intersectionFrameSquare = intersectionFrame.size.square
 		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2.2)) || (intersectionFrameSquare > (intersectsSquare / 2.2))
 		if needReorder {
-			let data = self.dataSource.data.remove(at: clampToNumberOfItems(draggedIndex))
-			self.dataSource.data.insert(data, at: clampToNumberOfItems(intersectsIndex))
+			self.dataSource.mutateDataWithoutReload { dataSource in
+				let data = dataSource.data.remove(at: clampToNumberOfItems(draggedIndex))
+				dataSource.data.insert(data, at: clampToNumberOfItems(intersectsIndex))
+			}
 			context.collectionView?.draggedCell?.index = intersectsIndex
 			if reorderContext?.reorderType == .immediateReload {
 				self.setNeedsReload()
