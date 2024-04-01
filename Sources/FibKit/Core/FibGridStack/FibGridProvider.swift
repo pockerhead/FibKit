@@ -325,8 +325,8 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		let intersectionFrameSquare = intersectionFrame.size.square
 		let needReorder = (intersectionFrameSquare > (draggedFrameSquare / 2.2)) || (intersectionFrameSquare > (intersectsSquare / 2.2))
 		if needReorder {
-			let data = self.dataSource.data.remove(at: draggedIndex)
-			self.dataSource.data.insert(data, at: intersectsIndex)
+			let data = self.dataSource.data.remove(at: clampToNumberOfItems(draggedIndex))
+			self.dataSource.data.insert(data, at: clampToNumberOfItems(intersectsIndex))
 			context.collectionView?.draggedCell?.index = intersectsIndex
 			self.setNeedsReload()
 			return intersectsFrame
@@ -346,8 +346,15 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			initialIndex -= 1
 		}
 		didReorderItemsClosure?(initialIndex, finalIndex)
-		reorderContext?.didEndReorderSession(initialIndex, finalIndex)
+		reorderContext?.didEndReorderSession(
+			clampToNumberOfItems(initialIndex),
+			clampToNumberOfItems(finalIndex)
+		)
     }
+	
+	func clampToNumberOfItems(_ index: Int) -> Int {
+		index.clamp(0, dataSource.numberOfItems - 1)
+	}
 
     public func hasReloadable(_ reloadable: CollectionReloadable) -> Bool {
         return reloadable === self || reloadable === dataSource || reloadable === sizeSource
