@@ -203,8 +203,8 @@ extension FibGrid {
 					let intersectionVectorLength = abs(intersectionVector.length)
 					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
 					let intersectionSquare = intersectionFrame.size.square
-					if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0),
-						intersectionVectorLength > (context.intersectionVectorLength ?? 0)
+					if  intersectionVectorLength > (context.intersectionVectorLength ?? 0),
+						intersectionSquare > (context.intersectionFrame?.size.square ?? 0)
 					{
 						context.intersectsCell = CellPath(cell: cell, index: index)
 						context.intersectionFrame = intersectionFrame
