@@ -348,7 +348,9 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		}
 		if backgroundViewModel != nil {
 			initialIndex -= 1
-			finalIndex -= 1
+			if finalIndex == 1 {
+				finalIndex -= 1
+			}
 		}
 		didReorderItemsClosure?(initialIndex, finalIndex)
 		reorderContext?.didEndReorderSession(
