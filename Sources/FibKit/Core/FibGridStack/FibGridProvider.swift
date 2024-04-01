@@ -328,7 +328,9 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			let data = self.dataSource.data.remove(at: clampToNumberOfItems(draggedIndex))
 			self.dataSource.data.insert(data, at: clampToNumberOfItems(intersectsIndex))
 			context.collectionView?.draggedCell?.index = intersectsIndex
-			self.setNeedsReload()
+			if reorderContext?.reorderType == .immediateReload {
+				self.setNeedsReload()
+			}
 			return intersectsFrame
 		}
         return nil

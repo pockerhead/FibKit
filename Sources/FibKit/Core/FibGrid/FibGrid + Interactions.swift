@@ -8,11 +8,23 @@
 import Foundation
 
 public struct ReorderContext {
-	public init(didBeginReorderSession: (() -> Void)? = nil, didEndReorderSession: @escaping ((Int, Int) -> Void)) {
+	
+	public enum ReorderType {
+		case immediateReload
+		case defferedReload
+	}
+	
+	public init(
+		reorderType: ReorderType = .immediateReload,
+		didBeginReorderSession: (() -> Void)? = nil,
+		didEndReorderSession: @escaping ((Int, Int) -> Void)
+	) {
+		self.reorderType = reorderType
 		self.didEndReorderSession = didEndReorderSession
 		self.didBeginReorderSession = didBeginReorderSession
 	}
 	
+	public private(set) var reorderType: ReorderType
 	public private(set) var didEndReorderSession: ((Int, Int) -> Void)
 	public private(set) var didBeginReorderSession: (() -> Void)?
 }
