@@ -36,6 +36,7 @@ public class LongGestureContext {
     var dragProvider: ItemProvider?
     var intersectsCell: FibGrid.CellPath?
 	var intersectionFrame: CGRect?
+	var intersectionVectorLength: CGFloat?
     var oldCellFrame: CGRect?
     var lastReorderedIndex: Int?
 

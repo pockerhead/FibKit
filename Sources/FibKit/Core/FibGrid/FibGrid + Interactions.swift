@@ -194,11 +194,21 @@ extension FibGrid {
 				if cell.frame.intersects(draggedCell.frame) {
 					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject), ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
 					let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
+					let draggedCenter = draggedCell.frame.center
+					let intersectionCenter = cell.frame.center
+					let intersectionVector = CGVector(
+						dx: draggedCenter.x - intersectionCenter.x,
+						dy: draggedCenter.y - intersectionCenter.y
+					)
+					let intersectionVectorLength = abs(intersectionVector.length)
 					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
 					let intersectionSquare = intersectionFrame.size.square
-					if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0) {
+					if  intersectionSquare > (context.intersectionFrame?.size.square ?? 0),
+						intersectionVectorLength > (context.intersectionVectorLength ?? 0)
+					{
 						context.intersectsCell = CellPath(cell: cell, index: index)
 						context.intersectionFrame = intersectionFrame
+						context.intersectionVectorLength = intersectionVectorLength
 					}
 				}
 			}
@@ -249,5 +259,12 @@ extension FibGrid {
 			self.dragProvider = nil
 			self.setNeedsReload()
 		}
+	}
+}
+
+extension CGVector {
+	
+	var length: Double {
+		sqrt(pow(dx, 2) + pow(dy, 2))
 	}
 }
