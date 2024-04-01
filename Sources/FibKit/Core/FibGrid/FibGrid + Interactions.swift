@@ -126,6 +126,7 @@ extension FibGrid {
 			becomeFirstResponder()
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
 				guard cell.point(inside: gesture.location(in: cell), with: nil),
+					  !(cell is FibSectionBackgroundView),
 					  (cell.fb_provider as? ItemProvider)?.canReorderItems == true,
 					  ((cell as? DragControlledView)?.canStartDragSession ?? true)
 				else { continue }
@@ -177,7 +178,7 @@ extension FibGrid {
 			context.oldCellFrame = draggedCellOldFrame
 			context.lastReorderedIndex = lastReorderedIndex
 			for (cell, index) in zip(visibleCells, visibleIndexes).reversed() {
-				if cell === draggedCell { continue }
+				if cell === draggedCell || cell is FibSectionBackgroundView { continue }
 				if cell.frame.intersects(draggedCell.frame) {
 					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject), ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
 					let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
