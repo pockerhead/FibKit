@@ -74,6 +74,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	/// Own window for alertService
 	public private(set) lazy var window: UIWindow = {
 		let w = proxyWindow
+		(w as? DragProxyWindow)?.popoverService = self
 		dragGest.delegate = self
 		w.addGestureRecognizer(dragGest)
 		let gr = UITapGestureRecognizer(target: self, 
@@ -84,12 +85,12 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		return w
 	}()
 	
-	private var scrollView = UIScrollView()
+	var scrollView = UIScrollView()
 	public var passViewEvent: UIEvent?
 	public var completion: (() -> Void)?
 
 	/// Blur view that applies with conext menu
-	private lazy var overlayView: VisualEffectView = {
+	lazy var overlayView: VisualEffectView = {
 		let view = VisualEffectView()
 		view.colorTint = blurColorTint
 		view.colorTintAlpha = 0.2
@@ -101,7 +102,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	}()
 
 	/// Conext menu, contains self-sized formView with scroll
-	private var contextMenu = FibCell()
+	var contextMenu = FibCell()
 
 	private var currentAppWindow: UIWindow?? {
 		if let delegate = UIApplication.shared.connectedScenes.first?.delegate as? UIWindowSceneDelegate {
@@ -117,7 +118,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	}
 
 	/// Snapshot of view, that captured by context
-	private var contextViewSnapshot: UIView?
+	var contextViewSnapshot: UIView?
 
 	/// Weak reference to view, captured by context
 	private weak var contextView: UIView?
@@ -150,6 +151,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		case bottom
 		case common
 	}
+	
+	public enum DismissalInteraction {
+		case onlyTap
+		case anyTouch
+	}
 
 	public struct Context {
 		
@@ -165,6 +171,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var onHideAction: (() -> Void)? = nil
 		var horizontalMenuAlignment: HorizontalMenuAlignment = .common
 		var verticalMenuAlignment: VerticalMenuAlignment = .bottom
+		var dismissalInteraction: DismissalInteraction = .onlyTap
 
 		var shadowDescriptor: ShadowDescriptor? = nil
 
@@ -181,6 +188,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			onHideAction: (() -> Void)? = nil,
 			menuAlignment: HorizontalMenuAlignment = .common,
 			verticalMenuAlignment: VerticalMenuAlignment = .bottom,
+			dismissalInteraction: DismissalInteraction = .onlyTap,
 			shadowDescriptor: ShadowDescriptor? = nil
 		) {
 			self.view = view
@@ -195,6 +203,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self.onHideAction = onHideAction
 			self.horizontalMenuAlignment = menuAlignment
 			self.verticalMenuAlignment = verticalMenuAlignment
+			self.dismissalInteraction = dismissalInteraction
 			self.shadowDescriptor = shadowDescriptor
 		}
 	}
@@ -216,7 +225,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						leftXOffset: context.leftXOffset,
 						rightXOffset: context.rightXOffset,
 						menuAlignment: context.horizontalMenuAlignment,
-						verticalMenuAlignment: .bottom,
+						verticalMenuAlignment: context.verticalMenuAlignment,
 						shadowDescriptor: context.shadowDescriptor,
 						onHideAction: context.onHideAction,
 						isSecure: isSecure
@@ -263,6 +272,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		currentAppWindow??.endEditing(true)
 		self.onHideAction = onHideAction
 		self.needHideAfterAction = needHideAfterAction
+		if context.dismissalInteraction == .anyTouch {
+			(window as? DragProxyWindow)?.isPassthroughTouches = true
+		} else {
+			(window as? DragProxyWindow)?.isPassthroughTouches = false
+		}
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture
@@ -280,8 +294,20 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			} else {
 				width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
 			}
+			let height: CGFloat
+			let isMenuTopAligned: Bool
+			switch verticalMenuAlignment {
+			case .bottom:
+				height = window.bounds.height - 64 - safeAreaVertical
+				isMenuTopAligned = false
+			case .common:
+				let bottomMenuHeight = window.bounds.height - window.safeAreaInsets.bottom - viewRect.maxY - viewToMenuSpacing - 64
+				let topMenuHeight = window.bounds.height - (window.bounds.height - viewRect.minY) - window.safeAreaInsets.top - viewToMenuSpacing - 64
+				height = max(topMenuHeight, bottomMenuHeight)
+				isMenuTopAligned = topMenuHeight > bottomMenuHeight
+			}
 			let size = CGSize(width: width,
-							  height: window.bounds.height - 64 - safeAreaVertical)
+							  height: height)
 			let formViewSize = self.contextMenu.sizeWith(size, data: menu)
 			let formViewHeight = formViewSize?.height.clamp(0, size.height) ?? size.height
 			var contextMenuY: CGFloat = viewRect.maxY + viewToMenuSpacing
@@ -312,6 +338,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					self?.applyContextViewRect(
 						contextMenuY: contextMenuY,
 						formViewHeight: formViewHeight,
+						isMenuTopAligned: isMenuTopAligned,
 						viewRect: viewRect,
 						size: size,
 						needBlurBackground: needBlurBackground,
@@ -340,8 +367,20 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		} else {
 			width = (window.bounds.width - 128 - safeAreaHorizontal).clamp(0, 254)
 		}
+		let height: CGFloat
+		let isMenuTopAligned: Bool
+		switch context.verticalMenuAlignment {
+		case .bottom:
+			height = window.bounds.height - 64 - safeAreaVertical
+			isMenuTopAligned = false
+		case .common:
+			let bottomMenuHeight = window.bounds.height - window.safeAreaInsets.bottom - viewRect.maxY - viewToMenuSpacing - 64
+			let topMenuHeight = window.bounds.height - (window.bounds.height - viewRect.minY) - window.safeAreaInsets.top - viewToMenuSpacing - 64
+			height = max(topMenuHeight, bottomMenuHeight)
+			isMenuTopAligned = topMenuHeight > bottomMenuHeight
+		}
 		let size = CGSize(width: width,
-						  height: window.bounds.height - 64 - safeAreaVertical)
+						  height: height)
 		let formViewSize = self.contextMenu.sizeWith(size, data: menu)
 		let formViewHeight = formViewSize?.height.clamp(0, size.height) ?? size.height
 		var contextMenuY: CGFloat = viewRect.maxY + viewToMenuSpacing
@@ -358,6 +397,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			self?.applyContextViewRect(
 				contextMenuY: contextMenuY,
 				formViewHeight: formViewHeight,
+				isMenuTopAligned: isMenuTopAligned,
 				viewRect: viewRect,
 				size: size,
 				needBlurBackground: self?.needBlurBackground ?? true,
@@ -505,6 +545,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 
 	private func applyContextViewRect(contextMenuY: CGFloat,
 									  formViewHeight: CGFloat,
+									  isMenuTopAligned: Bool,
 									  viewRect: CGRect,
 									  size: CGSize,
 									  needBlurBackground: Bool,
@@ -512,7 +553,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 									  viewToMenuSpacing: CGFloat,
 									  isUpdating: Bool = false) {
 		self.window.layoutIfNeeded()
-		let isMenuTopAligned = window.bounds.inset(by: window.safeAreaInsets).height - viewRect.maxY - 64 < formViewHeight
 		let minimumX: CGFloat = 16
 		let maximumX = window.bounds.width - 16 - size.width
 		var contextMenuX: CGFloat
@@ -754,6 +794,26 @@ final fileprivate class DragProxyWindow: UIWindow {
 	private var touchesMoved: ((CGPoint) -> Void)?
 	private var touchesCancelled: ((CGPoint) -> Void)?
 	
+	var isPassthroughTouches = false
+	weak var popoverService: PopoverServiceInstance?
+	
+	override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+		guard isPassthroughTouches else {
+			return super.hitTest(point, with: event)
+		}
+		let clickedView = super.hitTest(point, with: event)
+		if let popoverService,
+		   clickedView === popoverService.window ||
+			clickedView === popoverService.overlayView ||
+			clickedView === popoverService.scrollView ||
+			clickedView === popoverService.contextViewSnapshot ||
+			clickedView == nil {
+			popoverService.hideContextMenu(nil)
+			return nil
+		} else {
+			return clickedView
+		}
+	}
 	
 	func bindingTouchesBegan(_ closure: ((CGPoint) -> Void)?) -> Self {
 		touchesBegan = closure
