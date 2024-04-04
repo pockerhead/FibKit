@@ -66,30 +66,73 @@ class ViewController: FibViewController {
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			SectionStack {
-				ForEachSection(data: arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
-						.id("\(i)")
+			ViewModelSection {
+				MyFibSquareView.ViewModel(text: "cell #1")
+						.id("1")
 						.interactive(true)
-						.fibContextMenu(
-							.init(provider: ViewModelSection({
-								MyFibSquareView.ViewModel(text: "cell #\(i)")
-								MyFibSquareView.ViewModel(text: "cell #\(i)")
-							})),
-							isSecure: true
-						)
-				}
-				.header(MyFibView.ViewModel(text: "SectionHeader1"))
-				ForEachSection(data: arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
-						.id("\(i)")
+						.sizeStrategy(.height(44))
+						.onTap { view in
+							PopoverService.showContextMenuWith(
+								.init(
+									view: view, 
+									needHideSnapshot: true,
+									needBlurBackground: false,
+									viewToMenuSpacing: 4,
+									menuWidth: self.view.bounds.width - 32,
+									needHideAfterAction: true,
+									verticalMenuAlignment: .common,
+									dismissalInteraction: .anyTouch
+								),
+								.init(provider: ForEachSection(data: self.arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
+										.id("\(i)")
+										.interactive(true)
+								})
+							)
+						}
+				MyFibSquareView.ViewModel(text: "cell #2")
+						.id("2")
 						.interactive(true)
-						.fibContextMenu(.init(provider: ViewModelSection({
-							MyFibSquareView.ViewModel(text: "cell #\(i)")
-							MyFibSquareView.ViewModel(text: "cell #\(i)")
-						})))
-				}
-				.header(MyFibView.ViewModel(text: "SectionHeader2"))
+						.sizeStrategy(.height(44))
+						.onTap { view in
+							PopoverService.showContextMenuWith(
+								.init(
+									view: view,
+									needHideSnapshot: true,
+									needBlurBackground: false,
+									viewToMenuSpacing: 4,
+									menuWidth: self.view.bounds.width - 32,
+									needHideAfterAction: true,
+									verticalMenuAlignment: .common,
+									dismissalInteraction: .anyTouch
+								),
+								.init(
+									provider: ForEachSection(data: self.arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
+											.id("\(i)")
+											.interactive(true)
+									}
+								)
+							)
+						}
+				MyFibSquareView.ViewModel(text: "cell #1")
+						.id("1")
+						.interactive(true)
+						.sizeStrategy(.height(700))
+						.onTap { view in
+							PopoverService.showContextMenuWith(
+								.init(view: view),
+								.init(
+									provider: ViewModelSection({
+										MyFibSquareView.ViewModel(text: "cell #1")
+											.sizeStrategy(.height(44))
+										MyFibSquareView.ViewModel(text: "cell #1")
+											.sizeStrategy(.height(44))
+										MyFibSquareView.ViewModel(text: "cell #1")
+											.sizeStrategy(.height(44))
+									})
+								)
+							)
+						}
 			}
-			.header(MyFibView.ViewModel(text: "SectionStackHeader"))
 		}
 		.id(UUID().uuidString)
 	}
@@ -425,13 +468,13 @@ class MyFibSquareView: FibCoreView {
 		contentView.layer.borderColor = UIColor.black.cgColor
 	}
 	
-	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
-		guard let data = data as? ViewModel else { return .zero }
-		configure(with: data)
-		let size = label.sizeThatFits(targetSize)
-		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
-		return .init(width: data.expanded ? 300 : 100, height: 100)
-	}
+//	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+//		guard let data = data as? ViewModel else { return .zero }
+//		configure(with: data)
+//		let size = label.sizeThatFits(targetSize)
+//		//return .init(width: label.text?.contains("2") == true ? 300 : 100, height: 100)
+//		return .init(width: targetSize.width, height: 50)
+//	}
 	
 	override func configure(with data: FibKit.ViewModelWithViewClass?) {
 		guard let data = data as? ViewModel else { return }
