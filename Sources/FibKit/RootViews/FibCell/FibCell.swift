@@ -194,6 +194,7 @@ extension FibCell: FibViewHeader {
         public var size: NilSize?
         public var backgroundColor: UIColor?
         public var atTop: Bool = false
+		public var animated: Bool = true
         public var needRound: Bool = true
         public var delay: TimeInterval?
         public var needBlurBackground = false
@@ -223,6 +224,11 @@ extension FibCell: FibViewHeader {
             _grid?.provider = provider
             reloadData()
         }
+		
+		public func animated(_ bool: Bool) -> Self {
+			self.animated = bool
+			return self
+		}
 
         public func allowedStretchDirections(_ allowedStretchDirections: Set<StretchDirection>) -> Self {
             self.allowedStretchDirections = allowedStretchDirections
@@ -332,9 +338,15 @@ extension FibCell: FibViewHeader {
         if let delayInterval = data.delay {
             delay(delayInterval, closure: ({[weak self] in
                 self?.formView.provider = data.provider
+				if data.animated == false {
+					self?.formView.provider?.animator = nil
+				}
             }))
         } else {
             formView.provider = data.provider
+			if data.animated == false {
+				formView.provider?.animator = nil
+			}
         }
 		applyAppearance()
 		contentView.layer.masksToBounds = !data.disableMaskToBounds
