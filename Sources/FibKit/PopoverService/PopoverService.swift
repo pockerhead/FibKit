@@ -278,6 +278,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		} else {
 			(window as? DragProxyWindow)?.isPassthroughTouches = false
 		}
+		self.contextMenu.configure(with: menu)
+		self.contextMenu.formView.scrollTo(edge: .top, animated: false)
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
 //            self.fromGesture = gesture
@@ -350,8 +352,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 					)
 				} completion: {[weak self] _ in
 					guard let self = self else { return }
-					self.contextMenu.configure(with: menu)
-					self.contextMenu.formView.scrollTo(edge: .top, animated: false)
 				}
 				snapshotCancellable = nil
 			}

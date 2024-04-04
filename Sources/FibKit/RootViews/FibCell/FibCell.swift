@@ -328,7 +328,6 @@ extension FibCell: FibViewHeader {
             self._additionalBackgroundColor = additionalBackground
 			formView.backgroundColor = _additionalBackgroundColor ?? fbBackgroundColor
         }
-        formView.isAsync = false
         blurView.isHidden = !data.needBlurBackground
         if let delayInterval = data.delay {
             delay(delayInterval, closure: ({[weak self] in
