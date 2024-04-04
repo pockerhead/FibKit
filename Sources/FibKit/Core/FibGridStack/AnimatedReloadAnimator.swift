@@ -165,6 +165,10 @@ public struct AnimationContext {
 		self.updateDuration = updateDuration
 		self.updateDamping = updateDamping
 	}
+	
+	public static let disabledAnimation: AnimationContext {
+		.init(insertDuration: 0, deleteDuration: 0, updateDuration: 0, updateDamping: 0)
+	}
 }
 
 public protocol StickyHeaderView {

@@ -339,13 +339,13 @@ extension FibCell: FibViewHeader {
             delay(delayInterval, closure: ({[weak self] in
                 self?.formView.provider = data.provider
 				if data.animated == false {
-					self?.formView.provider?.animator = nil
+					self?.formView.provider?.animator = AnimatedReloadAnimator(animationContext: .disabledAnimation)
 				}
             }))
         } else {
             formView.provider = data.provider
 			if data.animated == false {
-				formView.provider?.animator = nil
+				formView.provider?.animator = AnimatedReloadAnimator(animationContext: .disabledAnimation)
 			}
         }
 		applyAppearance()
