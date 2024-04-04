@@ -365,11 +365,9 @@ extension FibCell: FibViewHeader {
         if let sizeHeight = data.size?.height {
             height = sizeHeight
         } else {
-            frame.size.width = targetSize.width == 0 ? UIScreen.main.bounds.width : targetSize.width
-            configure(with: data.delay(nil))
-            layoutIfNeeded()
-            formView.layoutIfNeeded()
-            height = self.formView.contentSize.height + insets.verticalSum
+			data.provider?.layout(collectionSize: targetSize)
+			height = data.provider?.contentSize.height ?? 0
+			height += insets.verticalSum
         }
         return .init(width: width, height: height)
     }

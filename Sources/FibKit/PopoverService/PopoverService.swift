@@ -76,7 +76,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		let w = proxyWindow
 		(w as? DragProxyWindow)?.popoverService = self
 		dragGest.delegate = self
-		w.addGestureRecognizer(dragGest)
+//		w.addGestureRecognizer(dragGest)
 		let gr = UITapGestureRecognizer(target: self, 
 										action: #selector(hideContextMenuAfterAction))
 		w.addGestureRecognizer(gr)
@@ -125,7 +125,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	private weak var fromGesture: UIGestureRecognizer?
 
 	/// Feedback generator
-	private var feedBack = UIImpactFeedbackGenerator(style: .medium)
+	private var feedBack = UISelectionFeedbackGenerator()
 	private var allHeight: CGFloat = 0
 	private var contextViewRectInWindow = CGRect()
 	private var viewToMenuSpacing: CGFloat = 16
@@ -240,7 +240,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	@available(*, deprecated, renamed: "showContextMenuWith", message: "Use function with context")
 	public func showContextMenu(_ menu: ContextMenu,
 								view: UIView?,
-								needHideSnapshot: Bool = true,
+								needHideSnapshot: Bool = false,
 								needBlurBackground: Bool = true,
 								gesture: UIGestureRecognizer?,
 								viewToMenuSpacing: CGFloat = 16,
@@ -253,6 +253,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								shadowDescriptor: ShadowDescriptor? = nil,
 								onHideAction: (() -> Void)? = nil,
 								isSecure: Bool = false) {
+		guard !hidingInProcess else { return }
 		setLayerDisableScreenshots(window.layer, isSecure)
 		self.leftXOffset = leftXOffset
 		self.rightXOffset = rightXOffset
@@ -323,7 +324,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			}
 			snapshotCancellable = snapshotFuture.sink {[weak self] rect in
 				guard let self = self else { return }
-				self.contextViewSnapshot?.alpha = 0
+				if needHideSnapshot {
+					self.contextViewSnapshot?.alpha = 0
+				}
 				if let rect {
 					viewRect = rect
 					contextViewRectInWindow = rect
@@ -333,7 +336,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				
 				let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
 				self.allHeight = allHeight
-				feedBack.impactOccurred()
+				feedBack.selectionChanged()
 				withFibSpringAnimation(duration: 0.4) {[weak self] in
 					self?.applyContextViewRect(
 						contextMenuY: contextMenuY,
@@ -392,7 +395,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		contextMenu.frame.origin = oldOrigin
 		let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
 		self.allHeight = allHeight
-		feedBack.impactOccurred()
+		feedBack.selectionChanged()
 		withFibSpringAnimation(duration: 0.4) {[weak self] in
 			self?.applyContextViewRect(
 				contextMenuY: contextMenuY,
@@ -676,7 +679,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 	public func hideContextMenu(_ completion: (() -> Void)? = nil) {
 		guard self.hidingInProcess == false else { return }
 		self.hidingInProcess = true
-		feedBack.impactOccurred()
 		self.contextView?.isHidden = false
 		if !context.needHideSnapshot {
 			self.contextView?.alpha = 0
@@ -740,7 +742,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				else { return }
 				let havePointInside = cellAbsFrame.contains(point)
 				if havePointInside, !cell.isHighlighted {
-					feedBack.impactOccurred()
+					feedBack.selectionChanged()
 					cell.setHighlighted(highlighted: true)
 				} else if !havePointInside, cell.isHighlighted {
 					cell.setHighlighted(highlighted: false)
