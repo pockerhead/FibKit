@@ -392,6 +392,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		configureContextMenu(with: size, viewRect: viewRect, formViewHeight: formViewHeight, shadowDescritor: shadowDescriptor)
 		contextMenu.transform = .identity
 		contextMenu.alpha = 1
+		self.contextMenu.configure(with: menu)
+		self.contextMenu.formView.scrollTo(edge: .top, animated: false)
 		contextMenu.frame.origin = oldOrigin
 		let allHeight = viewRect.height + viewToMenuSpacing + formViewHeight + window.safeAreaInsets.verticalSum
 		self.allHeight = allHeight
@@ -410,8 +412,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 			)
 		} completion: {[weak self] _ in
 			guard let self = self else { return }
-			self.contextMenu.configure(with: menu)
-			self.contextMenu.formView.scrollTo(edge: .top, animated: false)
+			
 		}
 	}
 	
