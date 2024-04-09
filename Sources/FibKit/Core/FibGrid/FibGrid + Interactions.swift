@@ -144,7 +144,10 @@ extension FibGrid {
 				else { continue }
 				let identifier = flattenedProvider.identifier(at: index)
 				let interIndexPath = (flattenedProvider as? FlattenedProvider)?.indexPath(index)
-				let interProviderIndex = interIndexPath?.1 ?? index
+				var interProviderIndex = interIndexPath?.1 ?? index
+				if (cell.fb_provider as? FibGridProvider)?.backgroundViewModel != nil {
+					interProviderIndex -= 1
+				}
 				let context = LongGestureContext(view: cell,
 												 collectionView: self,
 												 locationInCollection: gesture.location(in: self),
@@ -193,7 +196,10 @@ extension FibGrid {
 				if cell === draggedCell || cell is FibSectionBackgroundView { continue }
 				if cell.frame.intersects(draggedCell.frame) {
 					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject), ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
-					let index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
+					var index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
+					if (cell.fb_provider as? FibGridProvider)?.backgroundViewModel != nil {
+						index -= 1
+					}
 					let draggedCenter = draggedCell.frame.center
 					let intersectionCenter = cell.frame.center
 					let intersectionVector = CGVector(

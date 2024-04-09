@@ -313,10 +313,6 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 			intersectsIndex = intersectsIndex / 2
 			draggedIndex = draggedIndex / 2
 		}
-		if backgroundViewModel != nil {
-			intersectsIndex -= 1
-			draggedIndex -= 1
-		}
 		let draggedFrame = context.view.frame
 		let intersectsFrame = intersectsView.frame
 		let intersectsSquare = intersectsFrame.size.square
@@ -345,10 +341,6 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		var initialIndex = context.collectionView?.draggedCellInitialIndex ?? 0
 		if separatorViewModel != nil {
 			initialIndex = initialIndex / 2
-		}
-		if backgroundViewModel != nil {
-			initialIndex -= 1
-			
 		}
 		didReorderItemsClosure?(initialIndex, finalIndex)
 		reorderContext?.didEndReorderSession(
