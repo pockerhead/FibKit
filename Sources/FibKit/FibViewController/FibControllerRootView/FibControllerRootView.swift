@@ -247,6 +247,10 @@ open class FibControllerRootView: UIView {
 		if !animated {
 			UIView.performWithoutAnimation {
 				rootFormView.frame = bounds
+				guard !isKeyboardAppeared else {
+					rootFormView.contentInset.bottom = keyboardHeight + footerHeight
+					return
+				}
 				rootFormView.contentInset.bottom = footerHeight
 			}
 		}
@@ -462,6 +466,9 @@ open class FibControllerRootView: UIView {
 		var backgroundHeight = footerHeight + safeAreaInsets.bottom
 		if needFooterKeyboardSticks && isKeyboardAppeared {
 			backgroundHeight = footerHeight + keyboardHeight
+		}
+		if footer == nil {
+			backgroundHeight = 0
 		}
 		rootFooterBackground.frame.origin = .init(x: 0, y: bounds.height - backgroundHeight)
 		rootFooterBackground.frame.size.height = backgroundHeight
