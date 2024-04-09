@@ -467,9 +467,6 @@ open class FibControllerRootView: UIView {
 		if needFooterKeyboardSticks && isKeyboardAppeared {
 			backgroundHeight = footerHeight + keyboardHeight
 		}
-		if footer == nil {
-			backgroundHeight = 0
-		}
 		rootFooterBackground.frame.origin = .init(x: 0, y: bounds.height - backgroundHeight)
 		rootFooterBackground.frame.size.height = backgroundHeight
 		rootFooterBackground.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
