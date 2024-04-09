@@ -197,7 +197,8 @@ extension FibGrid {
 				if cell.frame.intersects(draggedCell.frame) {
 					guard (cell.fb_provider as? AnyObject) === (draggedCell.fb_provider as? AnyObject), ((cell as? DragControlledView)?.canBeReordered ?? true) else { continue }
 					var index = (flattenedProvider as? FlattenedProvider)?.indexPath(index).1 ?? index
-					if (cell.fb_provider as? FibGridProvider)?.backgroundViewModel != nil {
+					let fbProvider = cell.fb_provider as? FibGridProvider
+					if fbProvider?.backgroundViewModel != nil {
 						index -= 1
 					}
 					let draggedCenter = draggedCell.frame.center
@@ -208,7 +209,14 @@ extension FibGrid {
 					)
 					let intersectionVectorLength = abs(intersectionVector.length)
 					let intersectionFrame = cell.frame.intersection(draggedCell.frame)
-					if  intersectionVectorLength < (context.intersectionVectorLength ?? .greatestFiniteMagnitude)
+					let intersectionSquare = intersectionFrame.size.square
+					var intersectionCheck = true
+					if fbProvider?.reorderContext?.reorderType == .immediateReload {
+						intersectionCheck = intersectionSquare > (context.intersectionFrame?.size.square ?? 0)
+					}
+					if  intersectionVectorLength < (context.intersectionVectorLength ?? .greatestFiniteMagnitude), 
+							intersectionCheck
+						
 					{
 						context.intersectsCell = CellPath(cell: cell, index: index)
 						context.intersectionFrame = intersectionFrame
