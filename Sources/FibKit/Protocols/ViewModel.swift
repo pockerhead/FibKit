@@ -105,6 +105,12 @@ public extension ViewModelConfigurable {
 	}
 	
 	func setHighlighted(highlighted: Bool) {}
+
+	func getSizeForSelf(_ targetSize: CGSize, data: ViewModelWithViewClass?,
+						horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+		guard let type = FibGridViewSource(dummyViewNilClass: Self.self).nilDataDummyViewClass else { return nil }
+		return type.init().sizeWith(targetSize, data: data, horizontal: horizontal, vertical: vertical)
+	}
 }
 
 // swiftlint:disable all
