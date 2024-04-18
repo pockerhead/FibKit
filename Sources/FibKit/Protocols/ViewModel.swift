@@ -173,3 +173,20 @@ public protocol DragControlledView {
 	func onDragBegin()
 	func onDragEnd()
 }
+
+extension ViewModelWithViewClass {
+	
+	func getSizeForSelf(
+		targetSize: CGSize,
+		horizontal: UILayoutPriority,
+		vertical: UILayoutPriority
+	) -> CGSize {
+		(FibGridViewSource().getDummyView(data: self) as? ViewModelConfigurable)?
+			.sizeWith(
+				targetSize,
+				data: self,
+				horizontal: horizontal,
+				vertical: vertical
+			) ?? .zero
+	}
+}
