@@ -373,7 +373,7 @@ open class FibControllerRootView: UIView {
 				searchBar.backgroundImage = UIImage()
 			})
 			if let force = context.isForceActive {
-				if force && !activeSearchBar.isFirstResponder {
+				if force && !activeSearchBar.isFirstResponder && !isSearching {
 					isSearching = true
 					activeSearchBar.becomeFirstResponder()
 					searchBarTextDidBeginEditing(inactiveSearchBar)
