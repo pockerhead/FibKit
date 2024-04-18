@@ -174,7 +174,7 @@ public protocol DragControlledView {
 	func onDragEnd()
 }
 
-extension ViewModelWithViewClass {
+public extension ViewModelWithViewClass {
 	
 	func getSizeForSelf(
 		targetSize: CGSize,
