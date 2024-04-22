@@ -405,7 +405,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
                 case .inherit:
                     return targetDimension
                 case .selfSized:
-                    return dimension
+                    return min(dimension, targetDimension)
                 case .absolute(let val):
                     return val
                 case .greaterThan(let val):
