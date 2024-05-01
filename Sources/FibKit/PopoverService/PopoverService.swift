@@ -278,7 +278,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		} else {
 			(window as? DragProxyWindow)?.isPassthroughTouches = false
 		}
+		self.contextMenu.collectionAnimator = AnimatedReloadAnimator(animationContext: .disabledAnimation)
 		self.contextMenu.configure(with: menu.animated(false))
+		delay(0.3) {[weak self] in
+			self?.contextMenu.collectionAnimator = nil
+		}
 		self.contextMenu.formView.scrollTo(edge: .top, animated: false)
 		// @ab: TODO - исправить баги
 //        if let gesture = gesture {
