@@ -45,6 +45,13 @@ extension UIView: UIContextMenuInteractionDelegate {
 			return menu.menu
 		}
 	}
+	
+	public func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+		guard let menu = interactionMenu else { return }
+		animator.addAnimations {
+			menu.previewAction?()
+		}
+	}
 }
 
 extension UIView: UIDragInteractionDelegate {
@@ -90,14 +97,16 @@ public struct DragInteractionContext {
 }
 
 public struct FibContextMenu {
-	public init(menu: UIMenu, previewProvider: (() -> UIViewController?)? = nil) {
+	public init(menu: UIMenu, previewProvider: (() -> UIViewController?)? = nil, previewAction: (() -> Void)? = nil) {
 		self.menu = menu
 		self.previewProvider = previewProvider
+		self.previewAction = previewAction
 	}
 	
 	
 	public var menu: UIMenu
 	public var previewProvider: (() -> UIViewController?)?
+	public var previewAction: (() -> Void)?
 }
 
 extension UIBarButtonItem {
