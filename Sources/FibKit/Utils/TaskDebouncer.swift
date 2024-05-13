@@ -23,6 +23,12 @@ final public class TaskDebouncer {
 		self.task = task
 	}
 	
+	deinit {
+		workItem?.cancel()
+		workItem = nil
+		task = nil
+	}
+	
 	public func runDebouncedTask(task: (() -> Void)? = nil) {
 		var stackTask: (() -> Void)?
 		if let task = task {
@@ -69,7 +75,9 @@ final public class TaskDebouncer {
 	
 	private func delay(_ delay: Double, closure:@escaping () -> Void) {
 		DispatchQueue.main.asyncAfter(
-			deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
+			deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), 
+			execute: closure
+		)
 	}
 
 	private func delay(cyclesCount: Int = 1, closure:@escaping () -> Void) {
