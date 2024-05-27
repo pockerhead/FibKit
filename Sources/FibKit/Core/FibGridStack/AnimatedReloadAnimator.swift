@@ -134,9 +134,9 @@ public class AnimatedReloadAnimator: Animator {
 	}
 	
 	func needAnimateHeader(collectionView: FibGrid, view: UIView, frame: CGRect) -> Bool {
-		let pureOffset = abs(collectionView.contentOffset.y)
-		let frameAtInset = pureOffset + collectionView.adjustedContentInset.top
-		return view.fb_isHeader ?? false
+		let topInset = collectionView.visibleFrameLessInset.origin.y
+		
+		return (view.fb_isHeader ?? false) && frame.minY == topInset
 	}
 }
 

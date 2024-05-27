@@ -62,79 +62,32 @@ class ViewController: FibViewController {
 		)
 	}
 	
+	@Reloadable
+	var expanded = [true, true, true]
+	
+	var arrSec = [
+	[1,2,3],
+	[4,5,6],
+	[7,8,9]
+	]
+	
 	@Reloadable var isDragInProcess = false
 	
 	override var body: SectionProtocol? {
 		SectionStack {
-			ViewModelSection {
-				MyFibSquareView.ViewModel(text: "cell #1")
-						.id("1")
-						.interactive(true)
-						.sizeStrategy(.height(44))
-						.onTap { view in
-							PopoverService.showContextMenuWith(
-								.init(
-									view: view, 
-									needHideSnapshot: true,
-									needBlurBackground: false,
-									viewToMenuSpacing: 4,
-									menuWidth: self.view.bounds.width - 32,
-									needHideAfterAction: true,
-									verticalMenuAlignment: .common,
-									dismissalInteraction: .anyTouch
-								),
-								.init(provider: ForEachSection(data: self.arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
-										.id("\(i)")
-										.interactive(true)
-								})
-							)
-						}
-				MyFibSquareView.ViewModel(text: "cell #2")
-						.id("2")
-						.interactive(true)
-						.sizeStrategy(.height(44))
-						.onTap { view in
-							PopoverService.showContextMenuWith(
-								.init(
-									view: view,
-									needHideSnapshot: true,
-									needBlurBackground: false,
-									viewToMenuSpacing: 4,
-									menuWidth: self.view.bounds.width - 32,
-									needHideAfterAction: true,
-									verticalMenuAlignment: .common,
-									dismissalInteraction: .anyTouch
-								),
-								.init(
-									provider: ForEachSection(data: self.arr2) { i in MyFibSquareView.ViewModel(text: "cell #\(i)")
-											.id("\(i)")
-											.interactive(true)
-									}
-								)
-							)
-						}
-				MyFibSquareView.ViewModel(text: "cell #1")
-						.id("1")
-						.interactive(true)
-						.sizeStrategy(.height(700))
-						.onTap { view in
-							PopoverService.showContextMenuWith(
-								.init(view: view),
-								.init(
-									provider: ViewModelSection({
-										MyFibSquareView.ViewModel(text: "cell #1")
-											.sizeStrategy(.height(44))
-										MyFibSquareView.ViewModel(text: "cell #1")
-											.sizeStrategy(.height(44))
-										MyFibSquareView.ViewModel(text: "cell #1")
-											.sizeStrategy(.height(44))
-									})
-								)
-							)
-						}
+			arrSec.enumerated().map { offset, arr in
+				ForEachSection(data: expanded[offset] ? arr : []) { int in
+					MyFibView.ViewModel(text: "\(int)")
+				}
+				.header(
+					MyFibSquareView.ViewModel(text: "HEADER \(offset)")
+						.sizeStrategy(.width(.inherit, height: .absolute(55)))
+						.onTap({[weak self] _ in
+							self?.expanded[offset].toggle()
+						})
+				)
 			}
 		}
-		.id(UUID().uuidString)
 	}
 	
 	override var footer: FibCell.ViewModel? {
