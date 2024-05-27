@@ -11,7 +11,7 @@ import UIKit
 // swiftlint:disable all
 public class AnimatedReloadAnimator: Animator {
 	
-	public static let simpleEntryTransform: CATransform3D = CATransform3DTranslate(CATransform3DScale(CATransform3DIdentity, 0.8, 1, 1), 0, 0, 0)
+	public static let simpleEntryTransform: CATransform3D = CATransform3DTranslate(CATransform3DScale(CATransform3DIdentity, 0.98, 1, 1), 0, -8, 0)
 	public static let defaultEntryTransform: CATransform3D = CATransform3DTranslate(CATransform3DScale(CATransform3DIdentity, 0.8, 0.8, 1), 0, 0, 0)
 	static let fancyEntryTransform: CATransform3D = {
 		var trans = CATransform3DIdentity
@@ -22,7 +22,7 @@ public class AnimatedReloadAnimator: Animator {
 	let entryTransform: CATransform3D
 	var animationContext: AnimationContext
 	let needInsertionDelay: Bool
-	var needEntryTransform: Bool = false
+	var needEntryTransform: Bool = true
 	
 	public enum PageDirection {
 		case left
@@ -49,7 +49,7 @@ public class AnimatedReloadAnimator: Animator {
 	
 	var pageDirection: PageDirection?
 	
-	public init(entryTransform: CATransform3D = defaultEntryTransform, pageDirection: PageDirection? = nil, animationContext: AnimationContext = AnimationContext(), needInsertionDelay: Bool = true) {
+	public init(entryTransform: CATransform3D = simpleEntryTransform, pageDirection: PageDirection? = nil, animationContext: AnimationContext = AnimationContext(), needInsertionDelay: Bool = false) {
 		self.entryTransform = entryTransform
 		self.pageDirection = pageDirection
 		self.animationContext = animationContext
@@ -156,9 +156,9 @@ public struct AnimationContext {
 	///   - insertDuration: duration of insertion views
 	///   - deleteDuration: duration of delete views
 	///   - updateDuration: duration of update views
-	public init(insertDuration: TimeInterval = 0.5,
-				deleteDuration: TimeInterval = 0.25,
-				updateDuration: TimeInterval = 0.6,
+	public init(insertDuration: TimeInterval = 0.6,
+				deleteDuration: TimeInterval = 0.2,
+				updateDuration: TimeInterval = 0.5,
 				updateDamping: CGFloat = 0.9) {
 		self.insertDuration = insertDuration
 		self.deleteDuration = deleteDuration
