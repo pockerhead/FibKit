@@ -160,31 +160,20 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
-	public static func buildOptional(_ atrs: [AnySection?]) -> [SectionProtocol] {
+	public static func buildOptional(_ atrs: [AnySection]?) -> [SectionProtocol] {
 		if let arr = atrs as? [SectionProtocol] {
 			return arr
 		}
 		var arr = [SectionProtocol]()
-		fullFill(&arr, with: atrs)
+		fullFill(&arr, with: atrs ?? [])
 		return arr
 	}
 	
-	public static func buildIf(_ atrs: AnySection?...) -> [SectionProtocol] {
-		if let arr = atrs as? [SectionProtocol] {
-			return arr
+	public static func buildOptional(_ atrs: [SectionProtocol]?) -> [SectionProtocol] {
+		if let atrs {
+			return atrs
 		}
-		var arr = [SectionProtocol]()
-		fullFill(&arr, with: atrs)
-		return arr
-	}
-	
-	public static func buildIf(_ atrs: [AnySection?]) -> [SectionProtocol] {
-		if let arr = atrs as? [SectionProtocol] {
-			return arr
-		}
-		var arr = [SectionProtocol]()
-		fullFill(&arr, with: atrs)
-		return arr
+		return []
 	}
 	
 	public static func buildArray(_ atrs: AnySection?...) -> [SectionProtocol] {
@@ -205,21 +194,25 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
-	public static func buildEither(first: AnySection...) -> [SectionProtocol] {
-		if let arr = first as? [SectionProtocol] {
+	public static func buildArray(_ components: [[SectionProtocol]]) -> [SectionProtocol] {
+		return components.flatMap({ $0 })
+	}
+	
+	public static func buildEither(first component: AnySection...) -> [SectionProtocol] {
+		if let arr = component as? [SectionProtocol] {
 			return arr
 		}
 		var arr = [SectionProtocol]()
-		fullFill(&arr, with: first)
+		fullFill(&arr, with: component)
 		return arr
 	}
 	
-	public static func buildEither(first: [AnySection]) -> [SectionProtocol] {
-		if let arr = first as? [SectionProtocol] {
+	public static func buildEither(first component: [AnySection]) -> [SectionProtocol] {
+		if let arr = component as? [SectionProtocol] {
 			return arr
 		}
 		var arr = [SectionProtocol]()
-		fullFill(&arr, with: first)
+		fullFill(&arr, with: component)
 		return arr
 	}
 	
