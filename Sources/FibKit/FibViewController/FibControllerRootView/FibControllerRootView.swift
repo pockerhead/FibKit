@@ -89,7 +89,11 @@ open class FibControllerRootView: UIView {
 	public let shutterView = ShutterView()
 	private let gridMaskLayer = CALayer()
 	public private(set) var isSearching = false
-	private lazy var activeSearchBar = UISearchBar()
+	private lazy var activeSearchBar: UISearchBar = {
+		let s = UISearchBar()
+		s.returnKeyType = .done
+		return s
+	}()
 	private lazy var inactiveSearchBar = UISearchBar()
 	private var navItemLeftItemsRef: [UIBarButtonItem]? = []
 	private var navItemRightItemsRef: [UIBarButtonItem]? = []
@@ -899,7 +903,7 @@ extension FibControllerRootView: UISearchBarDelegate {
 	
 	public func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
 		guard let searchContext = navigationConfiguration?.searchContext, let closure = searchContext.onSearchButtonClicked else {
-			endEditing(true)
+			searchBar.endEditing(true)
 			return
 		}
 		closure(searchBar)
