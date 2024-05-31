@@ -52,6 +52,18 @@ Sections: [
 		self.isSticky = true
 	}
 	
+	public convenience init(
+		forceReassignLayout: Bool = true,
+		@SectionBuilder viewModelSections: () -> [ViewModelSection],
+		line: Int = #line,
+		file: String = #file,
+		collectionView: FibGrid? = nil
+	) {
+		self.init(identifier: "Section_at_\(line)_in_\(file)", sections: viewModelSections(), collectionView: collectionView)
+		self.headerData = FormViewSpacer(0.1, color: .clear, width: 0.1)
+		self.isSticky = true
+	}
+	
 	/// Closure that called when user taps on section header
 	/// - Parameter headerTapHandler: see FibGridHeaderProvider.TapContext
 	/// - Returns: self

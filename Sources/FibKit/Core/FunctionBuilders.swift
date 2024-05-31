@@ -194,6 +194,15 @@ public extension Array where Element: SectionProtocol {
 		return arr
 	}
 	
+	public static func buildArray(_ atrs: [[AnySection]]) -> [SectionProtocol] {
+		if let arr = atrs.flatMap({ $0 }) as? [SectionProtocol] {
+			return arr
+		}
+		var arr = [SectionProtocol]()
+		fullFill(&arr, with: atrs.flatMap({ $0 }))
+		return arr
+	}
+	
 	public static func buildArray(_ components: [[SectionProtocol]]) -> [SectionProtocol] {
 		return components.flatMap({ $0 })
 	}
