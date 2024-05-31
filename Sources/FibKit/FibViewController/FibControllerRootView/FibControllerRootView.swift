@@ -897,6 +897,14 @@ extension FibControllerRootView: UISearchBarDelegate {
 		onSearchResult(searchBar.text)
 	}
 	
+	public func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+		guard let searchContext = navigationConfiguration?.searchContext, let closure = searchContext.onSearchButtonClicked else {
+			endEditing(true)
+			return
+		}
+		closure(searchBar)
+	}
+	
 	public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
 		isSearching = false
 		if let searchEndClosure = navigationConfiguration?.searchContext?.onSearchEnd {

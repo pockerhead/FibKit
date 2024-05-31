@@ -44,7 +44,8 @@ public extension FibControllerRootView {
 				hideWhenScrolling: Bool = false,
 				onSearchResults: ((String?) -> Void)? = nil,
 				onSearchBegin: ((UISearchBar?) -> Void)? = nil,
-				onSearchEnd: ((UISearchBar?) -> Void)? = nil
+				onSearchEnd: ((UISearchBar?) -> Void)? = nil,
+				onSearchButtonClicked: ((UISearchBar?) -> Void)? = nil
 			) {
 				self.isForceActive = isForceActive
 				self.hideWhenScrolling = hideWhenScrolling
@@ -52,6 +53,7 @@ public extension FibControllerRootView {
 				self.placeholder = placeholder
 				self.onSearchBegin = onSearchBegin
 				self.onSearchEnd = onSearchEnd
+				self.onSearchButtonClicked = onSearchButtonClicked
 			}
 			
 			public var isForceActive: Bool? = nil
@@ -60,6 +62,7 @@ public extension FibControllerRootView {
 			public var onSearchResults: ((String?) -> Void)?
 			public var onSearchBegin: ((UISearchBar?) -> Void)?
 			public var onSearchEnd: ((UISearchBar?) -> Void)?
+			public var onSearchButtonClicked: ((UISearchBar?) -> Void)?
 
 		}
 		
