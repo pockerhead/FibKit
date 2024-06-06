@@ -383,7 +383,7 @@ extension EmbedCollection: FibViewHeader {
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
         blurView.isHidden = pageControl.isHidden
         blurViewContainer.isHidden = pageControl.isHidden
-		pageCounter.isHidden = !data.needPageCounter
+		pageCounter.isHidden = !data.needPageCounter || pageControl.numberOfPages <= 1
 		counterBlurViewContainer.isHidden = pageCounter.isHidden
 		counterBlurView.isHidden = pageCounter.isHidden
         formViewBottomConstraint?.constant = formViewBottomConstraintInitialConstant
