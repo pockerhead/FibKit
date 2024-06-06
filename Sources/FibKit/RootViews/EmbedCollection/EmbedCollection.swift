@@ -377,6 +377,15 @@ extension EmbedCollection: FibViewHeader {
 		pageControlBottomConstant = data.pageControlBottomOffset
 		pageControlBottomConstraint?.constant =  pageControlBottomConstant * -1
 		let numberOfPages: Int = (data.provider as? FibKit.FibGridProvider)?.dataSource.data.count ?? 0
+		var provider = data.provider as? FibKit.FibGridProvider
+		if let provider = provider {
+			pageControl.numberOfPages = provider.dataSource.data.count
+		} else {
+			provider = ((data.provider as? FibKit.FibGridHeaderProvider)?.sections.first as? FibKit.FibGridProvider)
+			if let provider = provider {
+				pageControl.numberOfPages = provider.dataSource.data.count
+			}
+		}
 		pageControl.numberOfPages = numberOfPages //data.provider?.numberOfItems ?? 0//data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
