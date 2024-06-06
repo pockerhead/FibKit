@@ -376,7 +376,8 @@ extension EmbedCollection: FibViewHeader {
 		formView.layoutSubviews()
 		pageControlBottomConstant = data.pageControlBottomOffset
 		pageControlBottomConstraint?.constant =  pageControlBottomConstant * -1
-		pageControl.numberOfPages = data.provider?.numberOfItems ?? 0//data.sections.first?.dataSource.data.count ?? 0
+		let numberOfPages: Int = (data.provider as? FibKit.FibGridProvider)?.dataSource.data.count ?? 0
+		pageControl.numberOfPages = numberOfPages //data.provider?.numberOfItems ?? 0//data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
         blurView.isHidden = pageControl.isHidden
