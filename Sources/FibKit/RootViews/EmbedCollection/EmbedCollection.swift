@@ -19,6 +19,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
     // MARK: Outlets
 
     // MARK: Properties
+	private let pageCounter: UILabel = UILabel()
     private let blurView: VisualEffectView = VisualEffectView(effect: UIBlurEffect(style: .dark))
     private let blurViewContainer = UIView()
     public let formView = FibGrid()
@@ -101,10 +102,22 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
             pageControl.leftAnchor.constraint(greaterThanOrEqualTo: contentView.leftAnchor, constant: 16),
             pageControl.rightAnchor.constraint(lessThanOrEqualTo: contentView.rightAnchor, constant: -16)
         ])
-
+		
+		contentView.addSubview(pageCounter)
+		//pageCounter.textColor = .systemFill
+		pageCounter.font = .systemFont(ofSize: 12)
+		pageCounter.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			pageCounter.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+			pageCounter.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
+			pageCounter.widthAnchor.constraint(equalToConstant: 32),
+			pageCounter.heightAnchor.constraint(equalToConstant: 32)
+			
+		])
         formView.delegate = self
     }
     @objc private func didChangePage(_ control: UIPageControl) {
+		updateCounter()
         _ = try? self.formView.scroll(to: IndexPath(item: self.pageControl.currentPage, section: 0), animated: true)
     }
 
@@ -139,7 +152,12 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
         let currentPage = Int((scrollView.contentOffset.x + scrollView.frame.width / 2) / scrollView.frame.width)
             .clamp(0, pagesCount)
         pageControl.currentPage = currentPage
+		updateCounter()
     }
+	
+	private func updateCounter() {
+		pageCounter.text = "\(pageControl.currentPage + 1)/\(pageControl.numberOfPages)"
+	}
 }
 
 // MARK: ViewModelConfigurable
@@ -321,7 +339,8 @@ extension EmbedCollection: FibViewHeader {
         formViewBackgroundColor = data.backgroundColor
         formView.provider = data.provider
 		formView.layoutSubviews()
-//        pageControl.numberOfPages = data.sections.first?.dataSource.data.count ?? 0
+//		pageControl.numberOfPages = data
+		pageControl.numberOfPages = data.provider?.numberOfItems ?? 0//data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
         blurView.isHidden = pageControl.isHidden
@@ -337,6 +356,7 @@ extension EmbedCollection: FibViewHeader {
 				}
 			}
 		}
+		updateCounter()
         applyAppearance()
     }
 	
