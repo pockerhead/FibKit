@@ -20,8 +20,10 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 
     // MARK: Properties
 	private let pageCounter: UILabel = UILabel()
-    private let blurView: VisualEffectView = VisualEffectView(effect: UIBlurEffect(style: .dark))
+	private let blurView: VisualEffectView = VisualEffectView(effect: UIBlurEffect(style: .dark))
     private let blurViewContainer = UIView()
+	private let counterBlurView: VisualEffectView = VisualEffectView(effect: UIBlurEffect(style: .dark))
+	private let counterBlurViewContainer = UIView()
     public let formView = FibGrid()
     private var scrollDirection: UICollectionView.ScrollDirection = .horizontal
     private var formViewHeight: CGFloat = 0
@@ -54,6 +56,9 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
         super.layoutSubviews()
         blurViewContainer.makeOval(clipsBounds: true, animated: false)
         blurView.makeOval(clipsBounds: true, animated: false)
+		counterBlurViewContainer.makeOval(clipsBounds: true, animated: false)
+		counterBlurView.makeOval(clipsBounds: true, animated: false)
+		
     }
 
     private func configureUI() {
@@ -73,6 +78,14 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 		formView.isAsync = false
         blurViewContainer.clipsToBounds = true
         blurViewContainer.layer.masksToBounds = true
+		contentView.addSubview(counterBlurViewContainer)
+		counterBlurViewContainer.addSubview(counterBlurView)
+		counterBlurView.fillSuperview()
+		counterBlurViewContainer.clipsToBounds = true
+		counterBlurViewContainer.layer.masksToBounds = true
+		counterBlurView.colorTint = UIColor.black.withAlphaComponent(0.3)
+		counterBlurView.colorTintAlpha = 0.2
+		counterBlurView.blurRadius = 16
         contentView.addSubview(pageControl)
         blurView.colorTint = UIColor.black.withAlphaComponent(0.3)
         blurView.colorTintAlpha = 0.2
@@ -84,34 +97,44 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
         contentView.layer.masksToBounds = false
         clipsToBounds = false
         layer.masksToBounds = false
-        if #available(iOS 14.0, *) {
-            pageControl.backgroundStyle = .prominent
-        } else {
-            blurViewContainer.anchor(top: pageControl.topAnchor,
-                                     left: pageControl.leftAnchor,
-                                     bottom: pageControl.bottomAnchor,
-                                     right: pageControl.rightAnchor,
-                                     insets: UIEdgeInsets(singleValue: 0))
-        }
+		
+		contentView.addSubview(pageCounter)
+		pageCounter.textColor = .white
+		pageCounter.font = .systemFont(ofSize: 12)
+		pageCounter.textAlignment = .center
+		pageCounter.translatesAutoresizingMaskIntoConstraints = false
+//        if #available(iOS 14.0, *) {
+//            pageControl.backgroundStyle = .prominent
+//        } else {
+		blurViewContainer.anchor(top: pageControl.topAnchor,
+								 left: pageControl.leftAnchor,
+								 bottom: pageControl.bottomAnchor,
+								 right: pageControl.rightAnchor ,
+								 insets: UIEdgeInsets(top: 0, left: 28, bottom: 0, right: 28))
+       // }
+		
+		counterBlurViewContainer.anchor(top: pageCounter.topAnchor,
+								 left: pageCounter.leftAnchor,
+								 bottom: pageCounter.bottomAnchor,
+								 right: pageCounter.rightAnchor ,
+								 insets: UIEdgeInsets(top: -2, left: -4, bottom: -2, right: -4))
+		
         pageControl.anchorCenterXToSuperview()
-        pageControl.anchor(size: CGSize(width: 0, height: 30))
+        pageControl.anchor(size: CGSize(width: 0, height: 24))
         pageControlBottomConstraint = pageControl
             .anchorWithReturnAnchors(bottom: contentView.bottomAnchor,
                                      bottomConstant: pageControlBottomConstant).first
         NSLayoutConstraint.activate([
-            pageControl.leftAnchor.constraint(greaterThanOrEqualTo: contentView.leftAnchor, constant: 16),
-            pageControl.rightAnchor.constraint(lessThanOrEqualTo: contentView.rightAnchor, constant: -16)
+            pageControl.leftAnchor.constraint(greaterThanOrEqualTo: contentView.leftAnchor, constant: 0),
+            pageControl.rightAnchor.constraint(lessThanOrEqualTo: contentView.rightAnchor, constant: 0)
         ])
 		
-		contentView.addSubview(pageCounter)
-		//pageCounter.textColor = .systemFill
-		pageCounter.font = .systemFont(ofSize: 12)
-		pageCounter.translatesAutoresizingMaskIntoConstraints = false
+		
 		NSLayoutConstraint.activate([
 			pageCounter.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
 			pageCounter.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
 			pageCounter.widthAnchor.constraint(equalToConstant: 32),
-			pageCounter.heightAnchor.constraint(equalToConstant: 32)
+			pageCounter.heightAnchor.constraint(equalToConstant: 20)
 			
 		])
         formView.delegate = self
@@ -181,6 +204,8 @@ extension EmbedCollection: FibViewHeader {
         public var allowedStretchDirections: Set<StretchDirection> = []
         public var offset: CGFloat = 0
 		public var needPageControl = false
+		public var pageControlBottomOffset: CGFloat = 12
+		public var needPageCounter: Bool = false
 		public var selectedPage: Int?
 		public var isScrollEnabled = true
         public var scrollDidScroll: ((UIScrollView) -> Void)?
@@ -217,6 +242,16 @@ extension EmbedCollection: FibViewHeader {
 			self.selectedPage = selectedPage
             return self
         }
+		
+		public func pageControlBottom(_ offset: CGFloat) -> ViewModel {
+			self.pageControlBottomOffset = offset
+			return self
+		}
+		
+		public func pageCounter(_ isVisible: Bool) -> ViewModel {
+			self.needPageCounter = isVisible
+			return self
+		}
 		
 		public func scrollEnabled(_ flag: Bool) -> ViewModel {
 			self.isScrollEnabled = false
@@ -339,12 +374,16 @@ extension EmbedCollection: FibViewHeader {
         formViewBackgroundColor = data.backgroundColor
         formView.provider = data.provider
 		formView.layoutSubviews()
-//		pageControl.numberOfPages = data
+		pageControlBottomConstant = data.pageControlBottomOffset
+		pageControlBottomConstraint?.constant =  pageControlBottomConstant * -1
 		pageControl.numberOfPages = data.provider?.numberOfItems ?? 0//data.sections.first?.dataSource.data.count ?? 0
         pagesCount = pageControl.numberOfPages
 		pageControl.isHidden = (!data.pagingEnabled || pageControl.numberOfPages <= 1) || !data.needPageControl
         blurView.isHidden = pageControl.isHidden
         blurViewContainer.isHidden = pageControl.isHidden
+		pageCounter.isHidden = !data.needPageCounter
+		counterBlurViewContainer.isHidden = pageCounter.isHidden
+		counterBlurView.isHidden = pageCounter.isHidden
         formViewBottomConstraint?.constant = formViewBottomConstraintInitialConstant
 		if let page = data.selectedPage {
 			delay(cyclesCount: 2) {[weak self] in
