@@ -339,17 +339,26 @@ extension EmbedCollection: FibViewHeader {
     }
 
     public func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?) -> CGSize? {
-        guard let data = data as? ViewModel else { return .zero }
-        var size = targetSize
-        if data.scrollDirection == .horizontal {
-            size.height = data.formViewHeight
-        } else {
-            formView.frame.size = targetSize
-            configure(with: data)
-            formView.reloadData()
-            size.height = formView.contentSize.height
-        }
-        return size
+		guard let data = data as? ViewModel else { return nil }
+
+		var width = targetSize.width
+		var height = targetSize.height
+		
+		if data.scrollDirection == .horizontal {
+			height = data.formViewHeight
+		} else {
+			if let sizeWidth = data.size?.width {
+				width = sizeWidth
+			}
+			if let sizeHeight = data.size?.height {
+				height = sizeHeight
+			} else {
+				data.provider?.layout(collectionSize: targetSize)
+				height = data.provider?.contentSize.height ?? 0
+			}
+		}
+		
+		return .init(width: width, height: height)
     }
 
     public func configure(with data: ViewModelWithViewClass?) {
