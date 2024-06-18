@@ -94,7 +94,8 @@ public extension FibControllerRootView {
 			topInsetStrategy: TopInsetStrategy? = nil,
 			headerBackgroundViewColor: UIColor? = nil,
 			headerBackgroundEffectView: (() -> UIView?)? = nil,
-			needFooterKeyboardSticks: Bool = false
+			needFooterKeyboardSticks: Bool = false,
+			footerBackgroundViewColor: UIColor? = nil
 		) {
 			self.roundedShutterBackground = roundedShutterBackground
 			self.shutterBackground = shutterBackground
@@ -107,6 +108,7 @@ public extension FibControllerRootView {
 			self.topInsetStrategy = topInsetStrategy
 			self.headerBackgroundViewColor = headerBackgroundViewColor
 			self.headerBackgroundEffectView = headerBackgroundEffectView
+			self.footerBackgroundViewColor = footerBackgroundViewColor
 		}
 		
 		public var needFooterKeyboardSticks: Bool
@@ -120,5 +122,6 @@ public extension FibControllerRootView {
 		public var backgroundView: (() -> UIView?)?
 		public var backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		public var topInsetStrategy: TopInsetStrategy?
+		public var footerBackgroundViewColor: UIColor?
 	}
 }

@@ -46,6 +46,10 @@ open class FibControllerRootView: UIView {
 		controller?.configuration?.viewConfiguration.backgroundViewInsets ?? defaultConfiguration.backgroundViewInsets
 	}
 	
+	var footerBackgroundViewColor: UIColor? {
+		controller?.configuration?.viewConfiguration.footerBackgroundViewColor ?? defaultConfiguration.footerBackgroundViewColor
+	}
+	
 	var needFooterKeyboardSticks: Bool {
 		controller?.configuration?.viewConfiguration.needFooterKeyboardSticks ?? defaultConfiguration.needFooterKeyboardSticks
 	}
@@ -597,7 +601,7 @@ open class FibControllerRootView: UIView {
 		backgroundColor = viewBackgroundColor
 		rootFormView.backgroundColor = .clear
 		shutterView.backgroundColor = getShutterColor()
-		rootFooterBackground.backgroundColor = footerView.formView.backgroundColor
+		rootFooterBackground.backgroundColor = footerBackgroundViewColor ?? footerView.formView.backgroundColor
 		scrollViewDidScroll(rootFormView)
 		rootHeaderBackground.backgroundColor = headerBackgroundViewColor
 	}
