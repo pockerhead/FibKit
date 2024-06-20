@@ -60,6 +60,18 @@ extension FibControllerRootView: UIScrollViewDelegate {
 		)
 	}
 	
+	public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+		proxyDelegate?.viewForZooming?(in: scrollView)
+	}
+	
+	public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+		proxyDelegate?.scrollViewWillBeginZooming?(scrollView, with: view)
+	}
+	
+	public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+		proxyDelegate?.scrollViewDidEndZooming?(scrollView, with: view, atScale: scale)
+	}
+	
 	public func scrollViewWillEndDragging(_ scrollView: UIScrollView,
 										  withVelocity velocity: CGPoint,
 										  targetContentOffset: UnsafeMutablePointer<CGPoint>) {
