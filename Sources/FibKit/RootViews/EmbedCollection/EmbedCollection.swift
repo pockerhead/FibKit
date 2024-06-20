@@ -13,6 +13,7 @@ public protocol EmbedPagerView: UIView {
 	var currentPage: Int { get set }
 	var numberOfPages: Int { get set }
 	var initialSize: CGSize { get set }
+	var pageChanged: ((Int) -> Void)? { get set }
 }
 
 public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollViewDelegate, FormViewAppearable {
@@ -40,6 +41,11 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var onDissappear: ((EmbedCollection) -> Void)?
 	private var pagerView: EmbedPagerView?
 	private var pageControlView: EmbedPagerView?
+	
+	private var pagerViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
+	private var pageControlViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
+	private var isPageControlScrolling: Bool = false
+	
 	// MARK: Initialization
 	
 	public override func awakeFromNib() {
@@ -52,11 +58,11 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	public override func layoutSubviews() {
 		super.layoutSubviews()
 		if let pagerViewSize = pagerView?.initialSize {
-			pagerView?.frame = .init(origin: .init(x: bounds.width - pagerViewSize.width - 16, y: 16), size: pagerViewSize)
+			pagerView?.frame = .init(origin: .init(x: bounds.width - pagerViewSize.width, y: 0), size: pagerViewSize).offsetBy(dx: pagerViewOffset.dx, dy: pagerViewOffset.dy)
 		}
 		
 		if let pageControlSize = pageControlView?.initialSize {
-			pageControlView?.frame = .init(origin: .init(x: bounds.center.x - pageControlSize.width/2, y: bounds.height - pageControlSize.height - 16), size: pageControlSize)
+			pageControlView?.frame = .init(origin: .init(x: bounds.center.x - pageControlSize.width/2, y: bounds.height - pageControlSize.height), size: pageControlSize).offsetBy(dx: pageControlViewOffset.dx, dy: pageControlViewOffset.dy)
 		}
 		
 		
@@ -80,10 +86,6 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 		clipsToBounds = false
 		layer.masksToBounds = false
 		formView.delegate = self
-	}
-	@objc private func didChangePage(_ control: UIPageControl) {
-	//	updateCounter()
-	//	_ = try? self.formView.scroll(to: IndexPath(item: self.pageControl.currentPage, section: 0), animated: true)
 	}
 	
 	public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -113,11 +115,21 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	
 	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		scrollDidScroll?(scrollView)
+		guard !isPageControlScrolling else {
+			return
+		}
 		guard scrollView.isPagingEnabled else { return }
+		guard scrollView.frame.width > 0 else { return }
 		let currentPage = Int((scrollView.contentOffset.x + scrollView.frame.width / 2) / scrollView.frame.width)
 			.clamp(0, pagesCount)
 		pagerView?.currentPage = currentPage
 		pageControlView?.currentPage = currentPage
+	}
+	
+	public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+		if isPageControlScrolling {
+			isPageControlScrolling = false
+		}
 	}
 }
 
@@ -129,7 +141,6 @@ extension EmbedCollection: FibViewHeader {
 		
 		public var provider: Provider?
 		public var clipsToBounds: Bool = false
-		public var needBlur: Bool = true
 		public var backgroundColor: UIColor = .clear
 		public var initialHeight: CGFloat? { formViewHeight }
 		public var formViewHeight: CGFloat = 0
@@ -138,13 +149,14 @@ extension EmbedCollection: FibViewHeader {
 		public var pagingEnabled: Bool = false
 		public var pagerView: EmbedPagerView? = nil
 		public var pageControlView: EmbedPagerView? = nil
+		public var pagerViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
+		public var pageControlViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 		public var needBounce: Bool = true
 		public var size: CGSize?
 		public var atTop: Bool = true
 		public var allowedStretchDirections: Set<StretchDirection> = []
 		public var offset: CGFloat = 0
 		public var needPageControl = false
-		public var pageControlBottomOffset: CGFloat = 12
 		public var needPageCounter: Bool = false
 		public var selectedPage: Int?
 		public var isScrollEnabled = true
@@ -158,15 +170,22 @@ extension EmbedCollection: FibViewHeader {
 		
 		public var storedSizeHash: String?
 		
-		public func pagerView(_ pager: EmbedPagerView) -> ViewModel {
-			self.pagingEnabled = true
-			self.pagerView = pager
+		public func selectedPage(_ page: Int) -> ViewModel {
+			self.selectedPage = page
 			return self
 		}
 		
-		public func pageControlView(_ pager: EmbedPagerView) -> ViewModel {
+		public func pagerView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
+			self.pagingEnabled = true
+			self.pagerView = pager
+			self.pagerViewOffset = offset
+			return self
+		}
+		
+		public func pageControlView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
 			self.pagingEnabled = true
 			self.pageControlView = pager
+			self.pageControlViewOffset = offset
 			return self
 		}
 		
@@ -187,24 +206,7 @@ extension EmbedCollection: FibViewHeader {
 			self.atTop = atTop
 			return self
 		}
-		
-		public func paging(_ enabled: Bool, selectedPage: Int? = nil, needPageControl: Bool = true) -> ViewModel {
-			self.pagingEnabled = enabled
-			self.needPageControl = needPageControl
-			self.selectedPage = selectedPage
-			return self
-		}
-		
-		public func pageControlBottom(_ offset: CGFloat) -> ViewModel {
-			self.pageControlBottomOffset = offset
-			return self
-		}
-		
-		public func pageCounter(_ isVisible: Bool) -> ViewModel {
-			self.needPageCounter = isVisible
-			return self
-		}
-		
+
 		public func scrollEnabled(_ flag: Bool) -> ViewModel {
 			self.isScrollEnabled = false
 			return self
@@ -237,11 +239,6 @@ extension EmbedCollection: FibViewHeader {
 		
 		public func sizeHash(_ hash: String) -> ViewModel {
 			self.storedSizeHash = hash
-			return self
-		}
-		
-		public func needBlur(_ need: Bool) -> ViewModel {
-			self.needBlur = need
 			return self
 		}
 		
@@ -343,24 +340,34 @@ extension EmbedCollection: FibViewHeader {
 		formViewBackgroundColor = data.backgroundColor
 		formView.provider = data.provider
 		formView.layoutSubviews()
-		pageControlBottomConstant = data.pageControlBottomOffset
-		pageControlBottomConstraint?.constant =  pageControlBottomConstant * -1
-
+		pagerViewOffset = data.pagerViewOffset
+		pageControlViewOffset = data.pageControlViewOffset
 		pagesCount = ((data.provider as? FibKit.FibGridHeaderProvider)?.sections.first as? FibKit.FibGridProvider)?.dataSource.data.count ?? data.provider?.numberOfItems ?? 0
 		self.pagerView?.numberOfPages = pagesCount
 		self.pageControlView?.numberOfPages = pagesCount
-		formViewBottomConstraint?.constant = formViewBottomConstraintInitialConstant
+		
+		let scrollBlock: ((Int) -> Void)? = { [weak self] page in
+			self?.isPageControlScrolling = true
+			_ = try? self?.formView.scroll(to: IndexPath(item: page, section: 0), animated: true)
+		}
+		pageControlView?.pageChanged = scrollBlock
+		pagerView?.pageChanged = scrollBlock
+		
 		if let page = data.selectedPage {
-			delay(cyclesCount: 2) {[weak self] in
-				guard let self = self else { return }
-				do {
-					try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
-				} catch {
-					debugPrint("error \(error.localizedDescription)")
-				}
-			}
+			scroll(to: page)
 		}
 		applyAppearance()
+	}
+	
+	private func scroll(to page: Int) {
+		delay(cyclesCount: 10) {[weak self] in
+			guard let self = self else { return }
+			do {
+				try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
+			} catch {
+				debugPrint("error \(error.localizedDescription)")
+			}
+		}
 	}
 	
 	func applyAppearance() {
