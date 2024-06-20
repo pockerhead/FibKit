@@ -156,8 +156,6 @@ extension EmbedCollection: FibViewHeader {
 		public var atTop: Bool = true
 		public var allowedStretchDirections: Set<StretchDirection> = []
 		public var offset: CGFloat = 0
-		public var needPageControl = false
-		public var needPageCounter: Bool = false
 		public var selectedPage: Int?
 		public var isScrollEnabled = true
 		public var scrollDidScroll: ((UIScrollView) -> Void)?
@@ -186,6 +184,12 @@ extension EmbedCollection: FibViewHeader {
 			self.pagingEnabled = true
 			self.pageControlView = pager
 			self.pageControlViewOffset = offset
+			return self
+		}
+		
+		public func paging(_ enabled: Bool, selectedPage: Int? = nil) -> ViewModel {
+			self.pagingEnabled = enabled
+			self.selectedPage = selectedPage
 			return self
 		}
 		
