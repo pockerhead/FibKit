@@ -327,6 +327,7 @@ extension EmbedCollection: FibViewHeader {
 		if let pageControlView = pageControlView {
 			contentView.addSubview(pageControlView)
 		}
+		self.scrollDidScroll = data.scrollDidScroll
 		hideSkeleton()
 		formView.clipsToBounds = data.clipsToBounds
 		formView.layer.masksToBounds = data.clipsToBounds
