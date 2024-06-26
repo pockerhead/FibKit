@@ -26,6 +26,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var formViewHeight: CGFloat = 0
 	private var formViewBackgroundColor: UIColor?
 	private var scrollDidScroll: ((UIScrollView) -> Void)?
+	private var scrollDidEnd: ((UIScrollView) -> Void)?
 	private var pagesCount: Int = 0
 	private var offset: CGFloat = 0
 	private var formViewBottomConstraintInitialConstant: CGFloat {
@@ -41,7 +42,8 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var onDissappear: ((EmbedCollection) -> Void)?
 	private var pagerView: EmbedPagerView?
 	private var pageControlView: EmbedPagerView?
-	
+	private var needAnimation: Bool = true
+
 	private var pagerViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 	private var pageControlViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 	private var isPageControlScrolling: Bool = false
@@ -127,9 +129,14 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	}
 	
 	public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+		scrollDidEnd?(scrollView)
 		if isPageControlScrolling {
 			isPageControlScrolling = false
 		}
+	}
+
+	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		scrollDidEnd?(scrollView)
 	}
 }
 
@@ -161,7 +168,9 @@ extension EmbedCollection: FibViewHeader {
 		public var scrollDidScroll: ((UIScrollView) -> Void)?
 		public var onAppear: ((EmbedCollection) -> Void)?
 		public var onDissappear: ((EmbedCollection) -> Void)?
-		
+		public var needAnimation: Bool = true
+		public var scrollDidEnd: ((UIScrollView) -> Void)?
+
 		public var id: String? {
 			storedId
 		}
@@ -173,14 +182,14 @@ extension EmbedCollection: FibViewHeader {
 			return self
 		}
 		
-		public func pagerView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
+		public func pagerView(_ pager: EmbedPagerView?, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
 			self.pagingEnabled = true
 			self.pagerView = pager
 			self.pagerViewOffset = offset
 			return self
 		}
 		
-		public func pageControlView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
+		public func pageControlView(_ pager: EmbedPagerView?, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
 			self.pagingEnabled = true
 			self.pageControlView = pager
 			self.pageControlViewOffset = offset
@@ -275,7 +284,17 @@ extension EmbedCollection: FibViewHeader {
 			self.onDissappear = onDissappear
 			return self
 		}
-		
+
+		public func needAnimation(_ needAnimation: Bool) -> Self {
+			self.needAnimation = needAnimation
+			return self
+		}
+
+		public func scrollDidEnd(_ scrollDidEnd: ((UIScrollView) -> Void)?) -> Self {
+			self.scrollDidEnd = scrollDidEnd
+			return self
+		}
+
 		public func viewClass() -> ViewModelConfigurable.Type {
 			EmbedCollection.self
 		}
@@ -319,6 +338,9 @@ extension EmbedCollection: FibViewHeader {
 			showAnimatedGradientSkeleton(usingGradient: .mainGradient)
 			return
 		}
+		self.needAnimation = data.needAnimation
+		pagerView?.removeFromSuperview()
+		pageControlView?.removeFromSuperview()
 		self.pagerView = data.pagerView
 		if let pagerView = pagerView {
 			contentView.addSubview(pagerView)
@@ -327,6 +349,8 @@ extension EmbedCollection: FibViewHeader {
 		if let pageControlView = pageControlView {
 			contentView.addSubview(pageControlView)
 		}
+		self.scrollDidScroll = data.scrollDidScroll
+		self.scrollDidEnd = data.scrollDidEnd
 		hideSkeleton()
 		formView.clipsToBounds = data.clipsToBounds
 		formView.layer.masksToBounds = data.clipsToBounds
@@ -367,7 +391,7 @@ extension EmbedCollection: FibViewHeader {
 		delay(cyclesCount: 10) {[weak self] in
 			guard let self = self else { return }
 			do {
-				try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
+				try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: needAnimation, bounce: 8)
 			} catch {
 				debugPrint("error \(error.localizedDescription)")
 			}
