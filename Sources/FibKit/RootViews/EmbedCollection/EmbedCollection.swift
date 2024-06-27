@@ -41,7 +41,8 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var onDissappear: ((EmbedCollection) -> Void)?
 	private var pagerView: EmbedPagerView?
 	private var pageControlView: EmbedPagerView?
-	
+	private var needAnimation: Bool
+
 	private var pagerViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 	private var pageControlViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 	private var isPageControlScrolling: Bool = false
@@ -161,7 +162,8 @@ extension EmbedCollection: FibViewHeader {
 		public var scrollDidScroll: ((UIScrollView) -> Void)?
 		public var onAppear: ((EmbedCollection) -> Void)?
 		public var onDissappear: ((EmbedCollection) -> Void)?
-		
+		public var needAnimation: Bool = true
+
 		public var id: String? {
 			storedId
 		}
@@ -275,7 +277,12 @@ extension EmbedCollection: FibViewHeader {
 			self.onDissappear = onDissappear
 			return self
 		}
-		
+
+		public func needAnimation(_ needAnimation: Bool) -> Self {
+			self.needAnimation = needAnimation
+			return self
+		}
+
 		public func viewClass() -> ViewModelConfigurable.Type {
 			EmbedCollection.self
 		}
@@ -319,6 +326,7 @@ extension EmbedCollection: FibViewHeader {
 			showAnimatedGradientSkeleton(usingGradient: .mainGradient)
 			return
 		}
+		self.needAnimation = data.needAnimation
 		self.pagerView = data.pagerView
 		if let pagerView = pagerView {
 			contentView.addSubview(pagerView)
@@ -368,7 +376,7 @@ extension EmbedCollection: FibViewHeader {
 		delay(cyclesCount: 10) {[weak self] in
 			guard let self = self else { return }
 			do {
-				try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: true, bounce: 8)
+				try self.formView.scroll(to: IndexPath(item: page, section: 0), animated: needAnimation, bounce: 8)
 			} catch {
 				debugPrint("error \(error.localizedDescription)")
 			}
