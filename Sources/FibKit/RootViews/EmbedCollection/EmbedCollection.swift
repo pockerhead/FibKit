@@ -162,7 +162,7 @@ extension EmbedCollection: FibViewHeader {
 		public var scrollDidScroll: ((UIScrollView) -> Void)?
 		public var onAppear: ((EmbedCollection) -> Void)?
 		public var onDissappear: ((EmbedCollection) -> Void)?
-		public var needAnimation: Bool? = true
+		public var needAnimation: Bool = false
 
 		public var id: String? {
 			storedId
