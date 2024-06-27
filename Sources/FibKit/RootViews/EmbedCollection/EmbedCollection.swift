@@ -41,7 +41,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var onDissappear: ((EmbedCollection) -> Void)?
 	private var pagerView: EmbedPagerView?
 	private var pageControlView: EmbedPagerView?
-	private var needAnimation: Bool
+	private var needAnimation: Bool = true
 
 	private var pagerViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
 	private var pageControlViewOffset: (dx: CGFloat,dy: CGFloat) = (0,0)
@@ -162,7 +162,7 @@ extension EmbedCollection: FibViewHeader {
 		public var scrollDidScroll: ((UIScrollView) -> Void)?
 		public var onAppear: ((EmbedCollection) -> Void)?
 		public var onDissappear: ((EmbedCollection) -> Void)?
-		public var needAnimation: Bool = false
+		public var needAnimation: Bool = true
 
 		public var id: String? {
 			storedId
