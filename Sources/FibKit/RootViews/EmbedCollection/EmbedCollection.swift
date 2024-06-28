@@ -182,14 +182,14 @@ extension EmbedCollection: FibViewHeader {
 			return self
 		}
 		
-		public func pagerView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
+		public func pagerView(_ pager: EmbedPagerView?, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
 			self.pagingEnabled = true
 			self.pagerView = pager
 			self.pagerViewOffset = offset
 			return self
 		}
 		
-		public func pageControlView(_ pager: EmbedPagerView, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
+		public func pageControlView(_ pager: EmbedPagerView?, offset: (dx: CGFloat,dy: CGFloat) = (0,0)) -> ViewModel {
 			self.pagingEnabled = true
 			self.pageControlView = pager
 			self.pageControlViewOffset = offset
@@ -339,6 +339,8 @@ extension EmbedCollection: FibViewHeader {
 			return
 		}
 		self.needAnimation = data.needAnimation
+		pagerView?.removeFromSuperview()
+		pageControlView?.removeFromSuperview()
 		self.pagerView = data.pagerView
 		if let pagerView = pagerView {
 			contentView.addSubview(pagerView)
