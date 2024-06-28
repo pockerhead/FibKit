@@ -132,6 +132,10 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 			isPageControlScrolling = false
 		}
 	}
+
+	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		print("Test")
+	}
 }
 
 // MARK: ViewModelConfigurable
