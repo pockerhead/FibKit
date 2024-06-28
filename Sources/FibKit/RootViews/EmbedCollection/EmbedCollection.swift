@@ -26,6 +26,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	private var formViewHeight: CGFloat = 0
 	private var formViewBackgroundColor: UIColor?
 	private var scrollDidScroll: ((UIScrollView) -> Void)?
+	private var scrollDidEnd: ((UIScrollView) -> Void)?
 	private var pagesCount: Int = 0
 	private var offset: CGFloat = 0
 	private var formViewBottomConstraintInitialConstant: CGFloat {
@@ -128,13 +129,14 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 	}
 	
 	public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+		scrollDidEnd?(scrollView)
 		if isPageControlScrolling {
 			isPageControlScrolling = false
 		}
 	}
 
 	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-		print("Test")
+		scrollDidEnd?(scrollView)
 	}
 }
 
@@ -167,6 +169,7 @@ extension EmbedCollection: FibViewHeader {
 		public var onAppear: ((EmbedCollection) -> Void)?
 		public var onDissappear: ((EmbedCollection) -> Void)?
 		public var needAnimation: Bool = true
+		public var scrollDidEnd: ((UIScrollView) -> Void)?
 
 		public var id: String? {
 			storedId
@@ -287,6 +290,11 @@ extension EmbedCollection: FibViewHeader {
 			return self
 		}
 
+		public func scrollDidEnd(_ scrollDidEnd: ((UIScrollView) -> Void)?) -> Self {
+			self.scrollDidEnd = scrollDidEnd
+			return self
+		}
+
 		public func viewClass() -> ViewModelConfigurable.Type {
 			EmbedCollection.self
 		}
@@ -340,6 +348,7 @@ extension EmbedCollection: FibViewHeader {
 			contentView.addSubview(pageControlView)
 		}
 		self.scrollDidScroll = data.scrollDidScroll
+		self.scrollDidEnd = data.scrollDidEnd
 		hideSkeleton()
 		formView.clipsToBounds = data.clipsToBounds
 		formView.layer.masksToBounds = data.clipsToBounds
