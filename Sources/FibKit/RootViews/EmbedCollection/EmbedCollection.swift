@@ -221,7 +221,7 @@ extension EmbedCollection: FibViewHeader {
 		}
 
 		public func scrollEnabled(_ flag: Bool) -> ViewModel {
-			self.isScrollEnabled = false
+			self.isScrollEnabled = flag
 			return self
 		}
 		
