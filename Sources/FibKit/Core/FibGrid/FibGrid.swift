@@ -412,11 +412,9 @@ final public class FibGrid: UIScrollView {
 		}
 		
 		// delete all removed cells
-		var deleteIdentifiers = visibleIdsToCells.keys
-		deleteIdentifiers.formIntersection(newIdsToCellsMap.keys)
-		deleteIdentifiers.forEach { identifier in
-			guard let cell = visibleIdsToCells[identifier],
-				  cell !== draggedCell?.cell else { return }
+		visibleIdsToCells.forEach { identifier, cell in
+			guard newIdsToCellsMap.keys.contains(identifier) == false else { return }
+			guard cell !== draggedCell?.cell else { return }
 			if let cell = cell as? FormViewAppearable,
 			   cell.isAppearedOnFibGrid == true {
 				cell.onDissappear(with: self)
