@@ -9,6 +9,7 @@
 import SwiftUI
 import Combine
 import Threading
+import Collections
 // swiftlint:disable all
 final public class FibGrid: UIScrollView {
 	
@@ -38,9 +39,11 @@ final public class FibGrid: UIScrollView {
 	public var additionalHeaderInset: CGFloat?
 	// visible identifiers for cells on screen
 	public private(set) var visibleIndexes: [Int] = []
-	public private(set) var visibleCells: [UIView] = []
 	public private(set) var visibleFrames: [CGRect] = []
-	public private(set) var visibleIdentifiers: [String] = []
+	public var visibleCells: [UIView] {
+		visibleIdsToCells.values.elements
+	}
+	public private(set) var visibleIdsToCells: OrderedDictionary<String, UIView> = [:]
 	var draggedCell: CellPath?
 	var draggedCellOldFrame: CGRect?
 	var draggedCellInitialFrame: CGRect?
@@ -261,7 +264,7 @@ final public class FibGrid: UIScrollView {
 		isLoadingCell = true
 		
 		_loadCells(forceReload: false)
-		for (cell, index) in zip(visibleCells, visibleIndexes) where cell !== draggedCell?.cell {
+		for (cell, index) in zip(visibleIdsToCells.values, visibleIndexes) where cell !== draggedCell?.cell {
 			let animator = cell.currentCollectionAnimator ?? self.animator
 			animator.update(collectionView: self, view: cell, at: index, frame: flattenedProvider.frame(at: index))
 		}
@@ -313,7 +316,7 @@ final public class FibGrid: UIScrollView {
 		}
 		self.contentOffsetChange = self.contentOffset - oldContentOffset
 		
-		let oldVisibleCells = Set(self.visibleCells)
+		let oldVisibleCells = Set(self.visibleIdsToCells.values)
 		self._loadCells(forceReload: true)
 		
 		for (cell, index) in zip(self.visibleCells, self.visibleIndexes) {
@@ -329,6 +332,9 @@ final public class FibGrid: UIScrollView {
 			if cell !== draggedCell?.cell {
 				animator.update(collectionView: self, view: cell,
 								at: index, frame: self.flattenedProvider.frame(at: index))
+			}
+			if let cell = cell as? FibSectionBackgroundView {
+				sendSubviewToBack(cell)
 			}
 		}
 		
@@ -350,7 +356,7 @@ final public class FibGrid: UIScrollView {
 			let visibleFrameLessInset = visibleFrameLessInset
 			collectionViewLayoutQueue.async {[weak self] in
 				guard let self = self else { return }
-				for (cell, frame) in zip(visibleCells, visibleFrames) {
+				for (cell, frame) in zip(self.visibleIdsToCells.values, visibleFrames) {
 					appearSubviewIfNeeded(cell,
 										  cellFrame: frame,
 										  visibleFrameLessInset: visibleFrameLessInset)
@@ -358,82 +364,75 @@ final public class FibGrid: UIScrollView {
 			}
 			return
 		}
-		
-		var existingIdentifierToCellMap: [String: UIView] = [:]
-		
+				
 		// during reloadData we clear all cache
 		if forceReload {
 			identifierCache.removeAll()
 		}
 		
-		var newIdentifierSet = Set<String>()
-		let newIdentifiers: [String] = newIndexes.map { index in
+		visibleFrames = []
+
+		var newIdsToCellsMap: OrderedDictionary<String, UIView> = [:]
+		newIndexes.forEach { index in
+			var newIdentifier: String
 			if let identifier = identifierCache[index] {
-				newIdentifierSet.insert(identifier)
-				return identifier
+				newIdentifier = identifier
 			} else {
 				let identifier = flattenedProvider.identifier(at: index)
 				// avoid identifier collision
 				var finalIdentifier = identifier
 				var count = 1
-				while newIdentifierSet.contains(finalIdentifier) {
+				while newIdsToCellsMap.keys.contains(finalIdentifier) {
 					finalIdentifier = identifier + "(\(count))"
 					count += 1
 				}
-				newIdentifierSet.insert(finalIdentifier)
 				identifierCache[index] = finalIdentifier
-				return finalIdentifier
+				newIdentifier = finalIdentifier
 			}
-		}.compactMap({ $0 })
-		
-		// 1st pass, delete all removed cells
-		for (index, identifier) in visibleIdentifiers.enumerated() {
-			let cell = visibleCells[index]
-			if !newIdentifierSet.contains(identifier) && cell !== draggedCell?.cell {
-				if let cell = cell as? FormViewAppearable,
-				   cell.isAppearedOnFibGrid == true {
-					cell.onDissappear(with: self)
-				}
-				cell.isAppearedOnFibGrid = false
-				if (cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection != nil {
-					(cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection = deletePageDirection
-				}
-				(cell.currentCollectionAnimator ?? animator)?.delete(collectionView: self, view: cell)
+			var visibleCell: UIView
+			if let exictingCell = visibleIdsToCells[newIdentifier] {
+				visibleCell = exictingCell
 			} else {
-				existingIdentifierToCellMap[identifier] = cell
+				visibleCell = _generateCell(index: index)
 			}
-		}
-		
-		// 2nd pass, insert new views
-		let newCells: [UIView] = zip(newIdentifiers, newIndexes).map { identifier, index in
-			if let existingCell = existingIdentifierToCellMap[identifier] {
-				return existingCell
-			} else {
-				let cell = _generateCell(index: index)
-				if subviews.get(index) !== cell {
-					insertSubview(cell, at: index)
+			if let cell = visibleCell as? SwipeControlledView {
+				if cell.haveSwipeAction && cell.isSwipeOpen && !cell.isAnimating {
+					cell.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
 				}
-				return cell
+			}
+			newIdsToCellsMap[newIdentifier] = visibleCell
+			visibleFrames.append(visibleCell.frame)
+			appearSubviewIfNeeded(visibleCell, cellFrame: visibleCell.frame, visibleFrameLessInset: visibleFrameLessInset)
+			if subviews.get(index) !== visibleCell {
+				insertSubview(visibleCell, at: index)
+			}
+			if let cell = visibleCell as? FibSectionBackgroundView {
+				sendSubviewToBack(cell)
 			}
 		}
 		
-		if !newCells.isEmpty && (visibleCells.filter{type(of: $0) === type(of: newCells.first!)}).count == 0 {
-			newCells.first?.reuseManager?.prepareReuseIfNeeded(type: type(of: newCells.first!))
-		}
-		newCells.map({ $0 as? SwipeControlledView }).compactMap({ $0 }).forEach({ cell in
-			if cell.haveSwipeAction && cell.isSwipeOpen && !cell.isAnimating {
-				cell.animateSwipe(direction: .right, isOpen: false, swipeWidth: nil, initialVel: nil, completion: nil)
+		// delete all removed cells
+		var deleteIdentifiers = visibleIdsToCells.keys
+		deleteIdentifiers.formIntersection(newIdsToCellsMap.keys)
+		deleteIdentifiers.forEach { identifier in
+			guard let cell = visibleIdsToCells[identifier],
+				  cell !== draggedCell?.cell else { return }
+			if let cell = cell as? FormViewAppearable,
+			   cell.isAppearedOnFibGrid == true {
+				cell.onDissappear(with: self)
 			}
-		})
+			cell.isAppearedOnFibGrid = false
+			if (cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection != nil {
+				(cell.currentCollectionAnimator as? AnimatedReloadAnimator)?.pageDirection = deletePageDirection
+			}
+			(cell.currentCollectionAnimator ?? animator)?.delete(collectionView: self, view: cell)
+		}
+		
+		if !newIdsToCellsMap.values.isEmpty && (visibleIdsToCells.values.filter{type(of: $0) === type(of: newIdsToCellsMap.values.first!)}).count == 0 {
+			newIdsToCellsMap.values.first?.reuseManager?.prepareReuseIfNeeded(type: type(of: newIdsToCellsMap.values.first!))
+		}
 		visibleIndexes = newIndexes
-		visibleIdentifiers = newIdentifiers
-		visibleCells = newCells
-		visibleFrames = []
-		for (cell, index) in zip(visibleCells, visibleIndexes) {
-			visibleFrames.append(cell.frame)
-			appearSubviewIfNeeded(cell, cellFrame: cell.frame, visibleFrameLessInset: visibleFrameLessInset)
-			insertSubview(cell, at: index)
-		}
+		visibleIdsToCells = newIdsToCellsMap
 	}
 	
 	private func appearSubviewIfNeeded(_ cell: UIView,

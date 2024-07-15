@@ -14,6 +14,8 @@ let package = Package(
 		),
 	],
 	dependencies: [
+		
+		.package(url: "https://github.com/apple/swift-collections.git", exact: "1.1.2"),
 		.package(url: "https://github.com/Miraion/Threading", .upToNextMajor(from: "1.0.1")),
 		.package(url: "https://github.com/efremidze/VisualEffectView", .upToNextMajor(from: "4.1.4")),
 		.package(url: "https://github.com/Juanpe/SkeletonView", .upToNextMajor(from: "1.26.0")),
@@ -26,7 +28,8 @@ let package = Package(
 			dependencies: [
 				"Threading",
 				"VisualEffectView",
-				"SkeletonView"
+				"SkeletonView",
+				.product(name: "Collections", package: "swift-collections")
 			]
 		)
 	]
