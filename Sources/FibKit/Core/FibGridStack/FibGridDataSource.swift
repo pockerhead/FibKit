@@ -62,11 +62,11 @@ open class FibGridDataSource: CollectionReloadable {
 
 }
 
-public final class FibGridForEachDataSource<T>: FibGridDataSource {
+public final class FibGridForEachDataSource<T, U>: FibGridDataSource where U: RandomAccessCollection<T>, U.Index == Int {
     private var dataMapper: ((T) -> ViewModelWithViewClass?)
-    private var _data: [T]
+    private var _data: U
 
-    public init(data: [T], mapper: @escaping ((T) -> ViewModelWithViewClass?), identifierMapper: @escaping FormViewIdentifierMapperFn = { index, data in "\(data?.id ?? String(index))" }) {
+    public init(data: U, mapper: @escaping ((T) -> ViewModelWithViewClass?), identifierMapper: @escaping FormViewIdentifierMapperFn = { index, data in "\(data?.id ?? String(index))" }) {
         self.dataMapper = mapper
         self._data = data
         super.init()
@@ -77,16 +77,16 @@ public final class FibGridForEachDataSource<T>: FibGridDataSource {
         _data.count
     }
 
-    public override func identifier(at: Int) -> String {
+	public override func identifier(at: Int) -> String {
 		if let cached = data[safe: at], cached != nil {
 			return identifierMapper(at, cached)
 		} else if let data = _data[safe: at] {
-            let vm = dataMapper(data)
+			let vm = dataMapper(data)
 			self.data[at] = vm
-            return identifierMapper(at, vm)
-        } else {
-            return ""
-        }
+			return identifierMapper(at, vm)
+		} else {
+			return ""
+		}
     }
 
     public override func data(at: Int) -> ViewModelWithViewClass? {
