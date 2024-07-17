@@ -403,17 +403,17 @@ func deepId(_ object: Any) -> String {
 
 
 
-final public class ForEachSection<T>: ViewModelSection {
+final public class ForEachSection<T, U>: ViewModelSection where U: RandomAccessCollection<T>, U.Index == Int {
 	
 	public init(forceReassignLayout: Bool = true,
-				data: [T],
+				data: U,
 				_ dataMapper: @escaping ((T) -> ViewModelWithViewClass?),
 				line: Int = #line,
 				file: String = #file) {
 		super.init(data: [],
 				   id: "Section_at_\(line)_in_\(file)",
 				   forceReassignLayout: forceReassignLayout)
-		self.dataSource = FibGridForEachDataSource<T>.init(data: data, mapper: dataMapper)
+		self.dataSource = FibGridForEachDataSource<T, U>.init(data: data, mapper: dataMapper)
 	}
 }
 
