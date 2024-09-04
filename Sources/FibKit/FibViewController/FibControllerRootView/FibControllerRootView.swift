@@ -352,6 +352,7 @@ open class FibControllerRootView: UIView {
 					}
 				} else {
 					largeViewRef.configure(with: largeTitleViewModel)
+					needUpdateContentInsets = true
 				}
 			} else if let newLargeView = largeTitleViewModel.getView() {
 				self.largeViewRef = newLargeView
