@@ -95,6 +95,9 @@ extension FibGrid {
 		bounce: CGFloat = 0,
 		customScroll: ((CGPoint, CGFloat) -> Void)? = FibGrid.defaultCustomScrollClosure
 	) throws -> CGPoint {
+		if contentSize.width <= bounds.width && contentSize.height <= bounds.height {
+			throw(FibGridError.unableToScroll)
+		}
 		var indexPath = indexPath
 		var innerProvider: (Provider & LayoutableProvider)?
 		var sectionProvider = self.provider as? SectionProvider

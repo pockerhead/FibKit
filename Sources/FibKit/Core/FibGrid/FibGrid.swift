@@ -53,6 +53,7 @@ final public class FibGrid: UIScrollView {
 	var dragProvider: ItemProvider?
 	var lastReorderedIndex: Int?
 	var isInProcessDragging: Bool = false
+	public var needPassthroughViews = true
 	public var loadCellsInBounds: Bool = true
 	public private(set) var lastLoadBounds: CGRect = .zero
 	public private(set) var contentOffsetChange: CGPoint = .zero
@@ -185,6 +186,9 @@ final public class FibGrid: UIScrollView {
 	// Проверяем позади формвью наличие интерактивных вьюх, нужно чтобы в режиме
 	// шторки (наезд на хедер) можно было обрабатывать нажатия на хедер
 	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+		guard needPassthroughViews else {
+			return super.point(inside: point, with: event)
+		}
 		guard FibGridPassthroughHelper.nestedInteractiveViews(in: self, contain: point, convertView: self) else {
 			return false
 		}
