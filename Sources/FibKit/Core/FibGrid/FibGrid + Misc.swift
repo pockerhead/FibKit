@@ -59,9 +59,6 @@ final class GridsReuseManager {
 	}
 }
 
-/// ScrollView that lay outs views form declarative descirbed sections
-
-
 struct FibGridPassthroughHelper {
 	static func nestedInteractiveViews(in view: UIView, contain point: CGPoint, convertView: UIView) -> Bool {
 		if let formView = view as? FibGrid,

@@ -42,7 +42,7 @@ public class SpacerCell: UICollectionViewCell {
     }
 }
 
-public struct FormViewSpacer: ViewModelWithViewClass {
+public class FormViewSpacer: ViewModelWithViewClass {
     public let height: CGFloat
     public let color: UIColor
     public let width: CGFloat?
@@ -71,6 +71,11 @@ public struct FormViewSpacer: ViewModelWithViewClass {
 		self._id = id
     }
 
+	public func id(_ id: String) -> Self {
+		self._id = id
+		return self
+	}
+	
     public func viewClass() -> ViewModelConfigurable.Type {
         SpacerCell.self
     }
