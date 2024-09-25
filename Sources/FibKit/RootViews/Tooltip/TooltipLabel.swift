@@ -13,36 +13,70 @@ public protocol TooltipViewModel: FibCoreViewModel {
 
 public protocol TooltipLabelView: FibCoreView {}
 
-final class TooltipLabel: FibCoreView {
+final public class TooltipLabel: FibCoreView {
 	
 	var label: UILabel = UILabel()
 	
+	public struct TooltipAppearance {
+		public init(
+			backgroundColor: UIColor,
+			textColor: UIColor
+		) {
+			self.backgroundColor = backgroundColor
+			self.textColor = textColor
+		}
+		
+		public var backgroundColor: UIColor
+		public var textColor: UIColor
+	}
+
+	public static var defaultTooltipAppearance = TooltipAppearance(
+		backgroundColor: .secondarySystemBackground,
+		textColor: .label
+	)
 	
-	override func configureUI() {
+	public var tooltipAppearance: TooltipAppearance? {
+		nil
+	}
+	
+	public var tooltipBackgroundColor: UIColor {
+		tooltipAppearance?.backgroundColor ?? TooltipLabel.defaultTooltipAppearance.backgroundColor
+	}
+	
+	public var textColor: UIColor {
+		tooltipAppearance?.textColor ?? TooltipLabel.defaultTooltipAppearance.textColor
+	}
+	
+	public override func configureUI() {
 		super.configureUI()
 		addSubview(label)
 		label.font = .boldSystemFont(ofSize: 12)
-		label.textColor = .tooltipTextColor
+		label.textColor = textColor
+		backgroundColor = tooltipBackgroundColor
 		label.textAlignment = .left
 		label.numberOfLines = 0
 		layer.cornerRadius = 8
-	
 	}
 	
-	override func layoutSubviews() {
+	public override func layoutSubviews() {
 		super.layoutSubviews()
 		label.frame = bounds.inset(by: UIEdgeInsets(top: 6, left: 8, bottom: 6, right: 8))
-		backgroundColor = .tooltipBackgroundColor
+		backgroundColor = tooltipBackgroundColor
 	}
 	
-	override func configure(with data: ViewModelWithViewClass?) {
+	public override func configureAppearance() {
+		label.textColor = textColor
+		backgroundColor = tooltipBackgroundColor
+	}
+	
+	public override func configure(with data: ViewModelWithViewClass?) {
 		super.configure(with: data)
 		guard let data = data as? ViewModel else { return }
 		label.text = data.text
-		
+		backgroundColor = tooltipBackgroundColor
 	}
 	
-	override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
+	public override func sizeWith(_ targetSize: CGSize, data: ViewModelWithViewClass?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
 		guard let data = data as? ViewModel else { return targetSize }
 		configure(with: data)
 		let size = label.sizeThatFits(targetSize)

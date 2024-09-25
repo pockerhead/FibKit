@@ -66,7 +66,7 @@ public class TriangleView: FibCoreView {
     
     public class ViewModel: FibCoreViewModel, TooltipMarkerViewModel {
         
-		public var backgroundColor: UIColor = .tooltipBackgroundColor
+		public var backgroundColor: UIColor = TooltipLabel.defaultTooltipAppearance.backgroundColor
 		public var orientation: Orientation = .down
         
         public enum Orientation {
@@ -74,8 +74,10 @@ public class TriangleView: FibCoreView {
             case down
         }
         
-		required public init(backgroundColor: UIColor = .tooltipBackgroundColor,
-                      orientation: Orientation = .down) {
+		required public init(
+			backgroundColor: UIColor = TooltipLabel.defaultTooltipAppearance.backgroundColor,
+			orientation: Orientation = .down
+		) {
             self.backgroundColor = backgroundColor
             self.orientation = orientation
         }
