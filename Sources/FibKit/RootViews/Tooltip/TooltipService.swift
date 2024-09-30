@@ -113,7 +113,7 @@ open class ToolTipService {
 		UIView.performWithoutAnimation {
 			self.toolTipWindow.rootViewController = TooltipViewController(_preferredStatusBarStyle: .default)
 			self.toolTipWindow.windowLevel = .alert
-			toolTipWindow.backgroundColor = .clear
+			self.toolTipWindow.backgroundColor = .clear
 			self.toolTipWindow.isHidden = true
 		}
 	}
@@ -127,6 +127,7 @@ open class ToolTipService {
 		text: String,
 		needHideOnTap: Bool = true,
 		animationDuration: TimeInterval = 0.6,
+		markerOffset: CGFloat? = 4,
 		completion: (() -> Void)? = nil
 	) {
 		showToolTip(
@@ -135,6 +136,7 @@ open class ToolTipService {
 			markerView: TriangleView.ViewModel(),
 			needHideOnTap: needHideOnTap,
 			animationDuration: animationDuration,
+			markerOffset: markerOffset,
 			completion: completion
 		)
 	}
@@ -145,6 +147,7 @@ open class ToolTipService {
 		markerView: TooltipMarkerViewModel?,
 		needHideOnTap: Bool = true,
 		animationDuration: TimeInterval = 0.6,
+		markerOffset: CGFloat? = 4,
 		completion: (() -> Void)? = nil
 	) {
 		let markerView: TooltipMarkerViewModel = markerView ?? TriangleView.ViewModel()
@@ -172,14 +175,16 @@ open class ToolTipService {
 			marker.frame.size = marker.sizeWith(.init(width: screenWidth, height: screenHeight), data: markerView, horizontal: .fittingSizeLevel, vertical: .fittingSizeLevel) ?? CGSize(width: 10, height: 10)
 			let triangleX = viewFrame.center.x - 5
 			
-			toolTipLabel.frame.origin.y = viewFrame.minY - (height + marker.frame.height - 4)
+			toolTipLabel.frame.origin.y = viewFrame.minY - (height + marker.frame.height + (markerOffset ?? 4))
 			markerView.orientation = .down
 			marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.maxY)
+			
 			if toolTipLabel.frame.origin.y < toolTipWindow.safeAreaInsets.top {
-				toolTipLabel.frame.origin.y = viewFrame.maxY + 4
+				toolTipLabel.frame.origin.y = viewFrame.maxY + marker.frame.height + (markerOffset ?? 4)
 				markerView.orientation = .up
-				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - 4)
+				marker.frame.origin = .init(x: triangleX, y: toolTipLabel.frame.minY - marker.frame.height)
 			}
+			
 			marker.configure(with: markerView)
 			let idealX = viewFrame.center.x - toolTipLabel.bounds.width / 2
 			toolTipLabel.frame.origin.x = idealX.clamp(16, UIScreen.main.bounds.width - toolTipLabel.bounds.width - 16)
