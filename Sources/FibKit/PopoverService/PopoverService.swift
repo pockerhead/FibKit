@@ -172,7 +172,6 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		var horizontalMenuAlignment: HorizontalMenuAlignment = .common
 		var verticalMenuAlignment: VerticalMenuAlignment = .bottom
 		var dismissalInteraction: DismissalInteraction = .onlyTap
-
 		var shadowDescriptor: ShadowDescriptor? = nil
 
 		public init(
@@ -697,24 +696,14 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 		withFibSpringAnimation(duration: 0.3) {[weak self] in
 			guard let self = self else { return }
-			if let viewRect = self.contextView?.superview?.convert(self.contextView?.frame ?? .zero, to: nil) {
-				self.scrollView.contentInset.top = -window.safeAreaInsets.top
-				self.contextViewSnapshot?.frame = viewRect
-				if rightXOffset != 0 {
-					self.contextViewSnapshot?.frame.size.width += rightXOffset
-				}
-				if leftXOffset != 0 {
-					self.contextViewSnapshot?.frame.size.width += leftXOffset
-					self.contextViewSnapshot?.frame.origin.x -= leftXOffset
-				}
-				self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
-			}
-		}
-		withFibSpringAnimation(duration: 0.4) {[weak self] in
-			guard let self = self else { return }
-			
+			let screenBounds = self.window.bounds
+			var newCenter = self.contextMenu.center
+			let titleFrame = self.contextMenu.frame
+			let titleYPosition = titleFrame.minY
+			let menuMaxY = titleYPosition.clamp(screenBounds.minY, screenBounds.maxY)
+			newCenter.y = menuMaxY
+			self.contextMenu.center = newCenter
 			self.contextMenu.transform = .init(scaleX: 0.01, y: 0.01)
-			self.contextMenu.frame.origin = self.contextViewRectInWindow.center
 			self.contextMenu.alpha = 0
 			self.overlayView.alpha = 0
 		} completion: {[weak self] _ in
