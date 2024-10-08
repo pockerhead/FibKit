@@ -708,10 +708,13 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				}
 				self.contextViewSnapshot?.frame.origin.y += self.scrollView.contentOffset.y
 			}
-			self.contextMenu.transform = .init(scaleX: 0.01, y: 0.01)
-			self.contextMenu.center = self.contextViewRectInWindow.center
-			self.contextMenu.alpha = 0
-			self.overlayView.alpha = 0
+			withFibSpringAnimation(duration: 0.4) { [weak self] in
+				guard let self = self else { return }
+				self.contextMenu.transform = .init(scaleX: 0.01, y: 0.01)
+				self.contextMenu.center = self.contextViewRectInWindow.center
+				self.contextMenu.alpha = 0
+				self.overlayView.alpha = 0
+			}
 		} completion: {[weak self] _ in
 			guard let self = self else { return }
 			self.contextView = nil
