@@ -38,6 +38,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		public var blurColorTint: UIColor?
 	}
 	
+	public var menuVisibilityHandler: ((Bool) -> Void)? = nil
+	
 	public static var defaultAppearance = Appearance(
 		blurColorTint: .systemBackground
 	)
@@ -46,6 +48,11 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		PopoverServiceInstance.defaultAppearance.blurColorTint
 	}
 	
+	var isMenuOpen: Bool = false {
+		didSet {
+			menuVisibilityHandler?(isMenuOpen)
+		}
+	}
 	
 	public var traitCollection: UITraitCollection {
 		.init()
@@ -227,7 +234,8 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 						verticalMenuAlignment: context.verticalMenuAlignment,
 						shadowDescriptor: context.shadowDescriptor,
 						onHideAction: context.onHideAction,
-						isSecure: isSecure
+						isSecure: isSecure,
+						menuVisibilityHandler: menuVisibilityHandler
 		)
 	}
 
@@ -251,7 +259,10 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 								verticalMenuAlignment: VerticalMenuAlignment = .bottom,
 								shadowDescriptor: ShadowDescriptor? = nil,
 								onHideAction: (() -> Void)? = nil,
-								isSecure: Bool = false) {
+								isSecure: Bool = false,
+								menuVisibilityHandler: ((Bool) -> Void)? = nil) {
+		self.menuVisibilityHandler = menuVisibilityHandler
+		isMenuOpen = true
 		guard !hidingInProcess else { return }
 		setLayerDisableScreenshots(window.layer, isSecure)
 		self.leftXOffset = leftXOffset
@@ -728,6 +739,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				self.contextMenu.transform = .identity
 				self.contextViewSnapshot?.removeFromSuperview()
 				onHideAction?()
+				self.isMenuOpen = false
 				completion?()
 				self.completion?()
 				self.completion = nil
