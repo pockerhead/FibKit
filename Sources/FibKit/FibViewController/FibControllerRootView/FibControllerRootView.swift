@@ -17,9 +17,7 @@ open class FibControllerRootView: UIView {
 	}
 	// MARK: - APPEARANCE
 	
-	var navigationConfiguration: FibControllerRootView.NavigationConfiguration? {
-		controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
-	}
+	var navigationConfiguration: FibControllerRootView.NavigationConfiguration?
 	
 	var headerBackgroundViewColor: UIColor? {
 		controller?.configuration?.viewConfiguration.headerBackgroundViewColor ?? defaultConfiguration.headerBackgroundViewColor
@@ -334,6 +332,7 @@ open class FibControllerRootView: UIView {
 	}
 	
 	public func reloadNavigation() {
+		navigationConfiguration = controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
 		var needUpdateContentInsets = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
 		if let header = headerView {

@@ -133,14 +133,36 @@ public class SwipesContainerView: UIView {
 		return width
 	}
 	
+	func needInitNewView(_ oldViewClass: UIView.Type, newViewClass: UIView.Type) -> Bool {
+		return oldViewClass != newViewClass
+	}
+	
 	func configure(with viewModel: ViewModel) {
 		[mainSwipeView, secondSwipeView, thirdSwipeView].forEach {
 			$0?.removeFromSuperview()
 		}
 		
-		mainSwipeView = viewModel.mainSwipeView.getView() as? FibSwipeView
-		secondSwipeView = viewModel.secondSwipeView?.getView() as? FibSwipeView
-		thirdSwipeView = viewModel.thridSwipeView?.getView() as? FibSwipeView
+		if let mainSwipeView {
+			if needInitNewView(type(of: mainSwipeView), newViewClass: viewModel.mainSwipeView.viewClass()) {
+				self.mainSwipeView = viewModel.mainSwipeView.getView() as? FibSwipeView
+			}
+		} else {
+			mainSwipeView = viewModel.mainSwipeView.getView() as? FibSwipeView
+		}
+		if let secondSwipeView {
+			if let secondVM = viewModel.secondSwipeView, needInitNewView(type(of: secondSwipeView), newViewClass: secondVM.viewClass()) {
+				self.secondSwipeView = secondVM.getView() as? FibSwipeView
+			}
+		} else if let secondSwipeView = viewModel.secondSwipeView?.getView() as? FibSwipeView {
+			self.secondSwipeView = secondSwipeView
+		}
+		if let thirdSwipeView {
+			if let thirdVM = viewModel.thridSwipeView, needInitNewView(type(of: thirdSwipeView), newViewClass: thirdVM.viewClass()) {
+				self.thirdSwipeView = thirdVM.getView() as? FibSwipeView
+			}
+		} else if let thirdSwipeView = viewModel.thridSwipeView?.getView() as? FibSwipeView {
+			self.thirdSwipeView = thirdSwipeView
+		}
 		
 		if let thirdSwipeView = thirdSwipeView {
 			addSubview(thirdSwipeView)
