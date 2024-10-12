@@ -28,6 +28,13 @@ open class FibCoreView: UIView,
 		
 		public var coloredBackgroundDefaultColor: UIColor
 	}
+	
+	public static let sharedReuseManager: CollectionReuseViewManager = {
+		let manager = CollectionReuseViewManager()
+		manager.lifeSpan = 30
+		manager.removeFromCollectionViewWhenReuse = false
+		return manager
+	}()
 
 	public static var defaultAppearance = Appearance()
 	
@@ -150,6 +157,19 @@ open class FibCoreView: UIView,
     @objc func onTap(_ sender: UITapGestureRecognizer) {
         onTap?(contentView)
     }
+	
+	open override func removeFromSuperview() {
+		if isExperimentalDequeuerEnabled, !isForcedToRemove, superview != nil {
+			FibCoreView.sharedReuseManager.queue(view: self)
+		}
+		super.removeFromSuperview()
+	}
+	
+	var isForcedToRemove = false
+	func removeFromSuperviewFinally() {
+		isForcedToRemove = true
+		removeFromSuperview()
+	}
     
     @objc func onLongPress(_ sender: UILongPressGestureRecognizer) {
         switch sender.state {

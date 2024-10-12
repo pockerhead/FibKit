@@ -57,8 +57,13 @@ public class CollectionReuseViewManager: NSObject {
         if let cleanupTimer = cleanupTimer {
             cleanupTimer.fireDate = Date().addingTimeInterval(lifeSpan)
         } else {
-            cleanupTimer = Timer.scheduledTimer(timeInterval: lifeSpan, target: self,
-                                                selector: #selector(cleanup), userInfo: nil, repeats: false)
+            cleanupTimer = Timer.scheduledTimer(
+				timeInterval: lifeSpan,
+				target: self,
+				selector: #selector(cleanup),
+				userInfo: nil,
+				repeats: false
+			)
         }
     }
 
@@ -80,15 +85,22 @@ public class CollectionReuseViewManager: NSObject {
         return dequeue(type.init())
     }
 
-    @objc func cleanup() {
-        for views in reusableViews.values {
-            for view in views {
-                view.removeFromSuperview()
-            }
-        }
-        reusableViews.removeAll()
-        cleanupTimer?.invalidate()
-        cleanupTimer = nil
+    @objc public func cleanup() {
+		delay {[self] in
+			for views in reusableViews.values {
+				for view in views {
+					if let view = view as? FibCoreView {
+						view.removeFromSuperviewFinally()
+					} else {
+						view.removeFromSuperview()
+					}
+				}
+			}
+			reusableViews.removeAll()
+			cleanupTimer?.invalidate()
+			cleanupTimer = nil
+		}
+        
     }
 }
 

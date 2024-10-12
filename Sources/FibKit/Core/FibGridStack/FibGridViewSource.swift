@@ -32,9 +32,20 @@ extension ViewModelConfigurable where Self: UIView {
     }
 }
 
+let isExperimentalDequeuerEnabled = true
+
 extension ViewModelWithViewClass {
     public func getView() -> ViewModelConfigurable? {
-        let view = viewClass().fromDequeuer()
+		let viewClass = viewClass()
+		let view: ViewModelConfigurable?
+		if isExperimentalDequeuerEnabled,
+		   viewClass is FibCoreView.Type,
+		let opView = FibCoreView.sharedReuseManager.dequeue(viewClass: NSStringFromClass(viewClass), { viewClass.fromDequeuer() ?? UIView() }) as? ViewModelConfigurable {
+			view = opView
+		} else {
+			view = viewClass.fromDequeuer()
+		}
+        
         if let view = view as? ViewModelConfigururableFromSizeWith {
             view.configure(with: self, isFromSizeWith: false)
         } else {
@@ -45,7 +56,15 @@ extension ViewModelWithViewClass {
     }
     
     public func getView<T: ViewModelConfigurable>(type: T.Type = T.self) -> T? {
-        let view = viewClass().fromDequeuer() as? T
+		let viewClass = viewClass()
+		let view: T?
+		if isExperimentalDequeuerEnabled,
+		   viewClass is FibCoreView.Type,
+		let opView = FibCoreView.sharedReuseManager.dequeue(viewClass: NSStringFromClass(viewClass), { viewClass.fromDequeuer() ?? UIView() }) as? T {
+			view = opView
+		} else {
+			view = viewClass.fromDequeuer() as? T
+		}
         if let view = view as? ViewModelConfigururableFromSizeWith {
             view.configure(with: self, isFromSizeWith: false)
         } else {
@@ -56,7 +75,15 @@ extension ViewModelWithViewClass {
     }
     
     public func getViewUnsafe<T: ViewModelConfigurable>(type: T.Type = T.self) -> T {
-        let view = viewClass().fromDequeuer() as! T
+		let viewClass = viewClass()
+		let view: T
+		if isExperimentalDequeuerEnabled,
+		   viewClass is FibCoreView.Type,
+		let opView = FibCoreView.sharedReuseManager.dequeue(viewClass: NSStringFromClass(viewClass), { viewClass.fromDequeuer() ?? UIView() }) as? T {
+			view = opView
+		} else {
+			view = viewClass.fromDequeuer() as! T
+		}
         if let view = view as? ViewModelConfigururableFromSizeWith {
             view.configure(with: self, isFromSizeWith: false)
         } else {
