@@ -19,7 +19,7 @@ public class CollectionReuseViewManager: NSObject {
     /// dump all reusableViews to save memory
     public var lifeSpan: TimeInterval = 20.0
 
-    static var shared = CollectionReuseViewManager()
+    public static var shared = CollectionReuseViewManager()
 
     /// When `removeFromCollectionViewWhenReuse` is enabled,
     /// cells will always be removed from Collection View during reuse.
