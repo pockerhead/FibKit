@@ -32,7 +32,7 @@ extension ViewModelConfigurable where Self: UIView {
     }
 }
 
-let isExperimentalDequeuerEnabled = true
+let isExperimentalDequeuerEnabled = false
 
 extension ViewModelWithViewClass {
     public func getView() -> ViewModelConfigurable? {
@@ -40,12 +40,12 @@ extension ViewModelWithViewClass {
 		let view: ViewModelConfigurable?
 		if isExperimentalDequeuerEnabled,
 		   viewClass is FibCoreView.Type,
-		let opView = FibCoreView.sharedReuseManager.dequeue(viewClass: NSStringFromClass(viewClass), { viewClass.fromDequeuer() ?? UIView() }) as? ViewModelConfigurable {
+		   let opView = FibCoreView.sharedReuseManager.dequeue(viewClass: NSStringFromClass(viewClass), { viewClass.fromDequeuer() ?? UIView() }) as? ViewModelConfigurable {
 			view = opView
 		} else {
 			view = viewClass.fromDequeuer()
 		}
-        
+		
         if let view = view as? ViewModelConfigururableFromSizeWith {
             view.configure(with: self, isFromSizeWith: false)
         } else {
