@@ -334,6 +334,8 @@ open class FibControllerRootView: UIView {
 	public func reloadNavigation() {
 		navigationConfiguration = controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
 		var needUpdateContentInsets = false
+		var isChangedHeaderHeight = false
+		var isChangedHeaderModel = false
 		rootHeaderBackground.addSubview(rootNavigationHeaderBackground)
 		if let header = headerView {
 			rootHeaderBackground.insertSubview(rootNavigationHeaderBackground, belowSubview: header)
@@ -369,6 +371,10 @@ open class FibControllerRootView: UIView {
 			if largeViewRef?.superview != nil {
 				largeViewRef?.removeFromSuperview()
 				needUpdateContentInsets = true
+				isChangedHeaderModel = true
+				isChangedHeaderHeight = true
+				setNeedsLayout()
+
 			}
 			controller?.setNavbarTitleView(nil, vm: navigationConfiguration?.titleViewModel, animated: false)
 			navItemTitleView = nil
@@ -408,7 +414,9 @@ open class FibControllerRootView: UIView {
 		}
 		assignNavigationFramesIfNeeded()
 		if needUpdateContentInsets {
-			updateFormViewInsets(animated: false)
+			updateFormViewInsets(animated: false,
+								 isChangedHeaderHeight: isChangedHeaderHeight,
+								 isChangedHeaderViewModel: isChangedHeaderModel)
 		}
 	}
 	
@@ -701,10 +709,11 @@ open class FibControllerRootView: UIView {
 		if animated && isChangedHeaderHeight {
 			withFibSpringAnimation(options: [.allowUserInteraction, .beginFromCurrentState, .allowAnimatedContent, .layoutSubviews]) {[weak self] in
 				guard let self = self else { return }
-				self._updateFormViewInsets(isChangedHeaderHeight: isChangedHeaderHeight)
+				self._updateFormViewInsets(isChangedHeaderHeight: isChangedHeaderHeight, isChangedHeaderViewModel: isChangedHeaderViewModel)
 			}
 		} else {
-			_updateFormViewInsets(isChangedHeaderHeight: isChangedHeaderHeight)
+			_updateFormViewInsets(isChangedHeaderHeight: isChangedHeaderHeight,
+								  isChangedHeaderViewModel: isChangedHeaderViewModel)
 		}
 	}
 	
@@ -726,13 +735,13 @@ open class FibControllerRootView: UIView {
 		case .top:
 			contentInsetTop -= safeAreaInsets.top
 		}
-		self.layoutIfNeeded()
 		let needAdjustContentOffset = absoluteContentOffset.isBeetween(-10, 10)
 		self.rootFormView.contentInset.top = contentInsetTop
 		self.rootFormView.verticalScrollIndicatorInsets.top = contentInsetTop
 		if needAdjustContentOffset || (isChangedHeaderHeight && isChangedHeaderViewModel) {
 			self.rootFormView.contentOffset.y = -self.rootFormView.contentInset.top
 		}
+		self.layoutIfNeeded()
 		scrollViewDidScroll(rootFormView)
 	}
 	
