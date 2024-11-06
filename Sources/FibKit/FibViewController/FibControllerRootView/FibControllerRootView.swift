@@ -735,7 +735,7 @@ open class FibControllerRootView: UIView {
 		case .top:
 			contentInsetTop -= safeAreaInsets.top
 		}
-		let needAdjustContentOffset = absoluteContentOffset.isBeetween(-10, 10)
+		let needAdjustContentOffset = absoluteContentOffset == 0
 		self.rootFormView.contentInset.top = contentInsetTop
 		self.rootFormView.verticalScrollIndicatorInsets.top = contentInsetTop
 		if needAdjustContentOffset || (isChangedHeaderHeight && isChangedHeaderViewModel) {
