@@ -459,6 +459,7 @@ open class FibControllerRootView: UIView {
 			rootNavigationHeaderBackground.frame = .init(x: 0.01, y: safeAreaInsets.top + 0.01, width: bounds.width, height: getHeaderAdditionalNavigationMargin())
 			rootNavigationHeaderMask.frame = .init(x: 0.01, y: 0.01, width: bounds.width, height: bounds.height)
 			rootNavigationHeaderBackground.mask = rootNavigationHeaderMask
+			rootNavigationHeaderMask.isUserInteractionEnabled = false
 		}
 	}
 	
