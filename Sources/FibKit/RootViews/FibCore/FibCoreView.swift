@@ -440,9 +440,9 @@ open class FibCoreView: UIView,
             if contentView.gestureRecognizers?.contains(where: { $0 === longTapGesture }) == false {
                 contentView.addGestureRecognizer(longTapGesture!)
             }
-            needAnimateLongTapDimming = allowSqueeze
+            needAnimateLongTapDimming = true
             if allowSqueeze {
-             let delayDuration = (longTapDuration / 2)
+                let delayDuration = (longTapDuration / 2)
                 let animationDuration = 0.4
                 currentShadowDescriptor = layer.getShadowDescriptor()
                 delay(delayDuration) { [weak self] in
