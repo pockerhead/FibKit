@@ -305,15 +305,21 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 	}
 	
 	public struct LongTapContext {
-		public init(longTapDuration: TimeInterval = 0.6, longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil, longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil) {
+        public init(longTapDuration: TimeInterval = 0.6,
+                    longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil,
+                    longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)? = nil,
+                    allowSqueeze: Bool = true
+        ) {
 			self.longTapDuration = longTapDuration
 			self.longTapStarted = longTapStarted
 			self.longTapEnded = longTapEnded
+            self.allowSqueeze = allowSqueeze
 		}
 		
         public private(set) var longTapDuration: TimeInterval = 0.6
         public private(set) var longTapStarted: ((UIGestureRecognizer, FibCoreView) -> Void)?
         public private(set) var longTapEnded: ((UIGestureRecognizer, FibCoreView) -> Void)?
+        public private(set) var allowSqueeze: Bool = true
     }
     
 	public struct Menu {
