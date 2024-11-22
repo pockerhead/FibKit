@@ -78,6 +78,7 @@ open class FibCoreView: UIView,
 	private(set) public var corneredOnSwipe = true
     private var onDissappearClosure: ((UIView) -> Void)?
     private var highlight: FibCoreViewModel.HighLight = .squeeze
+    private var allowSqueeze: Bool = true
     open var getSizeClosure: ((CGSize) -> Void)?
     public weak var data: FibCoreViewModel?
     private lazy var _contentViewBackgroundColor: UIColor? = contentView.backgroundColor
@@ -389,6 +390,7 @@ open class FibCoreView: UIView,
         if let longTap = data.longPressContext {
             self.longTapStarted = longTap.longTapStarted
             self.longTapEnded = longTap.longTapEnded
+            self.allowSqueeze = longTap.allowSqueeze
             self.longTapGesture = .init(target: self, action: #selector(onLongPress(_:)))
             self.longTapGesture?.minimumPressDuration = longTap.longTapDuration
             self.longTapDuration = longTap.longTapDuration
@@ -439,20 +441,22 @@ open class FibCoreView: UIView,
                 contentView.addGestureRecognizer(longTapGesture!)
             }
             needAnimateLongTapDimming = true
-            let delayDuration = (longTapDuration / 2)
-            let animationDuration = 0.4
-            currentShadowDescriptor = layer.getShadowDescriptor()
-            delay(delayDuration) {[weak self] in
-                guard let self = self else { return }
-                guard self.needAnimateLongTapDimming else { return }
-                withFibSpringAnimation(duration: animationDuration) {
-                    self.transform = .init(scaleX: 0.9, y: 0.9)
-                    self.layer.applySketchShadow()
-                } completion: { compl in
-                    if compl {
-                        self.transform = .identity
+            if allowSqueeze {
+                let delayDuration = (longTapDuration / 2)
+                let animationDuration = 0.4
+                currentShadowDescriptor = layer.getShadowDescriptor()
+                delay(delayDuration) { [weak self] in
+                    guard let self = self else { return }
+                    guard self.needAnimateLongTapDimming else { return }
+                    withFibSpringAnimation(duration: animationDuration) {
+                        self.transform = .init(scaleX: 0.9, y: 0.9)
+                        self.layer.applySketchShadow()
+                    } completion: { compl in
+                        if compl {
+                            self.transform = .identity
+                        }
+                        self.layer.clearShadow()
                     }
-                    self.layer.clearShadow()
                 }
             }
         }
