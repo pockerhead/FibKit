@@ -105,6 +105,7 @@ final public class FibGrid: UIScrollView {
 	lazy var longTapGestureRecognizer: UILongPressGestureRecognizer = {
 		let tap = UILongPressGestureRecognizer()
 		tap.minimumPressDuration = 0.4
+        tap.delegate = self
 		tap.addTarget(self, action: #selector(longTap(gesture:)))
 		return tap
 	}()
