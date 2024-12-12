@@ -330,7 +330,7 @@ open class FibControllerRootView: UIView {
 			}
 		}
 	}
-	
+    
 	public func reloadNavigation() {
 		navigationConfiguration = controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
 		var needUpdateContentInsets = false
@@ -385,7 +385,28 @@ open class FibControllerRootView: UIView {
 				searchBar.placeholder = context.placeholder
 				searchBar.backgroundColor = .clear
 				searchBar.backgroundImage = UIImage()
+                
+                if let textColor = context.searchBarAppearance?.textColor {
+                    if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+                        let attributes = [NSAttributedString.Key.foregroundColor: textColor]
+                        textField.attributedPlaceholder = NSAttributedString(string: searchBar.placeholder ?? "", attributes: attributes)
+                    }
+                }
+                
+                if let font = context.searchBarAppearance?.font {
+                    if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+                        textField.font = font.withSize(12)
+                    }
+                }
+                
+                if let searchIcon = context.searchBarAppearance?.searchIcon {
+                    if let textField = searchBar.value(forKey: "searchField") as? UITextField,
+                       let leftView = textField.leftView as? UIImageView {
+                        leftView.image = searchIcon
+                    }
+                }
 			})
+            
 			if let force = context.isForceActive {
 				if force && !activeSearchBar.isFirstResponder && !isSearching {
 					isSearching = true
@@ -419,7 +440,7 @@ open class FibControllerRootView: UIView {
 								 isChangedHeaderViewModel: isChangedHeaderModel)
 		}
 	}
-	
+    
 	var searchBarHeight: CGFloat {
 		isSearching ? 0 : 66
 	}
