@@ -36,51 +36,69 @@ public extension FibControllerRootView {
 	
 	public class NavigationConfiguration {
 		
-		public class SearchContext {
-			
-			public init(
-				isForceActive: Bool? = nil,
-				placeholder: String = "Search...",
-				hideWhenScrolling: Bool = false,
-				onSearchResults: ((String?) -> Void)? = nil,
-				onSearchBegin: ((UISearchBar?) -> Void)? = nil,
-				onSearchEnd: ((UISearchBar?) -> Void)? = nil,
-				onSearchButtonClicked: ((UISearchBar?) -> Void)? = nil
-			) {
-				self.isForceActive = isForceActive
-				self.hideWhenScrolling = hideWhenScrolling
-				self.onSearchResults = onSearchResults
-				self.placeholder = placeholder
-				self.onSearchBegin = onSearchBegin
-				self.onSearchEnd = onSearchEnd
-				self.onSearchButtonClicked = onSearchButtonClicked
-			}
-			
-			public var isForceActive: Bool? = nil
-			public var hideWhenScrolling: Bool = false
-			public var placeholder: String = "Search..."
-			public var onSearchResults: ((String?) -> Void)?
-			public var onSearchBegin: ((UISearchBar?) -> Void)?
-			public var onSearchEnd: ((UISearchBar?) -> Void)?
-			public var onSearchButtonClicked: ((UISearchBar?) -> Void)?
+        public class SearchContext {
 
-		}
-		
-		public init(
-			titleViewModel: ViewModelWithViewClass? = nil,
-			largeTitleViewModel: ViewModelWithViewClass? = nil,
-			searchContext: FibControllerRootView.NavigationConfiguration.SearchContext? = nil
-		) {
-			self.titleViewModel = titleViewModel
-			self.largeTitleViewModel = largeTitleViewModel
-			self.searchContext = searchContext
-		}
-		
-		
-		public var titleViewModel: ViewModelWithViewClass? = nil
-		public var largeTitleViewModel: ViewModelWithViewClass? = nil
-		public var searchContext: SearchContext? = nil
-	}
+            public class SearchBarAppearance {
+                public init(
+                    font: UIFont? = nil,
+                    searchIcon: UIImage? = nil,
+                    textColor: UIColor? = nil
+                ) {
+                    self.font = font
+                    self.searchIcon = searchIcon
+                    self.textColor = textColor
+                }
+                
+                public var font: UIFont?
+                public var searchIcon: UIImage?
+                public var textColor: UIColor?
+            }
+
+            public init(
+                isForceActive: Bool? = nil,
+                placeholder: String = "Search...",
+                hideWhenScrolling: Bool = false,
+                onSearchResults: ((String?) -> Void)? = nil,
+                onSearchBegin: ((UISearchBar?) -> Void)? = nil,
+                onSearchEnd: ((UISearchBar?) -> Void)? = nil,
+                onSearchButtonClicked: ((UISearchBar?) -> Void)? = nil,
+                searchBarAppearance: SearchBarAppearance? = nil
+            ) {
+                self.isForceActive = isForceActive
+                self.hideWhenScrolling = hideWhenScrolling
+                self.onSearchResults = onSearchResults
+                self.placeholder = placeholder
+                self.onSearchBegin = onSearchBegin
+                self.onSearchEnd = onSearchEnd
+                self.onSearchButtonClicked = onSearchButtonClicked
+                self.searchBarAppearance = searchBarAppearance
+            }
+
+            public var isForceActive: Bool? = nil
+            public var hideWhenScrolling: Bool = false
+            public var placeholder: String = "Search..."
+            public var onSearchResults: ((String?) -> Void)?
+            public var onSearchBegin: ((UISearchBar?) -> Void)?
+            public var onSearchEnd: ((UISearchBar?) -> Void)?
+            public var onSearchButtonClicked: ((UISearchBar?) -> Void)?
+
+            public var searchBarAppearance: SearchBarAppearance?
+        }
+
+        public init(
+            titleViewModel: ViewModelWithViewClass? = nil,
+            largeTitleViewModel: ViewModelWithViewClass? = nil,
+            searchContext: FibControllerRootView.NavigationConfiguration.SearchContext? = nil
+        ) {
+            self.titleViewModel = titleViewModel
+            self.largeTitleViewModel = largeTitleViewModel
+            self.searchContext = searchContext
+        }
+
+        public var titleViewModel: ViewModelWithViewClass? = nil
+        public var largeTitleViewModel: ViewModelWithViewClass? = nil
+        public var searchContext: SearchContext? = nil
+    }
 	
 	public class Configuration {
 		public init(
