@@ -41,7 +41,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
 	}
 	
 	var contentViewBorderColor: UIColor? {
-		appearance?.contentViewBorderColor ?? FibCell.defaultAppearance.contentViewBorderColor
+		borderColor ?? appearance?.contentViewBorderColor ?? FibCell.defaultAppearance.contentViewBorderColor
 	}
     // MARK: Outlets
 
@@ -53,6 +53,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
     override public var needUserInteraction: Bool { _needUserInteraction }
     private var _additionalBackgroundColor: UIColor?
     public var needRound: Bool = true
+	var borderColor: UIColor?
     var needBlurBackground = false
     var insets: UIEdgeInsets = .zero
     var borderStyle: ViewModel.BorderStyle = .shadow
@@ -198,6 +199,7 @@ extension FibCell: FibViewHeader {
         public var needRound: Bool = true
         public var delay: TimeInterval?
         public var needBlurBackground = false
+		public private(set) var borderColor: UIColor?
         public private(set) var allowedStretchDirections: Set<StretchDirection> = []
         /// if needs squeeze animation
         public var needUserInteraction: Bool = false
@@ -244,6 +246,11 @@ extension FibCell: FibViewHeader {
             self.needRound = needRound
             return self
         }
+		
+		public func borderColor(_ color: UIColor) -> Self {
+			self.borderColor = color
+			return self
+		}
 		
 		public func disableMaskToBounds(_ isDisabled: Bool) -> Self {
 			self.disableMaskToBounds = isDisabled
@@ -325,6 +332,7 @@ extension FibCell: FibViewHeader {
         self.insets = data.insets
         self.getSize = data.getSizeClosure
         borderStyle = data.borderStyle
+		borderColor = data.borderColor
         needRound = data.needRound
         data._grid = formView
 	//	formView.provider?.animator = nil
