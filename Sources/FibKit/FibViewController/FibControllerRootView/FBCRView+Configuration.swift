@@ -106,6 +106,7 @@ public extension FibControllerRootView {
 			shutterBackground: UIColor? = nil,
 			viewBackgroundColor: UIColor? = nil,
 			shutterType: FibControllerRootView.Shutter? = nil,
+			shutterTopInset: CGFloat = .zero,
 			backgroundView: (() -> UIView?)? = nil,
 			backgroundViewInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
 			shutterShadowClosure: ((ShutterView) -> Void)? = nil,
@@ -119,6 +120,7 @@ public extension FibControllerRootView {
 			self.shutterBackground = shutterBackground
 			self.viewBackgroundColor = viewBackgroundColor
 			self.shutterType = shutterType
+			self.shutterTopInset = shutterTopInset
 			self.needFooterKeyboardSticks = needFooterKeyboardSticks
 			self.backgroundView = backgroundView
 			self.backgroundViewInsets = backgroundViewInsets
@@ -132,6 +134,7 @@ public extension FibControllerRootView {
 		public var needFooterKeyboardSticks: Bool
 		public var roundedShutterBackground: UIColor?
 		public var shutterBackground: UIColor?
+		public var shutterTopInset: CGFloat = .zero
 		public var viewBackgroundColor: UIColor?
 		public var headerBackgroundViewColor: UIColor?
 		public var headerBackgroundEffectView: (() -> UIView?)?
