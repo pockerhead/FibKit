@@ -164,7 +164,15 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		}
         if separatorViewModel != nil {
             if at % 2 != 0 {
-				if !needLastSeparator, at == numberOfItems - 1 {
+				let isLastIndex: Bool = {
+					let isBackgroundExists = backgroundViewModel != nil
+					if isBackgroundExists {
+						return at == numberOfItems - 2
+					} else {
+						return at == numberOfItems - 1
+					}
+				}()
+				if !needLastSeparator, isLastIndex {
 					view = viewSource.view(data: FormViewSpacer(0), index: at)
 				} else if let cellSeparator = dataSource.data(at: at / 2)?.separator {
 					view = viewSource.view(data: cellSeparator, index: at)
@@ -193,9 +201,20 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 				at = at - 1
 			}
 		}
+		let isLastIndex: Bool = {
+			let isBackgroundExists = backgroundViewModel != nil
+			if isBackgroundExists {
+				return at == numberOfItems - 2
+			} else {
+				return at == numberOfItems - 1
+			}
+		}()
         if separatorViewModel != nil {
             if at % 2 != 0 {
-                if let cellSeparator = dataSource.data(at: at / 2)?.separator {
+				if !needLastSeparator, isLastIndex {
+					viewSource.update(view: view as! ViewModelConfigurable, data: FormViewSpacer(0), index: at)
+					return
+				} else if let cellSeparator = dataSource.data(at: at / 2)?.separator {
                     viewSource.update(view: view as! ViewModelConfigurable, data: cellSeparator, index: at)
                     return
                 }
