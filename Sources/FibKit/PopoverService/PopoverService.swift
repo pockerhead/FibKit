@@ -691,7 +691,7 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 		}
 	}
 
-	public func hideContextMenu(_ completion: (() -> Void)? = nil) {
+	public func hideContextMenu(executeOnHide: Bool = true, _ completion: (() -> Void)? = nil) {
 		guard self.hidingInProcess == false else { return }
 		self.hidingInProcess = true
 		self.contextView?.isHidden = false
@@ -738,7 +738,9 @@ public final class PopoverServiceInstance: NSObject, UITraitEnvironment {
 				guard let self = self else { return }
 				self.contextMenu.transform = .identity
 				self.contextViewSnapshot?.removeFromSuperview()
-				onHideAction?()
+				if executeOnHide {
+					onHideAction?()
+				}
 				self.isMenuOpen = false
 				completion?()
 				self.completion?()
