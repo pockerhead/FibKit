@@ -6,35 +6,18 @@ public final class FibSUIView<Content: View>: FibCoreView {
 	
 	private var suiContentView: (UIView & UIContentView)!
 	
-	public override func configureUI() {
-		super.configureUI()
-	}
-	
-	public override func layoutSubviews() {
-		super.layoutSubviews()
-		suiContentView.frame = contentView.frame
-	}
-	
-	public override func sizeWith(_ targetSize: CGSize, data: (any ViewModelWithViewClass)?, horizontal: UILayoutPriority, vertical: UILayoutPriority) -> CGSize? {
-		guard let data = data as? FibSUIViewModel<Content> else { return .zero }
-		configure(with: data)
-		return suiContentView.systemLayoutSizeFitting(
-			targetSize,
-			withHorizontalFittingPriority: horizontal,
-			verticalFittingPriority: vertical
-		)
-	}
-	
 	public override func configure(with data: (any ViewModelWithViewClass)?) {
 		super.configure(with: data)
 		guard let data = data as? FibSUIViewModel<Content> else { return }
 		let config = UIHostingConfiguration(content: { data.content })
 			.margins(.all, 0)
-		if let view = suiContentView {
+		if let view = suiContentView, view.supports(config) {
 			view.configuration = config
 		} else {
+			suiContentView?.removeFromSuperview()
 			suiContentView = config.makeContentView()
 			contentView.addSubview(suiContentView)
+			suiContentView.fillSuperview()
 		}
 	}
 }

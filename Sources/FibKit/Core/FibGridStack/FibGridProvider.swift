@@ -154,7 +154,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		var view: UIView
 		var at = at
 		if let backgroundViewModel {
-			if at == 0 {
+			if at == 0, backgroundViewRef == nil {
 				let view = viewSource.view(data: backgroundViewModel, index: at)
 				backgroundViewRef = view as? FibSectionBackgroundView
 				return view
@@ -195,12 +195,14 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		var at = at
 		if let backgroundViewModel {
 			if at == 0 {
+				backgroundViewRef = view as? FibSectionBackgroundView
 				viewSource.update(view: view as! ViewModelConfigurable, data: backgroundViewModel, index: at)
 				return
 			} else {
 				at = at - 1
 			}
 		}
+		(view as? FibCoreView)?.setMaskView(backgroundViewRef)
 		let isLastIndex: Bool = {
 			let isBackgroundExists = backgroundViewModel != nil
 			if isBackgroundExists {
