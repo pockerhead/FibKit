@@ -98,8 +98,6 @@ public class FibHStackView: FibCoreView {
 		}
 		
 		grid.isUserInteractionEnabled = !data.interactive
-		contentView.isUserInteractionEnabled = data.interactive
-		self.isUserInteractionEnabled = data.interactive
     }
     
     // MARK: - Private

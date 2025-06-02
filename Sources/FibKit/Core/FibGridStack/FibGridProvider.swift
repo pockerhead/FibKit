@@ -154,7 +154,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		var view: UIView
 		var at = at
 		if let backgroundViewModel {
-			if at == 0, backgroundViewRef == nil {
+			if at == 0 {
 				let view = viewSource.view(data: backgroundViewModel, index: at)
 				backgroundViewRef = view as? FibSectionBackgroundView
 				return view

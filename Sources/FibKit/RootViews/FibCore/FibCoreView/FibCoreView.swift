@@ -286,7 +286,9 @@ open class FibCoreView: UIView,
 	}
 	
 	func maskIfNeeded() {
-		guard let relativeMaskFrame = fb_maskView?.maskBackgroundView.superview?.convert(fb_maskView?.maskBackgroundView.frame ?? .zero, to: self) else {
+		guard let relativeMaskFrame = fb_maskView?.maskBackgroundView.superview?.convert(fb_maskView?.maskBackgroundView.frame ?? .zero, to: self),
+			  relativeMaskFrame != .zero,
+			  relativeMaskFrame.size != .zero else {
 			return
 		}
 		let maskLayer = CALayer()
