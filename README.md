@@ -15,7 +15,7 @@ FibKit is a Swift library that brings a SwiftUI‑like declarative syntax to UIK
 The package can be added to your project using the Swift Package Manager. In your `Package.swift` add FibKit as a dependency:
 
 ```swift
-.package(url: "https://github.com/your-org/FibKit.git", from: "0.1.0")
+.package(url: "https://github.com/pockerhead/FibKit.git", from: "0.1.0")
 ```
 
 Then include `FibKit` in your target dependencies:
