@@ -120,3 +120,41 @@ func reloadContent() {
 ```
 
 `FibViewController` gives you a flexible way to compose screens using sections. Use `SectionStack` for grouping, `ForEachSection` for dynamic data and `storedBody` when you need to overwrite the entire layout.
+
+## Controller Configuration
+
+`FibViewController` can be customized with the `Configuration` struct which has two parts:
+
+- `viewConfiguration` – appearance of the root `FibControllerRootView` such as background colors, shutter behaviour and keyboard handling.
+- `navigationConfiguration` – content of the navigation bar including titles and search options.
+
+### `viewConfiguration` fields
+
+- `viewBackgroundColor` – main background color.
+- `shutterType` – shutter style (`.default` or `.rounded`).
+- `shutterBackground` – color for the `.default` shutter.
+- `roundedShutterBackground` – color for the `.rounded` shutter.
+- `shutterTopInset` – additional space above the shutter.
+- `backgroundView` – closure returning a custom background view.
+- `backgroundViewInsets` – insets for that background view.
+- `headerBackgroundViewColor` – header background color.
+- `headerBackgroundEffectView` – effect view used behind the header.
+- `shutterShadowClosure` – configure a custom shadow for the shutter.
+- `topInsetStrategy` – how the top inset is calculated (`safeArea`, `statusBar`, `top`, `custom`).
+- `needFooterKeyboardSticks` – whether the footer sticks to the keyboard.
+- `footerBackgroundViewColor` – footer background color.
+
+### `navigationConfiguration` fields
+
+- `titleViewModel` – view model of the navigation title.
+- `largeTitleViewModel` – view model for the large title.
+- `searchContext` – search bar options:
+  - `isForceActive` – keep the search bar always active.
+  - `placeholder` – placeholder text.
+  - `hideWhenScrolling` – hide the search bar when scrolling.
+  - `onSearchResults` – callback for text changes.
+  - `onSearchBegin` / `onSearchEnd` – callbacks on begin/end editing.
+  - `onSearchButtonClicked` – callback when the Search button is pressed.
+  - `searchBarAppearance` – font, icon and text color of the search bar.
+
+You can modify `FibViewController.defaultConfiguration` once on startup or override it per controller. To apply changes at runtime set `storedConfiguration` and call `reload()`.
