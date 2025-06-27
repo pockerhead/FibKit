@@ -42,6 +42,9 @@ FibKit — это библиотека Swift, которая переносит 
 
 О создании горизонтальных рядов с помощью EmbedCollection можно прочитать в [документации по EmbedCollection](Sources/FibKit/RootViews/EmbedCollection/Doc.md).
 
+Документация по базовому представлению находится в файле
+[FibCoreView](Sources/FibKit/RootViews/FibCore/FibCoreView/Doc.md).
+
 ## Сборка и тесты
 
 Собрать пакет из командной строки можно так:
