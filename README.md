@@ -36,6 +36,12 @@ You can also open the **FibExampleApp** Xcode project located in `FibExampleApp/
 - `Tests/` – Unit tests
 - `FibExampleApp/` – Example iOS application
 
+## Documentation
+
+For a hands‑on guide to building controllers with sections, see the
+[FibViewController examples](Sources/FibKit/FibViewController/Doc.md).
+The document covers static sections, dynamic lists and common modifiers.
+
 ## Building and Testing
 
 To build the package from the command line run:
