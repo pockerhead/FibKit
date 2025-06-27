@@ -47,6 +47,9 @@ The document covers static sections, dynamic lists and common modifiers.
 See the [EmbedCollection guide](Sources/FibKit/RootViews/EmbedCollection/Doc.en.md)
 for embedding horizontal rows inside a flow layout screen.
 
+For details on the base reusable view see the
+[FibCoreView guide](Sources/FibKit/RootViews/FibCore/FibCoreView/Doc.en.md).
+
 ## Building and Testing
 
 To build the package from the command line run:
