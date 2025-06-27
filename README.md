@@ -50,6 +50,12 @@ Run the test suite with:
 swift test
 ```
 
+## Documentation
+
+Additional usage examples for `FibViewController`, including static and dynamic
+sections, can be found in
+[Sources/FibKit/FibViewController/Doc.md](Sources/FibKit/FibViewController/Doc.md).
+
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or pull requests if you encounter problems or have improvements.
