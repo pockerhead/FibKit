@@ -44,6 +44,9 @@ For a hands‑on guide to building controllers with sections, see the
 [FibViewController examples](Sources/FibKit/FibViewController/Doc.en.md).
 The document covers static sections, dynamic lists and common modifiers.
 
+See the [EmbedCollection guide](Sources/FibKit/RootViews/EmbedCollection/Doc.en.md)
+for embedding horizontal rows inside a flow layout screen.
+
 ## Building and Testing
 
 To build the package from the command line run:
