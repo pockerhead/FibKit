@@ -2,6 +2,8 @@
 
 FibKit is a Swift library that brings a SwiftUI‑like declarative syntax to UIKit. It allows you to build complex asynchronous user interfaces while retaining full control over UIKit components. The package supports iOS 13 and higher and can be integrated using Swift Package Manager.
 
+For a Russian version of this document see [README.ru.md](README.ru.md).
+
 ## Features
 
 - SwiftUI style interface code with function builders
@@ -39,7 +41,7 @@ You can also open the **FibExampleApp** Xcode project located in `FibExampleApp/
 ## Documentation
 
 For a hands‑on guide to building controllers with sections, see the
-[FibViewController examples](Sources/FibKit/FibViewController/Doc.md).
+[FibViewController examples](Sources/FibKit/FibViewController/Doc.en.md).
 The document covers static sections, dynamic lists and common modifiers.
 
 ## Building and Testing
