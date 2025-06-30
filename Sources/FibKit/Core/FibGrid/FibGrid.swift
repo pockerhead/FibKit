@@ -13,6 +13,8 @@ import Collections
 // swiftlint:disable all
 final public class FibGrid: UIScrollView {
 	
+	public static var isExperimentalAsyncConcurrencyBasedLayoutEnabled = true
+	
 	public enum ScrollDirection {
 		case vertical
 		case horizontal
@@ -113,7 +115,6 @@ final public class FibGrid: UIScrollView {
 		let link = CADisplayLink(target: self, selector: #selector(scrollWhenDragIfNeeded))
 		return link
 	}()
-	lazy var collectionViewLayoutQueue = DispatchQueue(label: "com.pockerhead.collectionViewLayoutQueue_\(ObjectIdentifier(self))", qos: .userInitiated)
 	public weak var swiftUIUIView: FibGrid?
 	/// optional view that contains formView
 	weak var containedRootView: FibControllerRootView?
@@ -300,11 +301,11 @@ final public class FibGrid: UIScrollView {
 		flattenedProvider = (provider ?? EmptyCollectionProvider()).flattenedProvider()
 		isReloading = true
 		let size = self.innerSize
-		let needTestAsyncFibGrid = true
-		if needTestAsyncFibGrid == false, self.isAsync {
-			collectionViewLayoutQueue.async {
+		if FibGrid.isExperimentalAsyncConcurrencyBasedLayoutEnabled,
+			self.isAsync {
+			Task.detached {
 				self.flattenedProvider.layout(collectionSize: size)
-				delay {
+				await MainActor.run {
 					self.reloadAfterLayout(contentOffsetAdjustFn: contentOffsetAdjustFn)
 				}
 			}
@@ -359,7 +360,7 @@ final public class FibGrid: UIScrollView {
 				newIndexes.last != visibleIndexes.last ||
 				newIndexes != visibleIndexes else {
 			let visibleFrameLessInset = visibleFrameLessInset
-			collectionViewLayoutQueue.async {[weak self] in
+			Task.detached {[weak self] in
 				guard let self = self else { return }
 				for (cell, frame) in zip(self.visibleIdsToCells.values, visibleFrames) {
 					appearSubviewIfNeeded(cell,
