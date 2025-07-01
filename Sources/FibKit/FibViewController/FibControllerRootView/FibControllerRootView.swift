@@ -336,6 +336,7 @@ open class FibControllerRootView: UIView {
 	}
     
 	public func reloadNavigation() {
+		guard bounds.size != .zero else { return }
 		navigationConfiguration = controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
 		var needUpdateContentInsets = false
 		var isChangedHeaderHeight = false
@@ -456,14 +457,20 @@ open class FibControllerRootView: UIView {
 			if rootFormView.refreshControl != nil {
 				scrollViewShift = max(0.01, scrollViewShift)
 			}
-			if let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
+			if bounds.size != .zero,
+			   let largeTitleViewModel = navigationConfiguration?.largeTitleViewModel {
 				let height = headerSizeSource.size(
 					at: 0,
 					data: largeTitleViewModel,
 					collectionSize: bounds.size,
 					dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
-					direction: .vertical).height
-				self.largeViewRef?.frame = .init(origin: .init(x: 0.01, y: 0.01 - scrollViewShift), size: .init(width: bounds.width, height: height))
+					direction: .vertical,
+					cacheKeyIncludesCollectionSize: true
+				).height
+				UIView.performWithoutAnimation {
+					self.largeViewRef?.frame = .init(origin: .init(x: 0.01, y: 0.01 - scrollViewShift), size: .init(width: bounds.width, height: height))
+				}
+				
 				if !isSearching, (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
 					controller?.setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
 				} else if !isSearching {
@@ -527,7 +534,9 @@ open class FibControllerRootView: UIView {
 				data: largeTitleViewModel,
 				collectionSize: bounds.size, 
 				dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
-				direction: .vertical).height
+				direction: .vertical,
+				cacheKeyIncludesCollectionSize: true
+			).height
 			searchBarHeight = 12
 		}
 		if let context = navigationConfiguration.searchContext {
@@ -704,7 +713,8 @@ open class FibControllerRootView: UIView {
 			data: headerViewModel,
 			collectionSize: targetSize,
 			dummyView: headerViewSource.getDummyView(data: headerViewModel) as! ViewModelConfigurable,
-			direction: .vertical
+			direction: .vertical,
+			cacheKeyIncludesCollectionSize: true
 		).height
 		needsConfigureHeader = true
 		var isChangedHeaderHeight = false

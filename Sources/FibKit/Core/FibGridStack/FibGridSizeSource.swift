@@ -18,14 +18,20 @@ public final class FibGridSizeSource {
 	
 	var cachedSizes: [String: CGSize] = [:]
 	
-	func size(at index: Int,
-			  data: ViewModelWithViewClass?,
-			  collectionSize: CGSize,
-			  dummyView: ViewModelConfigurable,
-			  direction: FibGrid.ScrollDirection) -> CGSize {
+	func size(
+		at index: Int,
+		data: ViewModelWithViewClass?,
+		collectionSize: CGSize,
+		dummyView: ViewModelConfigurable,
+		direction: FibGrid.ScrollDirection,
+		cacheKeyIncludesCollectionSize: Bool = false
+	) -> CGSize {
 		var nonNilIdentifier = "\(dummyView.self.className)_sizeAt-\(index)_withId-\(data?.id ?? "noID")"
 		if #unavailable(iOS 16) {
 			nonNilIdentifier = "\(dummyView.self.className)_sizeAt-\(index)_withId-\(data?.id ?? "noID")-\(UIDevice.current.orientation.rawValue)"
+		}
+		if cacheKeyIncludesCollectionSize {
+			nonNilIdentifier += "colSize-\(collectionSize)"
 		}
 		let hashToFindCachedSize = (data?.sizeHash ?? "") + nonNilIdentifier
 		let forcedNoStoreSize = data?.sizeHash == _fHashToNoStoreSize
