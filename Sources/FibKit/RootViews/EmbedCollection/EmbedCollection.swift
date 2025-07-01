@@ -83,6 +83,7 @@ public class EmbedCollection: UICollectionViewCell, StickyHeaderView, UIScrollVi
 		formView.showsHorizontalScrollIndicator = false
 		formView.clipsToBounds = false
 		formView.layer.masksToBounds = false
+		formView.isAsync = false
 		contentView.clipsToBounds = false
 		contentView.layer.masksToBounds = false
 		clipsToBounds = false

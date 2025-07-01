@@ -12,9 +12,13 @@ import UIKit
 open class ComposedProvider: SectionProvider, LayoutableProvider, CollectionReloadable {
   public var description: String {String(describing: ComposedProvider.self)}
   open var identifier: String?
-  open var sections: [Provider] { didSet { setNeedsReload() } }
-  open var animator: Animator? { didSet { setNeedsReload() } }
-  open var layout: Layout { didSet { setNeedsInvalidateLayout() } }
+  open var sections: [Provider] { didSet {
+	  Task {@MainActor in
+		  setNeedsReload()
+	  }
+  } }
+	open var animator: Animator? { didSet { Task {@MainActor in setNeedsReload()} } }
+	open var layout: Layout { didSet { Task{@MainActor in setNeedsInvalidateLayout()} } }
 
   public init(identifier: String? = nil,
               layout: Layout = FlowLayout(),

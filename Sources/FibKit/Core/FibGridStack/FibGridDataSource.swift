@@ -20,8 +20,10 @@ open class FibGridDataSource: CollectionReloadable {
 		didSet {
 			guard needReloadAfterDataChange else { return }
 			reloadDebouncer.runDebouncedTask {[weak self] in
-				guard let self = self else { return }
-				self.setNeedsReload()
+				Task {@MainActor in
+					guard let self = self else { return }
+					self.setNeedsReload()
+				}
 			}
 		}
     }
@@ -34,7 +36,7 @@ open class FibGridDataSource: CollectionReloadable {
 
     public var identifierMapper: FormViewIdentifierMapperFn {
         didSet {
-            setNeedsReload()
+			Task{@MainActor in setNeedsReload()}
         }
     }
 

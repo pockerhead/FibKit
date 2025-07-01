@@ -14,11 +14,11 @@ open class BasicProvider<Data, View: UIView>: ItemProvider, LayoutableProvider, 
 	
 
   open var identifier: String?
-  open var dataSource: DataSource<Data> { didSet { setNeedsReload() } }
-  open var viewSource: ViewSource<Data, View> { didSet { setNeedsReload() } }
-  open var sizeSource: SizeSource<Data> { didSet { setNeedsInvalidateLayout() } }
-  open var layout: Layout { didSet { setNeedsInvalidateLayout() } }
-  open var animator: Animator? { didSet { setNeedsReload() } }
+	open var dataSource: DataSource<Data> { didSet { Task{@MainActor in setNeedsReload()} } }
+	open var viewSource: ViewSource<Data, View> { didSet { Task{@MainActor in setNeedsReload()} } }
+	open var sizeSource: SizeSource<Data> { didSet { Task{@MainActor in setNeedsInvalidateLayout()} } }
+	open var layout: Layout { didSet { Task{@MainActor in setNeedsInvalidateLayout()} } }
+	open var animator: Animator? { didSet { Task{@MainActor in setNeedsReload()} } }
   open var tapHandler: TapHandler?
 
   public typealias TapHandler = (TapContext) -> Void
@@ -33,7 +33,7 @@ open class BasicProvider<Data, View: UIView>: ItemProvider, LayoutableProvider, 
     }
 
     public func setNeedsReload() {
-      dataSource.setNeedsReload()
+		Task {@MainActor in dataSource.setNeedsReload()}
     }
   }
 

@@ -21,11 +21,11 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
             GridsReuseManager.shared.layouts[identifier ?? ""] = layout
         }
     }
-    public var dataSource: FibGridDataSource { didSet { setNeedsReload() } }
-    public var viewSource: FibGridViewSource { didSet { setNeedsReload() } }
-    public var sizeSource: FibGridSizeSource { didSet { setNeedsInvalidateLayout() } }
-    public var layout: Layout { didSet { setNeedsInvalidateLayout() } }
-    public var animator: Animator? { didSet { setNeedsReload() } }
+	public var dataSource: FibGridDataSource { didSet { Task{@MainActor in setNeedsReload()} } }
+	public var viewSource: FibGridViewSource { didSet { Task{@MainActor in setNeedsReload()} } }
+	public var sizeSource: FibGridSizeSource { didSet { Task{@MainActor in setNeedsInvalidateLayout()} } }
+	public var layout: Layout { didSet { Task{@MainActor in setNeedsInvalidateLayout()} } }
+	public var animator: Animator? { didSet { Task{@MainActor in setNeedsReload()} } }
 	public weak var collectionView: FibGrid? {
 		set {
 			self._collectionView = newValue
@@ -89,7 +89,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         
         /// calls setNeedReload to whole Section
         public func setNeedsReload() {
-            dataSource.setNeedsReload()
+			Task{@MainActor in dataSource.setNeedsReload()}
         }
     }
 
@@ -321,6 +321,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
 		reorderContext?.didBeginReorderSession?()
 	}
 
+	@MainActor
 	public func didLongTapContinue(context: LongGestureContext) -> CGRect? {
 		guard let intersectsView = context.intersectsCell?.cell,
 			  var intersectsIndex = context.intersectsCell?.index
@@ -357,6 +358,7 @@ open class FibGridProvider: ItemProvider, CollectionReloadable, LayoutableProvid
         return nil
     }
 
+	@MainActor
     public func didLongTapEnded(context: LongGestureContext) {
 		guard var finalIndex = context.collectionView?.draggedCell?.index.softClamp(0, dataSource.numberOfItems - 1) else {
             return

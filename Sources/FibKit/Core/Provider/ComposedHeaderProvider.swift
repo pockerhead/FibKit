@@ -25,26 +25,44 @@ open class ComposedHeaderProvider<HeaderView: UIView>:
     open var identifier: String?
 
     open var sections: [Provider] {
-        didSet { setNeedsReload() }
-    }
+        didSet {
+			Task {@MainActor in
+				setNeedsReload()
+			}
+		}
+	}
+	
+	open var animator: Animator? {
+		didSet {
+			Task {@MainActor in
+				setNeedsReload()
+			}
+		}
+	}
 
-    open var animator: Animator? {
-        didSet { setNeedsReload() }
-    }
-
-    open var headerViewSource: HeaderViewSource {
-        didSet { setNeedsReload() }
-    }
+	open var headerViewSource: HeaderViewSource {
+		didSet {
+			Task {@MainActor in
+				setNeedsReload()
+			}
+		}
+	}
 
     open var headerSizeSource: HeaderSizeSource {
-        didSet { setNeedsInvalidateLayout() }
+        didSet {
+			Task {@MainActor in
+				setNeedsInvalidateLayout()
+			}
+		}
     }
 
     open var layout: Layout {
         get { return stickyLayout.rootLayout }
         set {
             stickyLayout.rootLayout = newValue
-            setNeedsInvalidateLayout()
+			Task {@MainActor in
+				setNeedsInvalidateLayout()
+			}
         }
     }
 
@@ -55,7 +73,9 @@ open class ComposedHeaderProvider<HeaderView: UIView>:
             } else {
                 stickyLayout.isStickyFn = { _ in false }
             }
-            setNeedsReload()
+			Task {@MainActor in
+				setNeedsReload()
+			}
         }
     }
 

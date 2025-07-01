@@ -46,7 +46,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
                 updateSetNeedsReloadTask()
             } else {
                 self._canReorderItems = sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
-                setNeedsReload()
+				Task {@MainActor in setNeedsReload()}
             }
         }
     }
@@ -55,7 +55,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
 		reloadDebouncer.runDebouncedTask {[weak self] in
 			guard let self = self else { return }
 			self._canReorderItems = self.sections.reduce(false, { $0 || (($1 as? ViewModelSection)?.haveDidReorderSectionsClosure ?? false) })
-			self.setNeedsReload()
+			Task{@MainActor in self.setNeedsReload()}
 		}
     }
 
@@ -64,7 +64,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             if isAsync {
                 updateSetNeedsReloadTask()
             } else {
-                setNeedsReload()
+				Task{@MainActor in setNeedsReload()}
             }
         }
     }
@@ -74,21 +74,21 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             if isAsync {
                 updateSetNeedsReloadTask()
             } else {
-                setNeedsReload()
+				Task{@MainActor in setNeedsReload()}
             }
         }
     }
     var didReloadClosure: (() -> Void)?
 
     open var headerSizeSource: HeaderSizeSource = FibGridSizeSource() {
-        didSet { setNeedsInvalidateLayout() }
+		didSet { Task{@MainActor in setNeedsInvalidateLayout()} }
     }
 
     open var layout: Layout {
         get { return stickyLayout.rootLayout }
         set {
             stickyLayout.rootLayout = newValue
-            setNeedsInvalidateLayout()
+			Task{@MainActor in setNeedsInvalidateLayout()}
         }
     }
 
@@ -115,7 +115,7 @@ SectionProvider, ItemProvider, LayoutableProvider, CollectionReloadable {
             if isAsync {
                 updateSetNeedsReloadTask()
             } else {
-                setNeedsReload()
+				Task{@MainActor in setNeedsReload()}
             }
         }
     }

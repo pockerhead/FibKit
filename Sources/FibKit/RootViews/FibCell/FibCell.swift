@@ -95,6 +95,7 @@ public final class FibCell: RoundedCell, StickyHeaderView {
         formView.layer.cornerRadius = 12
         formView.clipsToBounds = true
         formView.layer.masksToBounds = true
+		formView.isAsync = false
         contentView.addSubview(blurView)
         contentView.sendSubviewToBack(blurView)
 		contentView.sendSubviewToBack(topShadowStick)
@@ -181,10 +182,10 @@ extension FibCell: FibViewHeader {
         }
         weak var _grid: FibGrid?
         public func setNeedsReload() {
-            _grid?.setNeedsReload()
+			Task {@MainActor in _grid?.setNeedsReload()}
         }
         public func reloadData() {
-            _grid?.reloadData(contentOffsetAdjustFn: nil)
+			Task {@MainActor in _grid?.reloadData(contentOffsetAdjustFn: nil)}
         }
         
         /// Sections for inner FormView, work equally that default FormView
@@ -221,6 +222,7 @@ extension FibCell: FibViewHeader {
         
         /// Inits ViewModel with declarative sections
         /// - Parameter sections: Sections for inner FormView
+		@MainActor
 		public func update(provider: Provider?) {
             self.provider = provider
             _grid?.provider = provider

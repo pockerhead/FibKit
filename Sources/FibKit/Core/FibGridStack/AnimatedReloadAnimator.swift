@@ -57,6 +57,7 @@ public class AnimatedReloadAnimator: Animator {
 		super.init()
 	}
 	
+	@MainActor
 	override open func delete(collectionView: FibGrid, view: UIView) {
 		if collectionView.isReloading, collectionView.bounds.intersects(view.frame) {
 			let initialTransform = view.transform
@@ -81,6 +82,7 @@ public class AnimatedReloadAnimator: Animator {
 		}
 	}
 	
+	@MainActor
 	override open func insert(collectionView: FibGrid, view: UIView, at: Int, frame: CGRect) {
 		view.bounds = frame.bounds
 		view.center = frame.center

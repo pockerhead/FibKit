@@ -59,6 +59,7 @@ final class GridsReuseManager {
 	}
 }
 
+@MainActor
 struct FibGridPassthroughHelper {
 	static func nestedInteractiveViews(in view: UIView, contain point: CGPoint, convertView: UIView) -> Bool {
 		if let formView = view as? FibGrid,

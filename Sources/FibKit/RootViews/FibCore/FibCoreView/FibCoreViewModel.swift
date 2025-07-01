@@ -348,7 +348,7 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		public static var card: HighLight {
 			.custom(closure: { view, highlighted in
 				guard view.isUserInteractionEnabled else { return }
-				Task {@MainActor in
+				Task { @MainActor in
 					view.highlightSqueeze(highlighted: highlighted)
 					UIView.animate(withDuration: highlighted ? view.squeezeDownDuration : view.squeezeUpDuration) {
 						if highlighted {
