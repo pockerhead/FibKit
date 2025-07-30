@@ -106,6 +106,7 @@ open class FibControllerRootView: UIView {
 	private var navItemTitleView: UIView?
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
+    private var isOpeningSearch = false
 			
 	internal var _headerInitialHeight: CGFloat?
 	var _headerViewModel: FibViewHeaderViewModel?
@@ -875,6 +876,7 @@ open class FibControllerRootView: UIView {
 	}
 	
 	public func beginSearch() {
+        isOpeningSearch = true
 		if let leftBarButtonItems = controller?.navigationItem.leftBarButtonItems {
 			navItemLeftItemsRef = leftBarButtonItems
 		} else if let single = controller?.navigationItem.leftBarButtonItem {
@@ -967,6 +969,20 @@ extension FibControllerRootView: UISearchBarDelegate {
 			endSearch()
 		}
 	}
+    
+    public func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        if isOpeningSearch {
+            isOpeningSearch = false
+            return true
+        }
+        if searchBar === activeSearchBar,
+           isSearching,
+           !activeSearchBar.isFirstResponder {
+            searchBarCancelButtonClicked(searchBar)
+            return false
+        }
+        return true
+    }
 	
 	public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
 		guard searchBar === inactiveSearchBar else { return }
