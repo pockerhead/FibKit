@@ -13,13 +13,13 @@ open class ClosureDataSource<Data>: DataSource<Data> {
 
   open var getter: () -> [Data] {
     didSet {
-		Task{@MainActor in setNeedsReload()}
+      setNeedsReload()
     }
   }
 
   open var identifierMapper: IdentifierMapperFn<Data> {
     didSet {
-		Task{@MainActor in setNeedsReload()}
+      setNeedsReload()
     }
   }
 

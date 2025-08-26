@@ -22,11 +22,11 @@ open class SimpleViewSizeSource: SizeSource<UIView>, CollectionReloadable {
     }
 
     open var sizeStrategy: (width: ViewSizeStrategy, height: ViewSizeStrategy) {
-		didSet { Task{@MainActor in setNeedsInvalidateLayout()} }
+        didSet { setNeedsInvalidateLayout() }
     }
 
     open var sizeStrategyOverride: [UIView: (width: ViewSizeStrategy, height: ViewSizeStrategy)] = [:] {
-		didSet { Task{@MainActor in setNeedsInvalidateLayout()} }
+        didSet { setNeedsInvalidateLayout() }
     }
 
     open override func size(at index: Int, data: UIView, collectionSize: CGSize) -> CGSize {

@@ -11,10 +11,9 @@ import Combine
 import Threading
 import Collections
 // swiftlint:disable all
-@MainActor
 final public class FibGrid: UIScrollView {
 	
-	public static var isExperimentalConcurrencyBasedAsyncLayoutEnabled = true
+	public static var isExperimentalAsyncConcurrencyBasedLayoutEnabled = true
 	
 	public enum ScrollDirection {
 		case vertical
@@ -26,7 +25,7 @@ final public class FibGrid: UIScrollView {
 		var index: Int
 		var identifier: String?
 	}
-	public static nonisolated(unsafe) var defaultCustomScrollClosure: ((CGPoint, CGFloat) -> Void)?
+	public static var defaultCustomScrollClosure: ((CGPoint, CGFloat) -> Void)?
 	public var animator: Animator = AnimatedReloadAnimator() {didSet { setNeedsReload() }}
 	public var needExpandedHeight = false
 	public var needExpandedWidth = false
@@ -302,10 +301,10 @@ final public class FibGrid: UIScrollView {
 		flattenedProvider = (provider ?? EmptyCollectionProvider()).flattenedProvider()
 		isReloading = true
 		let size = self.innerSize
-		if FibGrid.isExperimentalConcurrencyBasedAsyncLayoutEnabled,
+		if FibGrid.isExperimentalAsyncConcurrencyBasedLayoutEnabled,
 			self.isAsync {
 			Task.detached {
-				await self.flattenedProvider.layout(collectionSize: size)
+				self.flattenedProvider.layout(collectionSize: size)
 				await MainActor.run {
 					self.reloadAfterLayout(contentOffsetAdjustFn: contentOffsetAdjustFn)
 				}
@@ -363,10 +362,10 @@ final public class FibGrid: UIScrollView {
 			let visibleFrameLessInset = visibleFrameLessInset
 			Task.detached {[weak self] in
 				guard let self = self else { return }
-				for (cell, frame) in await zip(self.visibleIdsToCells.values, visibleFrames) {
-					await appearSubviewIfNeeded(cell,
-												cellFrame: frame,
-												visibleFrameLessInset: visibleFrameLessInset)
+				for (cell, frame) in zip(self.visibleIdsToCells.values, visibleFrames) {
+					appearSubviewIfNeeded(cell,
+										  cellFrame: frame,
+										  visibleFrameLessInset: visibleFrameLessInset)
 				}
 			}
 			return

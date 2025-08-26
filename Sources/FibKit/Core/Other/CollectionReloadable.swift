@@ -16,7 +16,7 @@ public protocol CollectionReloadable: AnyObject {
 }
 
 extension CollectionReloadable {
-	@MainActor public var collectionView: FibGrid? {
+	public var collectionView: FibGrid? {
 		get {
 			return CollectionViewManager.shared.collectionView(for: self)
 		}
@@ -24,13 +24,13 @@ extension CollectionReloadable {
 			()
 		}
 	}
-	@MainActor public func reloadData() {
+	public func reloadData() {
 		collectionView?.reloadData()
 	}
-	@MainActor public func setNeedsReload() {
+	public func setNeedsReload() {
 		collectionView?.setNeedsReload()
 	}
-	@MainActor public func setNeedsInvalidateLayout() {
+	public func setNeedsInvalidateLayout() {
 		collectionView?.setNeedsInvalidateLayout()
 	}
 }
@@ -47,7 +47,7 @@ internal class CollectionViewManager {
 		collectionViews.add(collectionView)
 	}
 	
-	@MainActor func collectionView(for reloadable: CollectionReloadable) -> FibGrid? {
+	func collectionView(for reloadable: CollectionReloadable) -> FibGrid? {
 		for collectionView in collectionViews.allObjects {
 			if let provider = collectionView.provider, provider.hasReloadable(reloadable) {
 				return collectionView

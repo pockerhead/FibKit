@@ -15,13 +15,13 @@ open class ArrayDataSource<Data>: DataSource<Data> {
 
   open var data: [Data] {
     didSet {
-		Task{@MainActor in setNeedsReload()}
+      setNeedsReload()
     }
   }
 
   open var identifierMapper: IdentifierMapperFn<Data> {
     didSet {
-		Task{@MainActor in setNeedsReload()}
+      setNeedsReload()
     }
   }
 
