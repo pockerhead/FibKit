@@ -28,9 +28,7 @@ extension UICollectionView {
 extension ViewModelConfigurable where Self: UIView {
 
     public static func fromDequeuer() -> Self? {
-		mainOrSync {
-			CollectionViewDequeuer.shared.dequeueReusableCell(viewClass: Self.self) as? Self
-		}
+        CollectionViewDequeuer.shared.dequeueReusableCell(viewClass: Self.self) as? Self
     }
 }
 

@@ -213,10 +213,7 @@ open class FibCoreView: UIView,
                     withHorizontalFittingPriority: horizontal,
                     verticalFittingPriority: vertical
                 )
-			mainOrSync {[weak self] in
-				guard let self = self else { return }
-				getSizeClosure?(autoSize)
-			}
+            getSizeClosure?(autoSize)
             return autoSize
         }
         var autoSize: CGSize = .zero
@@ -255,10 +252,7 @@ open class FibCoreView: UIView,
                 autoSize.height = value
             }
         }
-		mainOrSync {[weak self] in
-			guard let self = self else { return }
-			getSizeClosure?(autoSize)
-		}
+        getSizeClosure?(autoSize)
         return autoSize
     }
     

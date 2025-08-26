@@ -348,14 +348,12 @@ open class FibCoreViewModel: ViewModelWithViewClass, FibViewHeaderViewModel {
 		public static var card: HighLight {
 			.custom(closure: { view, highlighted in
 				guard view.isUserInteractionEnabled else { return }
-				Task {@MainActor in
-					view.highlightSqueeze(highlighted: highlighted)
-					UIView.animate(withDuration: highlighted ? view.squeezeDownDuration : view.squeezeUpDuration) {
-						if highlighted {
-							view.contentView.layer.applySketchHighlightedShadow()
-						} else {
-							view.contentView.layer.applySketchShadow()
-						}
+				view.highlightSqueeze(highlighted: highlighted)
+				UIView.animate(withDuration: highlighted ? view.squeezeDownDuration : view.squeezeUpDuration) {
+					if highlighted {
+						view.contentView.layer.applySketchHighlightedShadow()
+					} else {
+						view.contentView.layer.applySketchShadow()
 					}
 				}
 			})
