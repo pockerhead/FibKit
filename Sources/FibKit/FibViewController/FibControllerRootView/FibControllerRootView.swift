@@ -115,6 +115,10 @@ open class FibControllerRootView: UIView {
 		control.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
 		return control
 	}()
+    
+    private var searchBarTapGR: UITapGestureRecognizer?
+
+
 	
 	var cancellables: Set<AnyCancellable> = []
 	
@@ -874,6 +878,23 @@ open class FibControllerRootView: UIView {
 	@objc func refreshAction() {
 		controller?.refreshAction?()
 	}
+    
+    @objc private func handleSearchBarTap(_ gr: UITapGestureRecognizer) {
+        guard gr.state == .ended else { return }
+        guard isSearching, !activeSearchBar.isFirstResponder else { return }
+        let point = gr.location(in: activeSearchBar)
+        let cancelView = (activeSearchBar.value(forKey: "cancelButton") as? UIView)
+            ?? activeSearchBar.subviews.flatMap { $0.subviews }.first { $0 is UIButton }
+        if let cancelView {
+            let rect = cancelView.convert(cancelView.bounds, to: activeSearchBar)
+            if rect.contains(point) {
+                searchBarCancelButtonClicked(activeSearchBar)
+                return
+            }
+        }
+        isProgrammaticSearchFocus = true
+        activeSearchBar.becomeFirstResponder()
+    }
 	
 	public func beginSearch() {
         isProgrammaticSearchFocus = true
@@ -893,6 +914,12 @@ open class FibControllerRootView: UIView {
 		navItemTitleView = controller?.navigationItem.titleView
 		controller?.navigationItem.titleView = activeSearchBar
 		activeSearchBar.setShowsCancelButton(true, animated: true)
+        if searchBarTapGR == nil {
+            let g = UITapGestureRecognizer(target: self, action: #selector(handleSearchBarTap(_:)))
+            g.cancelsTouchesInView = true
+            searchBarTapGR = g
+            activeSearchBar.addGestureRecognizer(g)
+        }
 		let fadeTextAnimation = CATransition()
 		fadeTextAnimation.duration = 0.1
 		fadeTextAnimation.type = .fade
@@ -923,6 +950,10 @@ open class FibControllerRootView: UIView {
 		navItemLeftItemsRef = nil
 		navItemRightItemsRef = nil
 		navItemTitleView = nil
+        if let g = searchBarTapGR {
+            activeSearchBar.removeGestureRecognizer(g)
+            searchBarTapGR = nil
+        }
 		activeSearchBar.setShowsCancelButton(false, animated: false)
 		activeSearchBar.resignFirstResponder()
 		activeSearchBar.text = nil
@@ -978,8 +1009,12 @@ extension FibControllerRootView: UISearchBarDelegate {
         if searchBar === activeSearchBar,
            isSearching,
            !activeSearchBar.isFirstResponder {
-            searchBarCancelButtonClicked(searchBar)
-            return false
+            if let text = searchBar.text, !text.isEmpty {
+                return true
+            } else {
+                searchBarCancelButtonClicked(searchBar)
+                return false
+            }
         }
         return true
     }
