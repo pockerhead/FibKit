@@ -37,10 +37,14 @@ extension FibGrid {
 			throw(FibGridError.unableToScroll)
 		}
 		guard let indexPath = getIndexPath(for: provider, predicate: predicate) else { return }
-		try scroll(to: indexPath, animated: animated)
+		if contentSize.height <= bounds.height {
+			scrollWithLowContent(indexPath: indexPath)
+		} else {
+			try scroll(to: indexPath, animated: animated)
+		}
 	}
 	
-	private func getIndexPath(for provider: SectionProvider, predicate: ((ViewModelWithViewClass?) -> Bool)) -> IndexPath? {
+	public func getIndexPath(for provider: SectionProvider, predicate: ((ViewModelWithViewClass?) -> Bool)) -> IndexPath? {
 		var indexPath: IndexPath?
 		for (sectionIndex, provider) in provider.sections.enumerated() {
 			if indexPath != nil { break }
@@ -210,5 +214,10 @@ extension FibGrid {
 		}
 		return targetPoint
 	}
-	
+
+	private func scrollWithLowContent(indexPath: IndexPath) {
+		guard let section = (self.provider as? SectionStack)?.sections[indexPath.section] else { return }
+		guard let targetFrame = (section as? LayoutableProvider)?.layout.frame(at: indexPath.item + 1) else { return }
+		self.scrollRectToVisible(targetFrame, animated: true)
+	}
 }

@@ -670,6 +670,7 @@ open class FibControllerRootView: UIView {
 		rootFooterBackground.clipsToBounds = false
 		rootFooterBackground.layer.masksToBounds = false
 		rootFooterBackground.addSubview(footerView)
+		rootFooterBackground.needPassGesture = false
 		footerView.alpha = 1
 		footerView.needRound = false
 	}

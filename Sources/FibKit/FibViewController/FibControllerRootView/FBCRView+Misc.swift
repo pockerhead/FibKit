@@ -23,7 +23,12 @@ public class HeaderObserver: ObservableObject {
 public class ShutterView: UIView {}
 
 internal class RootGridViewBackground: UIView {
+	var needPassGesture: Bool = true
+
 	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+		if !needPassGesture {
+			return super.point(inside: point, with: event)
+		}
 		guard FibGridPassthroughHelper.nestedInteractiveViews(in: self, contain: point, convertView: self) else {
 			return false
 		}
