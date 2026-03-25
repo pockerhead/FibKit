@@ -53,6 +53,21 @@ extension UIViewController {
 }
 
 public extension UIViewController {
+	
+	func displayedNavigationItemOwner() -> UIViewController {
+		guard
+			let parent,
+			parent !== navigationController,
+			parent !== tabBarController,
+			parent.navigationController === navigationController,
+			parent.children.contains(self),
+			parent.navigationController?.topViewController === parent
+		else {
+			return self
+		}
+		return parent
+	}
+
 	func setNavbarTitleView(_ titleView: UIView?, vm: ViewModelWithViewClass?, animated: Bool = true) {
 		guard navigationItem.titleView !== titleView else { return }
 		if animated {
@@ -66,14 +81,18 @@ public extension UIViewController {
 		navigationItem.title = nil
 		navigationController?.navigationBar.setNeedsLayout()
 	}
-	
+
 	func calculateTitleViewSize(titleView: UIView?, vm: ViewModelWithViewClass?) {
 		if let titleView = titleView as? ViewModelConfigurable,
-			let vm,
-			let size = titleView.sizeWith(.init(width: CGFloat.greatestFiniteMagnitude, height: 44), data: vm, horizontal: .fittingSizeLevel, vertical: .required) {
+		   let vm,
+		   let size = titleView.sizeWith(.init(width: CGFloat.greatestFiniteMagnitude, height: 44), data: vm, horizontal: .fittingSizeLevel, vertical: .required) {
 			titleView.frame.size = .init(width: size.width, height: 44)
 		} else {
-			titleView?.frame.size = .init(width: titleView?.intrinsicContentSize.width ?? .greatestFiniteMagnitude, height: 44)
+			let intrinsicWidth = titleView?.intrinsicContentSize.width ?? UIView.noIntrinsicMetric
+			let width = intrinsicWidth == UIView.noIntrinsicMetric
+				? (titleView?.frame.width ?? .greatestFiniteMagnitude)
+				: intrinsicWidth
+			titleView?.frame.size = .init(width: width, height: 44)
 		}
 	}
 }
