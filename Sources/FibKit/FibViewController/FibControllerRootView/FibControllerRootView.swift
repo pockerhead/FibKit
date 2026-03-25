@@ -12,7 +12,7 @@ import VisualEffectView
 import Combine
 
 open class FibControllerRootView: UIView {
-		
+	
 	private var defaultConfiguration: Configuration { FibViewController.defaultConfiguration.viewConfiguration
 	}
 	// MARK: - APPEARANCE
@@ -76,7 +76,7 @@ open class FibControllerRootView: UIView {
 	private let _sizeWithFooter = FibCell()
 	private var _footerViewModel: ViewModelWithViewClass?
 	private let rootFooterBackground = RootGridViewBackground()
-
+	
 	public weak var proxyDelegate: UIScrollViewDelegate?
 	
 	public private(set) var footerHeight: CGFloat = 0
@@ -100,14 +100,21 @@ open class FibControllerRootView: UIView {
 		s.returnKeyType = .done
 		return s
 	}()
+	private lazy var activeSearchBarContainer: UIView = {
+		let view = UIView(frame: .init(x: 0, y: 0, width: 1, height: 44))
+		view.clipsToBounds = true
+		activeSearchBar.frame = view.bounds
+		activeSearchBar.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+		view.addSubview(activeSearchBar)
+		return view
+	}()
 	private lazy var inactiveSearchBar = UISearchBar()
 	private var navItemLeftItemsRef: [UIBarButtonItem]? = []
 	private var navItemRightItemsRef: [UIBarButtonItem]? = []
 	private var navItemTitleView: UIView?
 	var headerHeight: CGFloat = 0
 	var headerTopMargin: CGFloat = 0
-    private var isProgrammaticSearchFocus = false
-			
+	
 	internal var _headerInitialHeight: CGFloat?
 	var _headerViewModel: FibViewHeaderViewModel?
 	public lazy var refreshControl: UIRefreshControl = {
@@ -115,10 +122,6 @@ open class FibControllerRootView: UIView {
 		control.addTarget(self, action: #selector(refreshAction), for: .valueChanged)
 		return control
 	}()
-    
-    private var searchBarTapGR: UITapGestureRecognizer?
-
-
 	
 	var cancellables: Set<AnyCancellable> = []
 	
@@ -324,7 +327,9 @@ open class FibControllerRootView: UIView {
 	
 	private func createNavItemViewIfNeeded(titleViewModel: ViewModelWithViewClass?,forceSet: Bool = false) {
 		guard let titleViewModel = titleViewModel else {
-			navItemTitleView = nil
+			if !isSearching {
+				navItemTitleView = nil
+			}
 			return
 		}
 		if let existed = navItemTitleView as? ViewModelConfigurable,
@@ -334,12 +339,21 @@ open class FibControllerRootView: UIView {
 											   vm: titleViewModel)
 		} else {
 			navItemTitleView = titleViewModel.getView()
-			if forceSet {
-				controller?.setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
+			if forceSet && !isSearching {
+				controller?.displayedNavigationItemOwner().setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
 			}
 		}
 	}
-    
+
+	private func prepareActiveSearchTitleView() -> UIView {
+		let navBarWidth = controller?.navigationController?.navigationBar.bounds.width ?? UIScreen.main.bounds.width
+		let horizontalInset: CGFloat = 16
+		let width = max(120, navBarWidth - horizontalInset * 2)
+		activeSearchBarContainer.frame.size = .init(width: width, height: 44)
+		activeSearchBar.frame = activeSearchBarContainer.bounds
+		return activeSearchBarContainer
+	}
+	
 	public func reloadNavigation() {
 		guard bounds.size != .zero else { return }
 		navigationConfiguration = controller?.configuration?.navigationConfiguration ?? FibViewController.defaultConfiguration.navigationConfiguration
@@ -384,10 +398,12 @@ open class FibControllerRootView: UIView {
 				isChangedHeaderModel = true
 				isChangedHeaderHeight = true
 				setNeedsLayout()
-
+				
 			}
-			controller?.setNavbarTitleView(nil, vm: navigationConfiguration?.titleViewModel, animated: false)
-			navItemTitleView = nil
+			if !isSearching {
+				controller?.displayedNavigationItemOwner().setNavbarTitleView(nil, vm: navigationConfiguration?.titleViewModel, animated: false)
+				navItemTitleView = nil
+			}
 		}
 		if let context = navigationConfiguration?.searchContext {
 			[activeSearchBar, inactiveSearchBar].forEach({ searchBar in
@@ -395,28 +411,28 @@ open class FibControllerRootView: UIView {
 				searchBar.placeholder = context.placeholder
 				searchBar.backgroundColor = .clear
 				searchBar.backgroundImage = UIImage()
-                
-                if let textColor = context.searchBarAppearance?.textColor {
-                    if let textField = searchBar.value(forKey: "searchField") as? UITextField {
-                        let attributes = [NSAttributedString.Key.foregroundColor: textColor]
-                        textField.attributedPlaceholder = NSAttributedString(string: searchBar.placeholder ?? "", attributes: attributes)
-                    }
-                }
-                
-                if let font = context.searchBarAppearance?.font {
-                    if let textField = searchBar.value(forKey: "searchField") as? UITextField {
-                        textField.font = font.withSize(12)
-                    }
-                }
-                
-                if let searchIcon = context.searchBarAppearance?.searchIcon {
-                    if let textField = searchBar.value(forKey: "searchField") as? UITextField,
-                       let leftView = textField.leftView as? UIImageView {
-                        leftView.image = searchIcon
-                    }
-                }
+				
+				if let textColor = context.searchBarAppearance?.textColor {
+					if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+						let attributes = [NSAttributedString.Key.foregroundColor: textColor]
+						textField.attributedPlaceholder = NSAttributedString(string: searchBar.placeholder ?? "", attributes: attributes)
+					}
+				}
+				
+				if let font = context.searchBarAppearance?.font {
+					if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+						textField.font = font.withSize(12)
+					}
+				}
+				
+				if let searchIcon = context.searchBarAppearance?.searchIcon {
+					if let textField = searchBar.value(forKey: "searchField") as? UITextField,
+					   let leftView = textField.leftView as? UIImageView {
+						leftView.image = searchIcon
+					}
+				}
 			})
-            
+			
 			if let force = context.isForceActive {
 				if force && !activeSearchBar.isFirstResponder && !isSearching {
 					isSearching = true
@@ -443,6 +459,15 @@ open class FibControllerRootView: UIView {
 			inactiveSearchBar.removeFromSuperview()
 			needUpdateContentInsets = true
 		}
+		let navItemOwner = controller?.displayedNavigationItemOwner()
+		if isSearching {
+			let activeSearchTitleView = prepareActiveSearchTitleView()
+			if navItemOwner?.navigationItem.titleView !== activeSearchTitleView {
+				navItemOwner?.setNavbarTitleView(activeSearchTitleView, vm: nil, animated: false)
+			}
+			activeSearchBar.setShowsCancelButton(true, animated: false)
+		}
+
 		assignNavigationFramesIfNeeded()
 		if needUpdateContentInsets {
 			updateFormViewInsets(animated: false,
@@ -450,7 +475,7 @@ open class FibControllerRootView: UIView {
 								 isChangedHeaderViewModel: isChangedHeaderModel)
 		}
 	}
-    
+	
 	var searchBarHeight: CGFloat {
 		isSearching ? 0 : 66
 	}
@@ -477,9 +502,9 @@ open class FibControllerRootView: UIView {
 				}
 				
 				if !isSearching, (largeViewRef?.superview?.convert(largeViewRef?.frame ?? .zero, to: self).maxY ?? 0) < safeAreaInsets.top {
-					controller?.setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
+					controller?.displayedNavigationItemOwner().setNavbarTitleView(navItemTitleView, vm: navigationConfiguration?.titleViewModel)
 				} else if !isSearching {
-					controller?.setNavbarTitleView(nil, vm: nil)
+					controller?.displayedNavigationItemOwner().setNavbarTitleView(nil, vm: nil)
 				}
 			}
 			if let searchContext = navigationConfiguration?.searchContext, (searchContext.isForceActive ?? false) == false {
@@ -535,9 +560,9 @@ open class FibControllerRootView: UIView {
 		var searchBarHeight: CGFloat = 0
 		if let largeTitleViewModel = navigationConfiguration.largeTitleViewModel {
 			largeTitleViewModelHeight = headerSizeSource.size(
-				at: 0, 
+				at: 0,
 				data: largeTitleViewModel,
-				collectionSize: bounds.size, 
+				collectionSize: bounds.size,
 				dummyView: headerViewSource.getDummyView(data: largeTitleViewModel) as! ViewModelConfigurable,
 				direction: .vertical,
 				cacheKeyIncludesCollectionSize: true
@@ -592,9 +617,9 @@ open class FibControllerRootView: UIView {
 											   height: headerTopMargin + headerHeight)
 			_rootHeaderBackgroundViewRef?.frame = rootHeaderBackground.bounds
 			headerView?.frame = .init(x: 0,
-								  y: headerTopMargin,
-								  width: bounds.width,
-								  height: headerHeight)
+									  y: headerTopMargin,
+									  width: bounds.width,
+									  height: headerHeight)
 		}
 	}
 	
@@ -879,53 +904,30 @@ open class FibControllerRootView: UIView {
 	@objc func refreshAction() {
 		controller?.refreshAction?()
 	}
-    
-    @objc private func handleSearchBarTap(_ gr: UITapGestureRecognizer) {
-        guard gr.state == .ended else { return }
-        guard isSearching, !activeSearchBar.isFirstResponder else { return }
-        let point = gr.location(in: activeSearchBar)
-        let cancelView = (activeSearchBar.value(forKey: "cancelButton") as? UIView)
-            ?? activeSearchBar.subviews.flatMap { $0.subviews }.first { $0 is UIButton }
-        if let cancelView {
-            let rect = cancelView.convert(cancelView.bounds, to: activeSearchBar)
-            if rect.contains(point) {
-                searchBarCancelButtonClicked(activeSearchBar)
-                return
-            }
-        }
-        isProgrammaticSearchFocus = true
-        activeSearchBar.becomeFirstResponder()
-    }
 	
 	public func beginSearch() {
-        isProgrammaticSearchFocus = true
-		if let leftBarButtonItems = controller?.navigationItem.leftBarButtonItems {
+		let navItemOwner = controller?.displayedNavigationItemOwner()
+		if let leftBarButtonItems = navItemOwner?.navigationItem.leftBarButtonItems {
 			navItemLeftItemsRef = leftBarButtonItems
-		} else if let single = controller?.navigationItem.leftBarButtonItem {
+		} else if let single = navItemOwner?.navigationItem.leftBarButtonItem {
 			navItemLeftItemsRef = [single]
 		}
-		controller?.navigationItem.leftBarButtonItems = []
-		if let rightBarButtonItems = controller?.navigationItem.rightBarButtonItems {
+		navItemOwner?.navigationItem.leftBarButtonItems = []
+		if let rightBarButtonItems = navItemOwner?.navigationItem.rightBarButtonItems {
 			navItemRightItemsRef = rightBarButtonItems
-		} else if let single = controller?.navigationItem.rightBarButtonItem {
+		} else if let single = navItemOwner?.navigationItem.rightBarButtonItem {
 			navItemRightItemsRef = [single]
 		}
 		inactiveSearchBar.resignFirstResponder()
-		controller?.navigationItem.rightBarButtonItems = []
-		navItemTitleView = controller?.navigationItem.titleView
-		controller?.navigationItem.titleView = activeSearchBar
+		navItemOwner?.navigationItem.rightBarButtonItems = []
+		navItemTitleView = navItemOwner?.navigationItem.titleView
+		let activeSearchTitleView = prepareActiveSearchTitleView()
+		navItemOwner?.setNavbarTitleView(activeSearchTitleView, vm: nil)
 		activeSearchBar.setShowsCancelButton(true, animated: true)
-        if searchBarTapGR == nil {
-            let g = UITapGestureRecognizer(target: self, action: #selector(handleSearchBarTap(_:)))
-            g.cancelsTouchesInView = true
-            searchBarTapGR = g
-            activeSearchBar.addGestureRecognizer(g)
-        }
 		let fadeTextAnimation = CATransition()
 		fadeTextAnimation.duration = 0.1
 		fadeTextAnimation.type = .fade
 		controller?.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
-		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
 			self.setNeedsLayout()
@@ -933,28 +935,25 @@ open class FibControllerRootView: UIView {
 			self.activeSearchBar.backgroundColor = .clear
 			self.activeSearchBar.backgroundImage = UIImage()
 			self.updateFormViewInsets(animated: false)
-			delay(cyclesCount: 4) {[weak self] in
-				guard let self = self else { return }
-				activeSearchBar.becomeFirstResponder()
+			delay(cyclesCount: 2) {
+				self.activeSearchBar.becomeFirstResponder()
 			}
 		}
 	}
 	
 	public func endSearch() {
+		let navItemOwner = controller?.displayedNavigationItemOwner()
+		let restoredTitleView = navItemTitleView
 		if let navItemLeftItemsRef {
-			controller?.navigationItem.leftBarButtonItems = navItemLeftItemsRef
+			navItemOwner?.navigationItem.leftBarButtonItems = navItemLeftItemsRef
 		}
 		if let navItemRightItemsRef {
-			controller?.navigationItem.rightBarButtonItems = navItemRightItemsRef
+			navItemOwner?.navigationItem.rightBarButtonItems = navItemRightItemsRef
 		}
-		controller?.navigationItem.titleView = nil
+		navItemOwner?.setNavbarTitleView(nil, vm: nil, animated: false)
 		navItemLeftItemsRef = nil
 		navItemRightItemsRef = nil
 		navItemTitleView = nil
-        if let g = searchBarTapGR {
-            activeSearchBar.removeGestureRecognizer(g)
-            searchBarTapGR = nil
-        }
 		activeSearchBar.setShowsCancelButton(false, animated: false)
 		activeSearchBar.resignFirstResponder()
 		activeSearchBar.text = nil
@@ -962,10 +961,9 @@ open class FibControllerRootView: UIView {
 		fadeTextAnimation.duration = 0.1
 		fadeTextAnimation.type = .fade
 		controller?.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
-		controller?.reload()
 		setNeedsLayout()
 		DispatchQueue.main.async {
-			self.controller?.navigationItem.titleView = self.navItemTitleView
+			navItemOwner?.setNavbarTitleView(restoredTitleView, vm: self.navigationConfiguration?.titleViewModel, animated: false)
 			self.setNeedsLayout()
 			self.updateFormViewInsets(animated: true)
 		}
@@ -976,6 +974,7 @@ open class FibControllerRootView: UIView {
 		inactiveSearchBar.backgroundImage = UIImage()
 	}
 }
+
 
 extension FibControllerRootView: UISearchBarDelegate {
 	
@@ -1002,24 +1001,6 @@ extension FibControllerRootView: UISearchBarDelegate {
 		}
 	}
     
-    public func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        if isProgrammaticSearchFocus {
-            isProgrammaticSearchFocus = false
-            return true
-        }
-        if searchBar === activeSearchBar,
-           isSearching,
-           !activeSearchBar.isFirstResponder {
-            if let text = searchBar.text, !text.isEmpty {
-                return true
-            } else {
-                searchBarCancelButtonClicked(searchBar)
-                return false
-            }
-        }
-        return true
-    }
-	
 	public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
 		guard searchBar === inactiveSearchBar else { return }
 		isSearching = true
