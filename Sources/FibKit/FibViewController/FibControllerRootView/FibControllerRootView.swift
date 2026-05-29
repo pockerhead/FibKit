@@ -847,6 +847,7 @@ open class FibControllerRootView: UIView {
 	}
 	
 	func display(_ footerViewModel: FibCell.ViewModel?, animated: Bool, secondary: Bool = false) {
+		guard (footerViewModel?.preventFromReload ?? false) == false else { return }
 		footerViewModel?.storedId = "footer"
 		self._footerViewModel = footerViewModel
 		let footerHeight = footerViewModel == nil

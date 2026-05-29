@@ -197,6 +197,7 @@ extension FibCell: FibViewHeader {
         public var backgroundColor: UIColor?
         public var atTop: Bool = false
 		public var animated: Bool = true
+		public var preventFromReload: Bool = false
         public var needRound: Bool = true
         public var delay: TimeInterval?
         public var needBlurBackground = false
@@ -231,6 +232,11 @@ extension FibCell: FibViewHeader {
 		
 		public func animated(_ bool: Bool) -> Self {
 			self.animated = bool
+			return self
+		}
+
+		public func preventFromReload(_ prevent: Bool) -> Self {
+			self.preventFromReload = prevent
 			return self
 		}
 
